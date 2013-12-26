@@ -47,7 +47,7 @@ do_clone_deps([{Name, _, Repo}|T]) ->
     exec(Cmd, Opts),
 
     %% check dependencies of the dependency
-    case deps(rebar_config_file(Name2)) of
+    case deps(rebar_config_file(get_path(Name2))) of
         {ok, Deps} ->
             do_clone_deps(Deps);
         {error, _} ->
@@ -57,7 +57,7 @@ do_clone_deps([{Name, _, Repo}|T]) ->
 
 %% compile dependencies and the app
 compile(Dir) ->
-    RebarFile = filename:join([Dir, "rebar.config"]),
+    RebarFile = rebar_config_file(Dir),
     case deps(RebarFile) of
         {ok, Deps} ->
             compile_deps(Deps);
@@ -89,7 +89,7 @@ compile_deps([{Name, _, Repo}|T]) ->
     end,
 
     %% check dependencies of the dependency
-    case deps(rebar_config_file(Name2)) of
+    case deps(rebar_config_file(get_path(Name2))) of
         {ok, Deps} ->
             compile_deps(Deps);
         {error, _} ->
@@ -133,8 +133,8 @@ get_path(X) ->
     filename:join([deps_path(), X]).
 
 rebar_config_file(X) ->
-    %% ~/.otp/deps/X/rebar.config
-    filename:join([get_path(X), "rebar.config"]).
+    %% X/rebar.config
+    filename:join([X, "rebar.config"]).
 
 ebin(X) ->
     %% X/ebin
@@ -162,7 +162,7 @@ deps_path([{Name, _, Repo}|T], Acc) ->
               Else -> Else
           end,
     Name2 = make_dep_name(Name1, Co1),
-    Acc1 = case deps(rebar_config_file(Name2)) of
+    Acc1 = case deps(rebar_config_file(get_path(Name2))) of
                {ok, Deps} ->
                    deps_path(Deps, []);
                {error, _} ->
@@ -183,7 +183,7 @@ update_path(Dir) ->
     Ebin = filename:join([Dir, "ebin"]),
     code:add_path(Ebin),
 
-    RebarFile = filename:join([Dir, "rebar.config"]),
+    RebarFile = rebar_config_file(Dir),
     case deps(RebarFile) of
         {ok, Deps} ->
             code:add_paths(deps_ebin(Deps));
