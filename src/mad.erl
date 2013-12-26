@@ -78,12 +78,13 @@ compile_deps([{Name, _, Repo}|T]) ->
           end,
 
     Name2 = make_dep_name(Name1, Co1),
-    SrcDir = src(Name2),
-    EbinDir = ebin(Name2),
+    SrcDir = src(get_path(Name2)),
+    EbinDir = ebin(get_path(Name2)),
+    IncDir = include(get_path(Name2)),
     case file:list_dir(SrcDir) of
         {ok, Files} ->
             exec("mkdir", ["-p", EbinDir]),
-            lists:foreach(compile_fun(SrcDir, EbinDir), Files);
+            lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files);
         {error, _} -> ok
     end,
 
@@ -97,11 +98,12 @@ compile_deps([{Name, _, Repo}|T]) ->
     compile_deps(T).
 
 compile_app(Dir) ->
-    SrcDir = filename:join([Dir, "src"]),
+    SrcDir = src(Dir),
+    IncDir = include(Dir),
     case file:list_dir(SrcDir) of
         {ok, Files} ->
-            EbinDir = filename:join([Dir, "ebin"]),
-            lists:foreach(compile_fun(SrcDir, EbinDir), Files);
+            EbinDir = ebin(Dir),
+            lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files);
         {error, _} ->
             ok
     end.
@@ -135,12 +137,16 @@ rebar_config_file(X) ->
     filename:join([get_path(X), "rebar.config"]).
 
 ebin(X) ->
-    %% ~/.otp/deps/X/ebin
+    %% X/ebin
     filename:join([get_path(X), "ebin"]).
 
 src(X) ->
-    %% ~/.otp/deps/X/src
+    %% X/src
     filename:join([get_path(X), "src"]).
+
+include(X) ->
+    %% X/include
+    filename:join([X, "include"]).
 
 deps_path(Deps) ->
     deps_path(Deps, []).
@@ -191,13 +197,13 @@ is_app_src(Filename) ->
 app_src_to_app(Filename) ->
     filename:join([filename:basename(Filename, ".app.src") ++ ".app"]).
 
-compile_fun(SrcDir, EbinDir) ->
+compile_fun(SrcDir, EbinDir, IncDir) ->
     fun(F) ->
             F1 = filename:join([SrcDir, F]),
             case is_app_src(F1) of
                 false ->
                     io:format("Compiling ~s~n", [F]),
-                    compile:file(F1, [{outdir, EbinDir}]);
+                    compile:file(F1, [{outdir, EbinDir}, {i, IncDir}]);
                 true ->
                     AppF = app_src_to_app(F1),
                     io:format("Writing ebin/~s~n", [AppF]),
