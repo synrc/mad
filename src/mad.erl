@@ -5,6 +5,7 @@
 -export([compile/1]).
 -export([compile_deps/1]).
 -export([update_path/1]).
+-export([init/0]).
 
 
 %% read rebar.config file and return the {deps, V}
@@ -203,3 +204,7 @@ compile_fun(SrcDir, EbinDir) ->
                     exec("cp", [F1, filename:join([EbinDir, AppF])])
             end
     end.
+
+init() ->
+    {ok, Cwd} = file:get_cwd(),
+    update_path(Cwd).
