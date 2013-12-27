@@ -1,59 +1,21 @@
 -module(mad).
 
--export([deps/1]).
 -export([clone_deps/1]).
 -export([compile/1]).
+-export([compile_app/1]).
 -export([compile_deps/1]).
 -export([update_path/1]).
 -export([init/0]).
 
 
-%% read rebar.config file and return the {deps, V}
-deps(RebarFile) ->
-    case file:consult(RebarFile) of
-        {ok, Conf} ->
-            case lists:keyfind(deps, 1, Conf) of
-                {deps, Deps} ->
-                    {ok, Deps};
-                _ ->
-                    {ok, []}
-            end;
-        Else ->
-            Else
-    end.
-
-clone_deps(Deps) ->
-    exec("mkdir", ["-p", deps_path()]),
-    do_clone_deps(Deps).
-
-do_clone_deps([]) ->
-    ok;
-do_clone_deps([{Name, _, Repo}|T]) ->
-    Name1 = atom_to_list(Name),
-    {Cmd, Url, Co} = Repo,
-
-    %% branch/tag it should checkout to
-    Co1 = case Co of
-              {_, V} -> V;
-              Else -> Else
-          end,
-    Name2 = make_dep_name(Name1, Co1),
-
-    %% command options: clone url path/to/dep -b Branch/Tag
-    Opts = ["clone", Url, get_path(Name2), "-b", Co1],
-    io:format("dependency: ~s~n", [Name1]),
-
-    %% run the command
-    exec(Cmd, Opts),
-
-    %% check dependencies of the dependency
-    case deps(rebar_config_file(get_path(Name2))) of
+clone_deps(RebarFile) ->
+    case deps(RebarFile) of
         {ok, Deps} ->
+            exec("mkdir", ["-p", deps_path()]),
             do_clone_deps(Deps);
         {error, _} ->
             ok
-    end,
-    do_clone_deps(T).
+    end.
 
 %% compile dependencies and the app
 compile(Dir) ->
@@ -65,6 +27,17 @@ compile(Dir) ->
             ok
     end,
     compile_app(Dir).
+
+compile_app(Dir) ->
+    SrcDir = src(Dir),
+    IncDir = include(Dir),
+    case file:list_dir(SrcDir) of
+        {ok, Files} ->
+            EbinDir = ebin(Dir),
+            lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files);
+        {error, _} ->
+            ok
+    end.
 
 compile_deps([]) ->
     ok;
@@ -97,17 +70,25 @@ compile_deps([{Name, _, Repo}|T]) ->
     end,
     compile_deps(T).
 
-compile_app(Dir) ->
-    SrcDir = src(Dir),
-    IncDir = include(Dir),
-    case file:list_dir(SrcDir) of
-        {ok, Files} ->
-            EbinDir = ebin(Dir),
-            lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files);
+%% add application directory (its ebin) and its dependencies to the code path
+update_path(Dir) ->
+    Ebin = filename:join([Dir, "ebin"]),
+    code:add_path(Ebin),
+
+    RebarFile = rebar_config_file(Dir),
+    case deps(RebarFile) of
+        {ok, Deps} ->
+            code:add_paths(deps_ebin(Deps));
         {error, _} ->
             ok
     end.
 
+init() ->
+    {ok, Cwd} = file:get_cwd(),
+    update_path(Cwd).
+
+
+%% internal
 exec(Cmd, Opts) ->
     Opts1 = [concat([" ", X]) || X <- Opts],
     os:cmd(concat([Cmd, concat(Opts1)])).
@@ -178,19 +159,6 @@ deps_ebin([], Acc) ->
 deps_ebin([H|T], Acc) ->
     deps_ebin(T, [filename:join([H, "ebin"])|Acc]).
 
-%% add application directory (its ebin) and its dependencies to the code path
-update_path(Dir) ->
-    Ebin = filename:join([Dir, "ebin"]),
-    code:add_path(Ebin),
-
-    RebarFile = rebar_config_file(Dir),
-    case deps(RebarFile) of
-        {ok, Deps} ->
-            code:add_paths(deps_ebin(Deps));
-        {error, _} ->
-            ok
-    end.
-
 is_app_src(Filename) ->
     Filename =/= filename:rootname(Filename, ".app.src").
 
@@ -211,6 +179,45 @@ compile_fun(SrcDir, EbinDir, IncDir) ->
             end
     end.
 
-init() ->
-    {ok, Cwd} = file:get_cwd(),
-    update_path(Cwd).
+%% read rebar.config file and return the {deps, V}
+deps(RebarFile) ->
+    case file:consult(RebarFile) of
+        {ok, Conf} ->
+            case lists:keyfind(deps, 1, Conf) of
+                {deps, Deps} ->
+                    {ok, Deps};
+                _ ->
+                    {ok, []}
+            end;
+        Else ->
+            Else
+    end.
+
+do_clone_deps([]) ->
+    ok;
+do_clone_deps([{Name, _, Repo}|T]) ->
+    Name1 = atom_to_list(Name),
+    {Cmd, Url, Co} = Repo,
+
+    %% branch/tag it should checkout to
+    Co1 = case Co of
+              {_, V} -> V;
+              Else -> Else
+          end,
+    Name2 = make_dep_name(Name1, Co1),
+
+    %% command options: clone url path/to/dep -b Branch/Tag
+    Opts = ["clone", Url, get_path(Name2), "-b", Co1],
+    io:format("dependency: ~s~n", [Name1]),
+
+    %% run the command
+    exec(Cmd, Opts),
+
+    %% check dependencies of the dependency
+    case deps(rebar_config_file(get_path(Name2))) of
+        {ok, Deps} ->
+            do_clone_deps(Deps);
+        {error, _} ->
+            ok
+    end,
+    do_clone_deps(T).
