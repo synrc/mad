@@ -54,8 +54,17 @@ compile_deps([{Name, _, Repo}|T]) ->
               {_, V} -> V;
               Else -> Else
           end,
-
     Name2 = make_dep_name(Name1, Co1),
+
+    %% check dependencies of the dependency
+    RebarFile = rebar_conf_file(dep_path(Name2)),
+    case deps(RebarFile) of
+        {ok, Deps} ->
+            compile_deps(Deps);
+        {error, _} ->
+            ok
+    end,
+
     SrcDir = src(dep_path(Name2)),
     EbinDir = ebin(dep_path(Name2)),
     IncDir = include(dep_path(Name2)),
@@ -65,15 +74,6 @@ compile_deps([{Name, _, Repo}|T]) ->
         Files ->
             exec("mkdir", ["-p", EbinDir]),
             lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files)
-    end,
-
-    %% check dependencies of the dependency
-    RebarFile = rebar_conf_file(dep_path(Name2)),
-    case deps(RebarFile) of
-        {ok, Deps} ->
-            compile_deps(Deps);
-        {error, _} ->
-            ok
     end,
     compile_deps(T).
 
