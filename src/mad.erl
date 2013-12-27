@@ -60,6 +60,24 @@ compile_deps([H|T]) ->
              {_, _, V, _} ->
                  V
          end,
+    Co1 = checkout_to(Co),
+    DepName = make_dep_name(Name, Co1),
+    case get(DepName) of
+        compiled ->
+            ok;
+        _ ->
+            compile_dep(H)
+    end,
+    compile_deps(T).
+
+compile_dep(Dep) ->
+    {Name, Repo} = name_and_repo(Dep),
+    Co = case Repo of
+             {_, _, V} ->
+                 V;
+             {_, _, V, _} ->
+                 V
+         end,
 
     %% branch/tag it should checkout to
     Co1 = checkout_to(Co),
@@ -77,9 +95,9 @@ compile_deps([H|T]) ->
             EbinDir = ebin(dep_path(DepName)),
             IncDir = include(dep_path(DepName)),
             exec("mkdir", ["-p", EbinDir]),
-            lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files)
-    end,
-    compile_deps(T).
+            lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files),
+            put(DepName, compiled)
+    end.
 
 %% add application directory (its ebin) and its dependencies to the code path
 update_path(Dir) ->
@@ -196,6 +214,24 @@ do_clone_deps([H|T]) when is_tuple(H) =:= false ->
     do_clone_deps(T);
 do_clone_deps([H|T]) ->
     {Name, Repo} = name_and_repo(H),
+    {_, _, Co} = case Repo of
+                     V={_, _, _} ->
+                         V;
+                     {_Cmd, _Url, _Co, _} ->
+                         {_Cmd, _Url, _Co}
+                 end,
+    Co1 = checkout_to(Co),
+    DepName = make_dep_name(Name, Co1),
+    case get(DepName) of
+        cloned ->
+            ok;
+        _ ->
+            clone_dep(H)
+    end,
+    do_clone_deps(T).
+
+clone_dep(Dep) ->
+    {Name, Repo} = name_and_repo(Dep),
     {Cmd, Url, Co} = case Repo of
                          V={_, _, _} ->
                              V;
@@ -218,10 +254,11 @@ do_clone_deps([H|T]) ->
     exec(Cmd, ["checkout", Co1]),
     ok = file:set_cwd(Cwd),
 
+    put(DepName, cloned),
+
     %% check dependencies of the dependency
     RebarFile = rebar_conf_file(dep_path(DepName)),
-    do_clone_deps(deps(RebarFile)),
-    do_clone_deps(T).
+    do_clone_deps(deps(RebarFile)).
 
 erl_files(Dir) ->
     filelib:wildcard(filename:join([Dir, "*.erl"])).
