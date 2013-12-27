@@ -11,67 +11,71 @@
 -define(COMPILE_OPTS(Inc, Ebin), [report, {i, Inc}, {outdir, Ebin}]).
 
 
+%% clone dependencies
 clone_deps(RebarFile) ->
-    case deps(RebarFile) of
-        {ok, Deps} ->
+    Conf = consult(RebarFile),
+    case get_value(deps, Conf, []) of
+        [] ->
+            ok;
+        Deps ->
             exec("mkdir", ["-p", ?DEPS_PATH]),
-            do_clone_deps(Deps);
-        {error, _} ->
-            ok
+            LibDirs = get_value(lib_dirs, Conf, []),
+            %% check sub_dirs if they have something to be cloned
+            check_libdirs(LibDirs, fun do_clone_deps/1),
+            do_clone_deps(Deps)
     end.
 
 %% compile dependencies and the app
 compile(Dir) ->
     RebarFile = rebar_conf_file(Dir),
-    case deps(RebarFile) of
-        {ok, Deps} ->
-            compile_deps(Deps);
-        {error, _} ->
-            ok
-    end,
+    Conf = consult(RebarFile),
+    %% check sub_dirs if they have something to be compiled
+    check_libdirs(get_value(lib_dirs, Conf, []), fun compile_deps/1),
+    check_libdirs(get_value(lib_dirs, Conf, []), fun compile_app/1),
+    compile_deps(get_value(deps, Conf, [])),
     compile_app(Dir).
 
+%% compile a project according to the conventions
 compile_app(Dir) ->
     AbsDir = filename:absname(Dir),
     SrcDir = src(AbsDir),
-    IncDir = include(AbsDir),
     case erl_files(SrcDir) of
         [] ->
             ok;
         Files ->
+            IncDir = include(AbsDir),
             EbinDir = ebin(AbsDir),
             exec("mkdir", ["-p", EbinDir]),
             lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files)
     end.
 
+%% compile dependencies
 compile_deps([]) ->
     ok;
-compile_deps([{Name, _, Repo}|T]) ->
-    Name1 = atom_to_list(Name),
-    {_, _, Co} = Repo,
+compile_deps([H|T]) ->
+    {Name, Repo} = name_and_repo(H),
+    Co = case Repo of
+             {_, _, V} ->
+                 V;
+             {_, _, V, _} ->
+                 V
+         end,
+
     %% branch/tag it should checkout to
-    Co1 = case Co of
-              {_, V} -> V;
-              Else -> Else
-          end,
-    Name2 = make_dep_name(Name1, Co1),
+    Co1 = checkout_to(Co),
+    DepName = make_dep_name(Name, Co1),
 
     %% check dependencies of the dependency
-    RebarFile = rebar_conf_file(dep_path(Name2)),
-    case deps(RebarFile) of
-        {ok, Deps} ->
-            compile_deps(Deps);
-        {error, _} ->
-            ok
-    end,
+    RebarFile = rebar_conf_file(dep_path(DepName)),
+    compile_deps(deps(RebarFile)),
 
-    SrcDir = src(dep_path(Name2)),
-    EbinDir = ebin(dep_path(Name2)),
-    IncDir = include(dep_path(Name2)),
+    SrcDir = src(dep_path(DepName)),
     case erl_files(SrcDir) of
         [] ->
             ok;
         Files ->
+            EbinDir = ebin(dep_path(DepName)),
+            IncDir = include(dep_path(DepName)),
             exec("mkdir", ["-p", EbinDir]),
             lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files)
     end,
@@ -118,7 +122,7 @@ dep_path(X) ->
     filename:join([?DEPS_PATH, X]).
 
 rebar_conf_file(X) ->
-    filename:join([X, "rebar.config"]).
+    filename:join([filename:absname(X), "rebar.config"]).
 
 ebin(X) ->
     %% X/ebin
@@ -147,12 +151,10 @@ deps_path([{Name, _, Repo}|T], Acc) ->
           end,
     Name2 = make_dep_name(Name1, Co1),
     RebarFile = rebar_conf_file(dep_path(Name2)),
-    Acc1 = case deps(RebarFile) of
-               {ok, Deps} ->
-                   deps_path(Deps, []);
-               {error, _} ->
-                   []
-           end,
+    Conf = consult(RebarFile),
+    Deps = get_value(deps, Conf, []),
+    %% TODO: handle sub_dirs
+    Acc1 = deps_path(Deps, []),
     deps_path(T, [dep_path(Name2)|Acc ++ Acc1]).
 
 deps_ebin(Deps) ->
@@ -186,47 +188,79 @@ compile_fun(SrcDir, EbinDir, IncDir) ->
 
 %% read rebar.config file and return the {deps, V}
 deps(RebarFile) ->
-    case file:consult(RebarFile) of
-        {ok, Conf} ->
-            case lists:keyfind(deps, 1, Conf) of
-                {deps, Deps} ->
-                    {ok, Deps};
-                _ ->
-                    {ok, []}
-            end;
-        Else ->
-            Else
-    end.
+    get_value(deps, consult(RebarFile), []).
 
 do_clone_deps([]) ->
     ok;
-do_clone_deps([{Name, _, Repo}|T]) ->
-    Name1 = atom_to_list(Name),
-    {Cmd, Url, Co} = Repo,
-
-    %% branch/tag it should checkout to
-    Co1 = case Co of
-              {_, V} -> V;
-              Else -> Else
-          end,
-    Name2 = make_dep_name(Name1, Co1),
+do_clone_deps([H|T]) when is_tuple(H) =:= false ->
+    do_clone_deps(T);
+do_clone_deps([H|T]) ->
+    {Name, Repo} = name_and_repo(H),
+    {Cmd, Url, Co} = case Repo of
+                         V={_, _, _} ->
+                             V;
+                         {_Cmd, _Url, _Co, _} ->
+                             {_Cmd, _Url, _Co}
+                     end,
+    Co1 = checkout_to(Co),
+    DepName = make_dep_name(Name, Co1),
 
     %% command options: clone url path/to/dep -b Branch/Tag
-    Opts = ["clone", Url, dep_path(Name2), "-b", Co1],
-    io:format("dependency: ~s~n", [Name1]),
-
-    %% run the command
+    DepPath = dep_path(DepName),
+    Opts = ["clone", Url, DepPath],
+    io:format("dependency: ~s~n", [Name]),
+    %% clone
     exec(Cmd, Opts),
 
+    %% checkout to Co1
+    {ok, Cwd} = file:get_cwd(),
+    ok = file:set_cwd(DepPath),
+    exec(Cmd, ["checkout", Co1]),
+    ok = file:set_cwd(Cwd),
+
     %% check dependencies of the dependency
-    RebarFile = rebar_conf_file(dep_path(Name2)),
-    case deps(RebarFile) of
-        {ok, Deps} ->
-            do_clone_deps(Deps);
-        {error, _} ->
-            ok
-    end,
+    RebarFile = rebar_conf_file(dep_path(DepName)),
+    do_clone_deps(deps(RebarFile)),
     do_clone_deps(T).
 
 erl_files(Dir) ->
     filelib:wildcard(filename:join([Dir, "*.erl"])).
+
+checkout_to({_, V}) -> V;
+checkout_to(Else) -> Else.
+
+name_and_repo({Name, _, Repo}) ->
+    {atom_to_list(Name), Repo};
+name_and_repo({Name, _, Repo, _}) ->
+    {atom_to_list(Name), Repo}.
+
+consult(File) ->
+    AbsFile = filename:absname(File),
+    case file:consult(AbsFile) of
+        {ok, V} ->
+            V;
+        _ ->
+            []
+    end.
+
+get_value(Key, Opts, Default) ->
+    case lists:keyfind(Key, 1, Opts) of
+        {Key, Value} ->
+            Value;
+        _ -> Default
+    end.
+
+check_libdirs([], _) ->
+    ok;
+check_libdirs([H|T], Fun) ->
+    Dir = filename:absname(H),
+    Conf = rebar_conf_file(Dir),
+    check_libdirs(get_value(sub_dirs, Conf, []), Fun),
+    Fun(get_value(deps, Conf, [])),
+    check_libdirs(T, Fun).
+
+%% schema_to_git(X) ->
+%%     re:replace(X, "https://", "git://", [{return, list}]).
+
+%% schema_to_https(X) ->
+%%     re:replace(X, "git://", "https://", [{return, list}]).
