@@ -7,13 +7,14 @@
 -export([update_path/1]).
 -export([init/0]).
 
--define(COMPILE_OPTS(Inc, Ebin),
-        [report, {i, Inc}, {outdir, Ebin}]).
+-define(DEPS_PATH, filename:join([home(), ".otp", "deps"])).
+-define(COMPILE_OPTS(Inc, Ebin), [report, {i, Inc}, {outdir, Ebin}]).
+
 
 clone_deps(RebarFile) ->
     case deps(RebarFile) of
         {ok, Deps} ->
-            exec("mkdir", ["-p", deps_path()]),
+            exec("mkdir", ["-p", ?DEPS_PATH]),
             do_clone_deps(Deps);
         {error, _} ->
             ok
@@ -21,7 +22,7 @@ clone_deps(RebarFile) ->
 
 %% compile dependencies and the app
 compile(Dir) ->
-    RebarFile = rebar_config_file(Dir),
+    RebarFile = rebar_conf_file(Dir),
     case deps(RebarFile) of
         {ok, Deps} ->
             compile_deps(Deps);
@@ -55,9 +56,9 @@ compile_deps([{Name, _, Repo}|T]) ->
           end,
 
     Name2 = make_dep_name(Name1, Co1),
-    SrcDir = src(get_path(Name2)),
-    EbinDir = ebin(get_path(Name2)),
-    IncDir = include(get_path(Name2)),
+    SrcDir = src(dep_path(Name2)),
+    EbinDir = ebin(dep_path(Name2)),
+    IncDir = include(dep_path(Name2)),
     case erl_files(SrcDir) of
         [] ->
             ok;
@@ -67,7 +68,8 @@ compile_deps([{Name, _, Repo}|T]) ->
     end,
 
     %% check dependencies of the dependency
-    case deps(rebar_config_file(get_path(Name2))) of
+    RebarFile = rebar_conf_file(dep_path(Name2)),
+    case deps(RebarFile) of
         {ok, Deps} ->
             compile_deps(Deps);
         {error, _} ->
@@ -81,7 +83,7 @@ update_path(Dir) ->
     Ebin = ebin(AbsDir),
     code:add_path(Ebin),
 
-    RebarFile = rebar_config_file(AbsDir),
+    RebarFile = rebar_conf_file(AbsDir),
     case deps(RebarFile) of
         {ok, Deps} ->
             code:add_paths(deps_ebin(Deps));
@@ -111,25 +113,20 @@ home() ->
     {ok, [[H|_]]} = init:get_argument(home),
     H.
 
-deps_path() ->
-    %% ~/.otp/deps
-    filename:join([home(), ".otp", "deps"]).
-
-get_path(X) ->
+dep_path(X) ->
     %% ~/.otp/deps/X
-    filename:join([deps_path(), X]).
+    filename:join([?DEPS_PATH, X]).
 
-rebar_config_file(X) ->
-    %% X/rebar.config
+rebar_conf_file(X) ->
     filename:join([X, "rebar.config"]).
 
 ebin(X) ->
     %% X/ebin
-    filename:join([get_path(X), "ebin"]).
+    filename:join([dep_path(X), "ebin"]).
 
 src(X) ->
     %% X/src
-    filename:join([get_path(X), "src"]).
+    filename:join([dep_path(X), "src"]).
 
 include(X) ->
     %% X/include
@@ -149,13 +146,14 @@ deps_path([{Name, _, Repo}|T], Acc) ->
               Else -> Else
           end,
     Name2 = make_dep_name(Name1, Co1),
-    Acc1 = case deps(rebar_config_file(get_path(Name2))) of
+    RebarFile = rebar_conf_file(dep_path(Name2)),
+    Acc1 = case deps(RebarFile) of
                {ok, Deps} ->
                    deps_path(Deps, []);
                {error, _} ->
                    []
            end,
-    deps_path(T, [get_path(Name2)|Acc ++ Acc1]).
+    deps_path(T, [dep_path(Name2)|Acc ++ Acc1]).
 
 deps_ebin(Deps) ->
     deps_ebin(deps_path(Deps), []).
@@ -214,14 +212,15 @@ do_clone_deps([{Name, _, Repo}|T]) ->
     Name2 = make_dep_name(Name1, Co1),
 
     %% command options: clone url path/to/dep -b Branch/Tag
-    Opts = ["clone", Url, get_path(Name2), "-b", Co1],
+    Opts = ["clone", Url, dep_path(Name2), "-b", Co1],
     io:format("dependency: ~s~n", [Name1]),
 
     %% run the command
     exec(Cmd, Opts),
 
     %% check dependencies of the dependency
-    case deps(rebar_config_file(get_path(Name2))) of
+    RebarFile = rebar_conf_file(dep_path(Name2)),
+    case deps(RebarFile) of
         {ok, Deps} ->
             do_clone_deps(Deps);
         {error, _} ->
