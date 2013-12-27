@@ -29,11 +29,13 @@ compile(Dir) ->
     compile_app(Dir).
 
 compile_app(Dir) ->
-    SrcDir = src(Dir),
-    IncDir = include(Dir),
+    AbsDir = filename:absname(Dir),
+    SrcDir = src(AbsDir),
+    IncDir = include(AbsDir),
     case file:list_dir(SrcDir) of
         {ok, Files} ->
-            EbinDir = ebin(Dir),
+            EbinDir = ebin(AbsDir),
+            exec("mkdir", ["-p", EbinDir]),
             lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files);
         {error, _} ->
             ok
@@ -72,10 +74,11 @@ compile_deps([{Name, _, Repo}|T]) ->
 
 %% add application directory (its ebin) and its dependencies to the code path
 update_path(Dir) ->
-    Ebin = filename:join([Dir, "ebin"]),
+    AbsDir = filename:absname(Dir),
+    Ebin = ebin(AbsDir),
     code:add_path(Ebin),
 
-    RebarFile = rebar_config_file(Dir),
+    RebarFile = rebar_config_file(AbsDir),
     case deps(RebarFile) of
         {ok, Deps} ->
             code:add_paths(deps_ebin(Deps));
@@ -171,12 +174,13 @@ compile_fun(SrcDir, EbinDir, IncDir) ->
             case is_app_src(F1) of
                 false ->
                     io:format("Compiling ~s~n", [F]),
-                    compile:file(F1, [{outdir, EbinDir}, {i, IncDir}]);
+                    compile:file(F1, [report, {outdir, EbinDir}, {i, IncDir}]);
                 true ->
                     AppF = app_src_to_app(F1),
                     io:format("Writing ebin/~s~n", [AppF]),
                     exec("cp", [F1, filename:join([EbinDir, AppF])])
-            end
+            end,
+            code:add_path(EbinDir)
     end.
 
 %% read rebar.config file and return the {deps, V}
