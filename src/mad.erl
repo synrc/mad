@@ -7,6 +7,8 @@
 -export([update_path/1]).
 -export([init/0]).
 
+-define(COMPILE_OPTS(Inc, Ebin),
+        [report, {i, Inc}, {outdir, Ebin}]).
 
 clone_deps(RebarFile) ->
     case deps(RebarFile) of
@@ -32,13 +34,13 @@ compile_app(Dir) ->
     AbsDir = filename:absname(Dir),
     SrcDir = src(AbsDir),
     IncDir = include(AbsDir),
-    case file:list_dir(SrcDir) of
-        {ok, Files} ->
+    case erl_files(SrcDir) of
+        [] ->
+            ok;
+        Files ->
             EbinDir = ebin(AbsDir),
             exec("mkdir", ["-p", EbinDir]),
-            lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files);
-        {error, _} ->
-            ok
+            lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files)
     end.
 
 compile_deps([]) ->
@@ -56,11 +58,12 @@ compile_deps([{Name, _, Repo}|T]) ->
     SrcDir = src(get_path(Name2)),
     EbinDir = ebin(get_path(Name2)),
     IncDir = include(get_path(Name2)),
-    case file:list_dir(SrcDir) of
-        {ok, Files} ->
+    case erl_files(SrcDir) of
+        [] ->
+            ok;
+        Files ->
             exec("mkdir", ["-p", EbinDir]),
-            lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files);
-        {error, _} -> ok
+            lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files)
     end,
 
     %% check dependencies of the dependency
@@ -173,12 +176,12 @@ compile_fun(SrcDir, EbinDir, IncDir) ->
             F1 = filename:join([SrcDir, F]),
             case is_app_src(F1) of
                 false ->
-                    io:format("Compiling ~s~n", [F]),
-                    compile:file(F1, [report, {outdir, EbinDir}, {i, IncDir}]);
+                    io:format("Compiling ~s~n", [F1]),
+                    compile:file(F1, ?COMPILE_OPTS(IncDir, EbinDir));
                 true ->
-                    AppF = app_src_to_app(F1),
-                    io:format("Writing ebin/~s~n", [AppF]),
-                    exec("cp", [F1, filename:join([EbinDir, AppF])])
+                    AppFile = filename:join([EbinDir, app_src_to_app(F1)]),
+                    io:format("Writing ~s~n", [AppFile]),
+                    exec("cp", [F1, AppFile])
             end,
             code:add_path(EbinDir)
     end.
@@ -225,3 +228,6 @@ do_clone_deps([{Name, _, Repo}|T]) ->
             ok
     end,
     do_clone_deps(T).
+
+erl_files(Dir) ->
+    filelib:wildcard(filename:join([Dir, "*.erl"])).
