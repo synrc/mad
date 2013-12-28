@@ -19,27 +19,25 @@ clone_deps(RebarFile) ->
             ok;
         Deps ->
             exec("mkdir", ["-p", ?DEPS_PATH]),
-            LibDirs = get_value(lib_dirs, Conf, []),
-            %% check sub_dirs if they have something to be cloned
-            check_libdirs(LibDirs, fun do_clone_deps/1),
             do_clone_deps(Deps)
     end.
 
 %% compile dependencies and the app
 compile(Dir) ->
-    RebarFile = rebar_conf_file(Dir),
+    Dir1 = filename:absname(Dir),
+    RebarFile = rebar_conf_file(Dir1),
     Conf = consult(RebarFile),
     %% check sub_dirs if they have something to be compiled
-    check_libdirs(get_value(lib_dirs, Conf, []), fun compile_deps/1),
-    check_libdirs(get_value(lib_dirs, Conf, []), fun compile_app/1),
     compile_deps(get_value(deps, Conf, [])),
-    compile_app(Dir).
+    subdirs(Dir1, get_value(sub_dirs, Conf, []), fun compile_app/1),
+    compile_app(Dir1).
 
 %% compile a project according to the conventions
 compile_app(Dir) ->
     AbsDir = filename:absname(Dir),
     SrcDir = src(AbsDir),
-    case erl_files(SrcDir) of
+    Files = erl_files(SrcDir) ++ app_src_files(SrcDir),
+    case Files of
         [] ->
             ok;
         Files ->
@@ -88,7 +86,8 @@ compile_dep(Dep) ->
     compile_deps(deps(RebarFile)),
 
     SrcDir = src(dep_path(DepName)),
-    case erl_files(SrcDir) of
+    Files = erl_files(SrcDir) ++ app_src_files(SrcDir),
+    case Files of
         [] ->
             ok;
         Files ->
@@ -105,13 +104,16 @@ update_path(Dir) ->
     Ebin = ebin(AbsDir),
     code:add_path(Ebin),
 
-    RebarFile = rebar_conf_file(AbsDir),
-    case deps(RebarFile) of
-        {ok, Deps} ->
-            code:add_paths(deps_ebin(Deps));
-        {error, _} ->
-            ok
+    Conf = consult(rebar_conf_file(AbsDir)),
+    case get_value(deps, Conf, []) of
+        [] ->
+            ok;
+        Deps ->
+            code:add_paths(deps_ebin(Deps))
     end.
+%% TODO: add lib_dirs to the code path
+    %% LibDirs = get_value(lib_dirs, Conf, []),
+    %% libdirs(Dir, LibDirs, fun update_path/1).
 
 init() ->
     {ok, Cwd} = file:get_cwd(),
@@ -144,11 +146,11 @@ rebar_conf_file(X) ->
 
 ebin(X) ->
     %% X/ebin
-    filename:join([dep_path(X), "ebin"]).
+    filename:join([X, "ebin"]).
 
 src(X) ->
     %% X/src
-    filename:join([dep_path(X), "src"]).
+    filename:join([X, "src"]).
 
 include(X) ->
     %% X/include
@@ -159,21 +161,24 @@ deps_path(Deps) ->
 
 deps_path([], Acc) ->
     Acc;
-deps_path([{Name, _, Repo}|T], Acc) ->
-    Name1 = atom_to_list(Name),
-    {_, _, Co} = Repo,
+deps_path([H|T], Acc) when is_tuple(H) =:= false ->
+    deps_path(T, Acc);
+deps_path([H|T], Acc) ->
+    {Name, Repo} = name_and_repo(H),
+    Co = case Repo of
+             {_, _, V} ->
+                 V;
+             {_, _, V, _} ->
+                 V
+         end,
     %% branch/tag it should checkout to
-    Co1 = case Co of
-              {_, V} -> V;
-              Else -> Else
-          end,
-    Name2 = make_dep_name(Name1, Co1),
-    RebarFile = rebar_conf_file(dep_path(Name2)),
+    Co1 = checkout_to(Co),
+    Name1 = make_dep_name(Name, Co1),
+    RebarFile = rebar_conf_file(dep_path(Name1)),
     Conf = consult(RebarFile),
     Deps = get_value(deps, Conf, []),
-    %% TODO: handle sub_dirs
     Acc1 = deps_path(Deps, []),
-    deps_path(T, [dep_path(Name2)|Acc ++ Acc1]).
+    deps_path(T, [dep_path(Name1)|Acc ++ Acc1]).
 
 deps_ebin(Deps) ->
     deps_ebin(deps_path(Deps), []).
@@ -214,12 +219,12 @@ do_clone_deps([H|T]) when is_tuple(H) =:= false ->
     do_clone_deps(T);
 do_clone_deps([H|T]) ->
     {Name, Repo} = name_and_repo(H),
-    {_, _, Co} = case Repo of
-                     V={_, _, _} ->
-                         V;
-                     {_Cmd, _Url, _Co, _} ->
-                         {_Cmd, _Url, _Co}
-                 end,
+    Co = case Repo of
+             {_, _, V} ->
+                 V;
+             {_, _, V, _} ->
+                 V
+         end,
     Co1 = checkout_to(Co),
     DepName = make_dep_name(Name, Co1),
     case get(DepName) of
@@ -261,7 +266,10 @@ clone_dep(Dep) ->
     do_clone_deps(deps(RebarFile)).
 
 erl_files(Dir) ->
-    filelib:wildcard(filename:join([Dir, "*.erl"])).
+    filelib:wildcard(filename:join([Dir, "**", "*.erl"])).
+
+app_src_files(Dir) ->
+    filelib:wildcard(filename:join([Dir, "**", "*.app.src"])).
 
 checkout_to({_, V}) -> V;
 checkout_to(Else) -> Else.
@@ -287,17 +295,29 @@ get_value(Key, Opts, Default) ->
         _ -> Default
     end.
 
-check_libdirs([], _) ->
+subdirs(_, [], _) ->
     ok;
-check_libdirs([H|T], Fun) ->
-    Dir = filename:absname(H),
-    Conf = rebar_conf_file(Dir),
-    check_libdirs(get_value(sub_dirs, Conf, []), Fun),
-    Fun(get_value(deps, Conf, [])),
-    check_libdirs(T, Fun).
+subdirs(Cwd, [H|T], Fun) ->
+    Dir = filename:join([Cwd, H]),
+    Conf = consult(rebar_conf_file(Dir)),
+    subdirs(Dir, get_value(sub_dirs, Conf, []), Fun),
+    Fun(Dir),
+    subdirs(Cwd, T, Fun).
 
-%% schema_to_git(X) ->
+%% libdirs(_, [], _) ->
+%%     ok;
+%% libdirs(Cwd, [H|T], Fun) ->
+%%     Dir = filename:join([Cwd, H]),
+%%     Conf = consult(rebar_conf_file(Dir)),
+%%     libdirs(Dir, get_value(lib_dirs, Conf, []), Fun),
+%%     Fun(Dir),
+%%     subdirs(Cwd, T, Fun).
+
+%% add_to_path(Dir) ->
+%%     code:add_path(ebin(Dir)).
+
+%% https_to_git(X) ->
 %%     re:replace(X, "https://", "git://", [{return, list}]).
 
-%% schema_to_https(X) ->
+%% git_to_https(X) ->
 %%     re:replace(X, "git://", "https://", [{return, list}]).
