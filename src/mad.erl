@@ -110,10 +110,9 @@ update_path(Dir) ->
             ok;
         Deps ->
             code:add_paths(deps_ebin(Deps))
-    end.
-%% TODO: add lib_dirs to the code path
-    %% LibDirs = get_value(lib_dirs, Conf, []),
-    %% libdirs(Dir, LibDirs, fun update_path/1).
+    end,
+    LibDirs = get_value(lib_dirs, Conf, []),
+    code:add_paths(libdirs(Dir, LibDirs, [])).
 
 init() ->
     {ok, Cwd} = file:get_cwd(),
@@ -304,17 +303,11 @@ subdirs(Cwd, [H|T], Fun) ->
     Fun(Dir),
     subdirs(Cwd, T, Fun).
 
-%% libdirs(_, [], _) ->
-%%     ok;
-%% libdirs(Cwd, [H|T], Fun) ->
-%%     Dir = filename:join([Cwd, H]),
-%%     Conf = consult(rebar_conf_file(Dir)),
-%%     libdirs(Dir, get_value(lib_dirs, Conf, []), Fun),
-%%     Fun(Dir),
-%%     subdirs(Cwd, T, Fun).
-
-%% add_to_path(Dir) ->
-%%     code:add_path(ebin(Dir)).
+libdirs(_, [], Acc) ->
+    Acc;
+libdirs(Cwd, [H|T], Acc) ->
+    Dirs = filelib:wildcard(filename:join([Cwd, H, "*", "ebin"])),
+    libdirs(Cwd, T, Acc ++ Dirs).
 
 %% https_to_git(X) ->
 %%     re:replace(X, "https://", "git://", [{return, list}]).
