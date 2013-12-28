@@ -1,6 +1,6 @@
-.PHONY: all compile clean
+.PHONY: all compile clean build
 
-all: clean compile
+all: clean compile build
 
 clean:
 	rm -rf ebin
@@ -16,3 +16,6 @@ compile: $(shell find src -type f -name \*.erl)
 	@mkdir -p ebin/
 	$(if $(strip $(filter %.erl ,$?)), \
 		$(call compile_erl,$(filter %.erl %.core,$?)))
+
+build:
+	@./build

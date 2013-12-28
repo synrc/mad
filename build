@@ -1,0 +1,25 @@
+#!/usr/bin/env escript
+
+main(_) ->
+    Files = lists:ukeysort(1, lists:flatten(files())),
+    {ok, {"mad", ZipBin}} = zip:create("mad", Files, [memory]),
+    Script = iolist_to_binary([
+                               "#!/usr/bin/env escript\n",
+                               "%% " ++ comment(),
+                               "%%! -pa mad/mad/ebin\n",
+                               ZipBin]),
+    file:write_file("mad", Script),
+    os:cmd("chmod +x mad").
+
+files() ->
+    [read_file(F) || F <- filelib:wildcard("*", "ebin")].
+
+read_file(F) ->
+    [[{"ebin/", <<>>}], {F, file_contents(F)}].
+
+file_contents(F) ->
+    {ok, Bin} = file:read_file(filename:join("ebin", F)),
+    Bin.
+
+comment() ->
+    "Dependency manager for Erlang\n".
