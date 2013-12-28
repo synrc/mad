@@ -1,2 +1,2 @@
 -define(DEPS_PATH, filename:join([mad_utils:home(), ".otp", "deps"])).
--define(COMPILE_OPTS(Inc, Ebin), [report, {i, Inc}, {outdir, Ebin}]).
+-define(COMPILE_OPTS(Inc, Ebin), [{i, Inc}, {outdir, Ebin}]).

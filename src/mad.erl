@@ -12,8 +12,10 @@
 main([]) ->
     io:format("no args~n");
 main(Args) ->
-    Conf = mad_utils:consult("rebar.config"),
-    Conf1 = mad_utils:script(".", Conf),
+    Cwd = mad_utils:cwd(),
+    code:add_path(mad_utils:ebin(Cwd)),
+    Conf = mad_utils:consult(mad_utils:rebar_conf_file(Cwd)),
+    Conf1 = mad_utils:script(Cwd, Conf),
     Fun = fun(F) -> F1 = list_to_atom(F), ?MODULE:F1(Conf1) end,
     lists:foreach(Fun, Args).
 

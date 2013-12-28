@@ -50,14 +50,17 @@ dep(DepName) ->
         [] ->
             ok;
         Files ->
-            EbinDir = mad_utils:ebin(DepPath),
             IncDir = mad_utils:include(DepPath),
+            EbinDir = mad_utils:ebin(DepPath),
+            Opts = mad_utils:get_value(erl_opts, Conf1, []),
             mad_utils:exec("mkdir", ["-p", EbinDir]),
-            lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files),
+            lists:foreach(compile_fun(SrcDir, IncDir, EbinDir, Opts), Files),
             put(DepName, compiled)
     end.
 
 app(Dir) ->
+    Conf = mad_utils:consult(mad_utils:rebar_conf_file(Dir)),
+    Conf1 = mad_utils:script(Dir, Conf),
     SrcDir = mad_utils:src(Dir),
     Files = erl_files(SrcDir) ++ app_src_files(SrcDir),
     case Files of
@@ -66,18 +69,19 @@ app(Dir) ->
         Files ->
             IncDir = mad_utils:include(Dir),
             EbinDir = mad_utils:ebin(Dir),
+            Opts = mad_utils:get_value(erl_opts, Conf1, []),
             mad_utils:exec("mkdir", ["-p", EbinDir]),
-            lists:foreach(compile_fun(SrcDir, EbinDir, IncDir), Files),
+            lists:foreach(compile_fun(SrcDir, IncDir, EbinDir, Opts), Files),
             code:add_path(EbinDir)
     end.
 
-compile_fun(SrcDir, EbinDir, IncDir) ->
+compile_fun(SrcDir, IncDir, EbinDir, Opts) ->
     fun(F) ->
             F1 = filename:join(SrcDir, F),
             case is_app_src(F1) of
                 false ->
                     io:format("Compiling ~s~n", [F1]),
-                    compile:file(F1, ?COMPILE_OPTS(IncDir, EbinDir));
+                    compile:file(F1, ?COMPILE_OPTS(IncDir, EbinDir) ++ Opts);
                 true ->
                     AppFile = filename:join(EbinDir, app_src_to_app(F1)),
                     io:format("Writing ~s~n", [AppFile]),
