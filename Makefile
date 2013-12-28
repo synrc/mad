@@ -18,4 +18,4 @@ compile: $(shell find src -type f -name \*.erl)
 		$(call compile_erl,$(filter %.erl %.core,$?)))
 
 build:
-	@./build
+	escript build
