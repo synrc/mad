@@ -73,13 +73,13 @@ app(Dir) ->
 
 compile_fun(SrcDir, EbinDir, IncDir) ->
     fun(F) ->
-            F1 = filename:join([SrcDir, F]),
+            F1 = filename:join(SrcDir, F),
             case is_app_src(F1) of
                 false ->
                     io:format("Compiling ~s~n", [F1]),
                     compile:file(F1, ?COMPILE_OPTS(IncDir, EbinDir));
                 true ->
-                    AppFile = filename:join([EbinDir, app_src_to_app(F1)]),
+                    AppFile = filename:join(EbinDir, app_src_to_app(F1)),
                     io:format("Writing ~s~n", [AppFile]),
                     mad_utils:exec("cp", [F1, AppFile])
             end,
@@ -96,4 +96,4 @@ is_app_src(Filename) ->
     Filename =/= filename:rootname(Filename, ".app.src").
 
 app_src_to_app(Filename) ->
-    filename:join([filename:basename(Filename, ".app.src") ++ ".app"]).
+    filename:basename(Filename, ".app.src") ++ ".app".

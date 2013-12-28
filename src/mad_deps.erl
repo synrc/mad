@@ -100,7 +100,7 @@ ebins(Deps) ->
 ebins([], Acc) ->
     Acc;
 ebins([H|T], Acc) ->
-    ebins(T, [filename:join([H, "ebin"])|Acc]).
+    ebins(T, [filename:join(H, "ebin")|Acc]).
 
 make_dep_name(Name, Suffix) ->
     %% Name-Suffix
@@ -116,4 +116,4 @@ name_and_repo({Name, _, Repo, _}) ->
 
 path(X) ->
     %% ~/.otp/deps/X
-    filename:join([?DEPS_PATH, X]).
+    filename:join(?DEPS_PATH, X).
