@@ -62,6 +62,7 @@ clone_dep(Dep) ->
     ok = file:set_cwd(Cwd),
 
     put(DepName, cloned),
+    file:make_symlink(DepPath, filename:join([Cwd, "deps", Name])),
 
     %% check dependencies of the dependency
     DepPath = path(DepName),

@@ -77,6 +77,7 @@ app(Dir) ->
 
 compile_fun(SrcDir, IncDir, EbinDir, Opts) ->
     fun(F) ->
+            code:add_path(EbinDir),
             F1 = filename:join(SrcDir, F),
             case is_app_src(F1) of
                 false ->
@@ -86,8 +87,7 @@ compile_fun(SrcDir, IncDir, EbinDir, Opts) ->
                     AppFile = filename:join(EbinDir, app_src_to_app(F1)),
                     io:format("Writing ~s~n", [AppFile]),
                     mad_utils:exec("cp", [F1, AppFile])
-            end,
-            code:add_path(EbinDir)
+            end
     end.
 
 erl_files(Dir) ->

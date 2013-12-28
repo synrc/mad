@@ -26,6 +26,8 @@ main(Args) ->
             ok;
         Deps ->
             mad_utils:exec("mkdir", ["-p", mad_deps:path()]),
+            mad_utils:exec("rm", ["-rf", "deps"]),
+            mad_utils:exec("mkdir", ["-p", "deps"]),
             mad_deps:clone(Deps)
     end.
 
