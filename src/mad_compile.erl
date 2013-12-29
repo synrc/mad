@@ -74,6 +74,11 @@ app(Dir) ->
             code:add_path(EbinDir)
     end.
 
+validate_property({modules, _}, Modules) ->
+    {modules, Modules};
+validate_property(Else, _) ->
+    Else.
+
 compile_fun(SrcDir, IncDir, EbinDir, Opts) ->
     fun(F) ->
             code:add_path(EbinDir),
@@ -83,9 +88,17 @@ compile_fun(SrcDir, IncDir, EbinDir, Opts) ->
                     io:format("Compiling ~s~n", [F1]),
                     compile:file(F1, ?COMPILE_OPTS(IncDir, EbinDir) ++ Opts);
                 true ->
+                    %% add {modules, [Modules]} to .app file
                     AppFile = filename:join(EbinDir, app_src_to_app(F1)),
                     io:format("Writing ~s~n", [AppFile]),
-                    mad_utils:exec("cp", [F1, AppFile])
+                    BeamFiles = filelib:wildcard("*.beam", EbinDir),
+                    Modules = [list_to_atom(filename:basename(X, ".beam"))
+                               || X <- BeamFiles],
+                    [Struct|_] = mad_utils:consult(F1),
+                    {application, AppName, Props} = Struct,
+                    Props1 = [validate_property(X, Modules) || X <- Props],
+                    Struct1 = {application, AppName, Props1},
+                    file:write_file(AppFile, io_lib:format("~p.~n", [Struct1]))
             end
     end.
 
