@@ -66,8 +66,7 @@ clone_dep(Dep) ->
 
     %% check dependencies of the dependency
     DepPath = path(DepName),
-    RebarFile = mad_utils:rebar_conf_file(DepPath),
-    Conf = mad_utils:consult(RebarFile),
+    Conf = mad_utils:rebar_conf(DepPath),
     Conf1 = mad_utils:script(DepPath, Conf),
     clone(mad_utils:get_value(deps, Conf1, [])).
 
@@ -89,8 +88,7 @@ paths([H|T], Acc) ->
     %% branch/tag it should checkout to
     Co1 = checkout_to(Co),
     Name1 = make_dep_name(Name, Co1),
-    RebarFile = mad_utils:rebar_conf_file(path(Name1)),
-    Conf = mad_utils:consult(RebarFile),
+    Conf = mad_utils:rebar_conf(path(Name1)),
     Deps = mad_utils:get_value(deps, Conf, []),
     Acc1 = paths(Deps, []),
     paths(T, [path(Name1)|Acc ++ Acc1]).

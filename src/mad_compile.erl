@@ -31,8 +31,7 @@ deps([H|T]) ->
 dep(DepName) ->
     %% check dependencies of the dependency
     DepPath = mad_deps:path(DepName),
-    RebarFile = mad_utils:rebar_conf_file(DepPath),
-    Conf = mad_utils:consult(RebarFile),
+    Conf = mad_utils:rebar_conf(DepPath),
     Conf1 = mad_utils:script(DepPath, Conf),
     deps(mad_utils:get_value(deps, Conf1, [])),
 
@@ -59,7 +58,7 @@ dep(DepName) ->
     end.
 
 app(Dir) ->
-    Conf = mad_utils:consult(mad_utils:rebar_conf_file(Dir)),
+    Conf = mad_utils:rebar_conf(Dir),
     Conf1 = mad_utils:script(Dir, Conf),
     SrcDir = mad_utils:src(Dir),
     Files = erl_files(SrcDir) ++ app_src_files(SrcDir),

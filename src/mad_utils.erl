@@ -4,7 +4,7 @@
 -export([exec/2]).
 -export([concat/1]).
 -export([home/0]).
--export([rebar_conf_file/1]).
+-export([rebar_conf/1]).
 -export([src/1]).
 -export([include/1]).
 -export([ebin/1]).
@@ -37,20 +37,21 @@ home() ->
     {ok, [[H|_]]} = init:get_argument(home),
     H.
 
-rebar_conf_file(X) ->
-    filename:absname(filename:join(X, "rebar.config")).
+rebar_conf(Dir) ->
+    Dir1 = filename:absname(Dir),
+    consult(filename:join(Dir1, "rebar.config")).
 
-src(X) ->
-    %% X/src
-    filename:join(X, "src").
+src(Dir) ->
+    %% Dir/src
+    filename:join(Dir, "src").
 
-include(X) ->
-    %% X/include
-    filename:join(X, "include").
+include(Dir) ->
+    %% Dir/include
+    filename:join(Dir, "include").
 
-ebin(X) ->
-    %% X/ebin
-    filename:join(X, "ebin").
+ebin(Dir) ->
+    %% Dir/ebin
+    filename:join(Dir, "ebin").
 
 consult(File) ->
     AbsFile = filename:absname(File),
@@ -87,7 +88,7 @@ sub_dirs(_, [], Acc) ->
     Acc;
 sub_dirs(Cwd, [Dir|T], Acc) ->
     SubDir = filename:join(Cwd, Dir),
-    Conf = consult(rebar_conf_file(SubDir)),
+    Conf = rebar_conf(SubDir),
     Conf1 = script(SubDir, Conf),
     Acc1 = sub_dirs(SubDir, get_value(sub_dirs, Conf1, []), Acc),
     sub_dirs(Cwd, T, [SubDir|Acc1]).

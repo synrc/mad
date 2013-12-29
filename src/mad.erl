@@ -14,7 +14,7 @@ main([]) ->
 main(Args) ->
     Cwd = mad_utils:cwd(),
     code:add_path(mad_utils:ebin(Cwd)),
-    Conf = mad_utils:consult(mad_utils:rebar_conf_file(Cwd)),
+    Conf = mad_utils:rebar_conf(Cwd),
     Conf1 = mad_utils:script(Cwd, Conf),
     Fun = fun(F) -> F1 = list_to_atom(F), ?MODULE:F1(Conf1) end,
     lists:foreach(Fun, Args).
