@@ -16,6 +16,7 @@
 -export([lib_dirs/2]).
 -export([https_to_git/1]).
 -export([git_to_https/1]).
+-export([last_modified/1]).
 
 
 %% get current working directory
@@ -107,3 +108,11 @@ https_to_git(X) ->
 
 git_to_https(X) ->
     re:replace(X, "git://", "https://", [{return, list}]).
+
+last_modified(File) ->
+    case filelib:last_modified(File) of
+        0 ->
+            0;
+        Else ->
+            calendar:datetime_to_gregorian_seconds(Else)
+    end.

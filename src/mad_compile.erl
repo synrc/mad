@@ -85,8 +85,13 @@ compile_fun(SrcDir, IncDir, EbinDir, Opts) ->
             F1 = filename:join(SrcDir, F),
             case is_app_src(F1) of
                 false ->
-                    io:format("Compiling ~s~n", [F1]),
-                    compile:file(F1, ?COMPILE_OPTS(IncDir, EbinDir) ++ Opts);
+                    Compiled = is_compiled(EbinDir, F1),
+                    if Compiled =:= false ->
+                            io:format("Compiling ~s~n", [F1]),
+                            compile:file(F1, ?COMPILE_OPTS(IncDir, EbinDir) ++ Opts);
+                       true ->
+                            ok
+                    end;
                 true ->
                     %% add {modules, [Modules]} to .app file
                     AppFile = filename:join(EbinDir, app_src_to_app(F1)),
@@ -113,3 +118,10 @@ is_app_src(Filename) ->
 
 app_src_to_app(Filename) ->
     filename:basename(Filename, ".app.src") ++ ".app".
+
+erl_to_beam(EbinDir, Filename) ->
+    filename:join(EbinDir, filename:basename(Filename, ".erl") ++ ".beam").
+
+is_compiled(EbinDir, ErlFile) ->
+    BeamFile = erl_to_beam(EbinDir, ErlFile),
+    mad_utils:last_modified(BeamFile) > mad_utils:last_modified(ErlFile).
