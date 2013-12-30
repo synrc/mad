@@ -101,8 +101,9 @@ compile_fun(SrcDir, IncDir, EbinDir, Opts) ->
                                || X <- BeamFiles],
                     [Struct|_] = mad_utils:consult(F1),
                     {application, AppName, Props} = Struct,
-                    Props1 = [validate_property(X, Modules) || X <- Props],
-                    Struct1 = {application, AppName, Props1},
+                    Props1 = add_modules_property(Props),
+                    Props2 = [validate_property(X, Modules) || X <- Props1],
+                    Struct1 = {application, AppName, Props2},
                     file:write_file(AppFile, io_lib:format("~p.~n", [Struct1]))
             end
     end.
@@ -125,3 +126,11 @@ erl_to_beam(EbinDir, Filename) ->
 is_compiled(EbinDir, ErlFile) ->
     BeamFile = erl_to_beam(EbinDir, ErlFile),
     mad_utils:last_modified(BeamFile) > mad_utils:last_modified(ErlFile).
+
+add_modules_property(Properties) ->
+    case lists:keyfind(modules, 1, Properties) of
+        {modules, _} ->
+            Properties;
+        _ ->
+            Properties ++ [{modules, []}]
+    end.
