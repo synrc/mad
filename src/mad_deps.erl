@@ -21,24 +21,6 @@ clone([H|T]) when is_tuple(H) =:= false ->
     clone(T);
 clone([H|T]) ->
     {Name, Repo} = name_and_repo(H),
-    Co = case Repo of
-             {_, _, V} ->
-                 V;
-             {_, _, V, _} ->
-                 V
-         end,
-    Co1 = checkout_to(Co),
-    DepName = make_dep_name(Name, Co1),
-    case get(DepName) of
-        cloned ->
-            ok;
-        _ ->
-            clone_dep(H)
-    end,
-    clone(T).
-
-clone_dep(Dep) ->
-    {Name, Repo} = name_and_repo(Dep),
     {Cmd, Url, Co} = case Repo of
                          V={_, _, _} ->
                              V;
@@ -47,18 +29,26 @@ clone_dep(Dep) ->
                      end,
     Co1 = checkout_to(Co),
     DepName = make_dep_name(Name, Co1),
+    case get(DepName) of
+        cloned ->
+            ok;
+        _ ->
+            clone_dep(Name, Cmd, Url, DepName, Co1)
+    end,
+    clone(T).
 
+clone_dep(Name, Cmd, Url, DepName, Co) ->
     %% command options: clone url path/to/dep -b Branch/Tag
     DepPath = path(DepName),
-    Opts = ["clone", mad_utils:https_to_git(Url), DepPath],
+    Opts = ["clone", Url, DepPath],
     io:format("dependency: ~s~n", [Name]),
     %% clone
     mad_utils:exec(Cmd, Opts),
 
-    %% checkout to Co1
+    %% checkout to Co
     Cwd = mad_utils:cwd(),
     ok = file:set_cwd(DepPath),
-    mad_utils:exec(Cmd, ["checkout", Co1]),
+    mad_utils:exec(Cmd, ["checkout", Co]),
     ok = file:set_cwd(Cwd),
 
     put(DepName, cloned),
@@ -103,7 +93,7 @@ ebins([H|T], Acc) ->
 
 make_dep_name(Name, Suffix) ->
     %% Name-Suffix
-    mad_utils:concat([Name, "-", Suffix]).
+    Name ++ "-" ++ Suffix.
 
 checkout_to({_, V}) -> V;
 checkout_to(Else) -> Else.
