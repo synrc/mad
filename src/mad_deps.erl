@@ -5,7 +5,6 @@
 -export([clone/1]).
 -export([paths/1]).
 -export([ebins/1]).
--export([make_dep_name/2]).
 -export([name_and_repo/1]).
 -export([checkout_to/1]).
 
@@ -28,37 +27,39 @@ clone([H|T]) ->
                              {_Cmd, _Url, _Co}
                      end,
     Co1 = checkout_to(Co),
-    DepName = make_dep_name(Name, Co1),
-    case get(DepName) of
+    case get(Name) of
         cloned ->
             ok;
         _ ->
-            clone_dep(Name, Cmd, Url, DepName, Co1)
+            clone_dep(Name, Cmd, Url),
+            build_dep(Name, Cmd, Co1)
     end,
     clone(T).
 
-clone_dep(Name, Cmd, Url, DepName, Co) ->
-    %% command options: clone url path/to/dep -b Branch/Tag
-    DepPath = path(DepName),
-    Opts = ["clone", Url, DepPath],
+clone_dep(Name, Cmd, Url) ->
+    TrunkPath = path(Name),
+    Opts = ["clone", Url, TrunkPath],
     io:format("dependency: ~s~n", [Name]),
     %% clone
     mad_utils:exec(Cmd, Opts),
-
-    %% checkout to Co
-    Cwd = mad_utils:cwd(),
-    ok = file:set_cwd(DepPath),
-    mad_utils:exec(Cmd, ["checkout", Co]),
-    ok = file:set_cwd(Cwd),
-
-    put(DepName, cloned),
-    file:make_symlink(DepPath, filename:join([Cwd, "deps", Name])),
+    put(Name, cloned),
 
     %% check dependencies of the dependency
-    DepPath = path(DepName),
-    Conf = mad_utils:rebar_conf(DepPath),
-    Conf1 = mad_utils:script(DepPath, Conf),
+    Conf = mad_utils:rebar_conf(TrunkPath),
+    Conf1 = mad_utils:script(TrunkPath, Conf),
     clone(mad_utils:get_value(deps, Conf1, [])).
+
+%% build dependency based on branch/tag/commit
+build_dep(Name, Cmd, Co) ->
+    TrunkPath = path(Name),
+    Cwd = mad_utils:cwd(),
+    DepPath = filename:join([Cwd, "deps", Name]),
+    %% get a copy of dependency from trunk
+    mad_utils:exec("cp", ["-r", TrunkPath, DepPath]),
+    %% change cwd to the copy of trunk and checkout to Co
+    ok = file:set_cwd(DepPath),
+    mad_utils:exec(Cmd, ["checkout", Co]),
+    ok = file:set_cwd(Cwd).
 
 paths(Deps) ->
     paths(Deps, []).
@@ -68,20 +69,11 @@ paths([], Acc) ->
 paths([H|T], Acc) when is_tuple(H) =:= false ->
     paths(T, Acc);
 paths([H|T], Acc) ->
-    {Name, Repo} = name_and_repo(H),
-    Co = case Repo of
-             {_, _, V} ->
-                 V;
-             {_, _, V, _} ->
-                 V
-         end,
-    %% branch/tag it should checkout to
-    Co1 = checkout_to(Co),
-    Name1 = make_dep_name(Name, Co1),
-    Conf = mad_utils:rebar_conf(path(Name1)),
+    {Name, _} = name_and_repo(H),
+    Conf = mad_utils:rebar_conf(path(Name)),
     Deps = mad_utils:get_value(deps, Conf, []),
     Acc1 = paths(Deps, []),
-    paths(T, [path(Name1)|Acc ++ Acc1]).
+    paths(T, [path(Name)|Acc ++ Acc1]).
 
 ebins(Deps) ->
     ebins(paths(Deps), []).
@@ -90,10 +82,6 @@ ebins([], Acc) ->
     Acc;
 ebins([H|T], Acc) ->
     ebins(T, [filename:join(H, "ebin")|Acc]).
-
-make_dep_name(Name, Suffix) ->
-    %% Name-Suffix
-    Name ++ "-" ++ Suffix.
 
 checkout_to({_, V}) -> V;
 checkout_to(Else) -> Else.
