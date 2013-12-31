@@ -10,27 +10,20 @@
 deps([]) ->
     ok;
 deps([H|T]) ->
-    {Name, Repo} = mad_deps:name_and_repo(H),
-    Co = case Repo of
-             {_, _, V} ->
-                 V;
-             {_, _, V, _} ->
-                 V
-         end,
-    Co1 = mad_deps:checkout_to(Co),
-    DepName = mad_deps:make_dep_name(Name, Co1),
-    case get(DepName) of
+    {Name, _} = mad_deps:name_and_repo(H),
+    case get(Name) of
         compiled ->
             ok;
         _ ->
-            dep(DepName)
+            dep(Name)
     end,
     deps(T).
 
 %% compile a dependency
 dep(DepName) ->
     %% check dependencies of the dependency
-    DepPath = mad_deps:path(DepName),
+    Cwd = mad_utils:cwd(),
+    DepPath = filename:join([Cwd, "deps", DepName]),
     Conf = mad_utils:rebar_conf(DepPath),
     Conf1 = mad_utils:script(DepPath, Conf),
     deps(mad_utils:get_value(deps, Conf1, [])),
@@ -44,7 +37,7 @@ dep(DepName) ->
     lists:foreach(fun app/1, SubDirs),
 
     SrcDir = mad_utils:src(DepPath),
-    Files = erl_files(SrcDir) ++ app_src_files(SrcDir),
+    Files = sort(erl_files(SrcDir)) ++ app_src_files(SrcDir),
     case Files of
         [] ->
             ok;
@@ -61,7 +54,7 @@ app(Dir) ->
     Conf = mad_utils:rebar_conf(Dir),
     Conf1 = mad_utils:script(Dir, Conf),
     SrcDir = mad_utils:src(Dir),
-    Files = erl_files(SrcDir) ++ app_src_files(SrcDir),
+    Files = sort(erl_files(SrcDir)) ++ app_src_files(SrcDir),
     case Files of
         [] ->
             ok;
@@ -134,3 +127,25 @@ add_modules_property(Properties) ->
         _ ->
             Properties ++ [{modules, []}]
     end.
+
+sort(Files) ->
+    sort_by_priority(Files, [], [], []).
+
+sort_by_priority([], High, Medium, Low) ->
+    (High ++ Medium) ++ Low;
+sort_by_priority([H|T], High, Medium, Low) ->
+    {High1, Medium1, Low1} =
+        case mad_utils:exec("sed", ["-n", "'/-callback/p'", H]) of
+            [] ->
+                {High, [H|Medium], Low};
+            _ ->
+                {[H|High], Medium, Low}
+        end,
+    {High2, Medium2, Low2} =
+        case mad_utils:exec("sed", ["-n", "'/-compile/p'", H]) of
+               [] ->
+                {High1, Medium1, Low1};
+               _ ->
+                {High1 -- [H], Medium1 -- [H], [H|Low1]}
+        end,
+    sort_by_priority(T, High2, Medium2, Low2).
