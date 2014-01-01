@@ -2,13 +2,12 @@
 
 -export([cwd/0]).
 -export([exec/2]).
--export([concat/1]).
 -export([home/0]).
+-export([consult/1]).
 -export([rebar_conf/1]).
 -export([src/1]).
 -export([include/1]).
 -export([ebin/1]).
--export([consult/1]).
 -export([deps/1]).
 -export([get_value/3]).
 -export([script/2]).
@@ -29,14 +28,20 @@ exec(Cmd, Opts) ->
     Opts1 = [concat([" ", X]) || X <- Opts],
     os:cmd(concat([Cmd, concat(Opts1)])).
 
-concat(L) ->
-    lists:concat(L).
-
 %% return $HOME
 home() ->
     %% ~/
     {ok, [[H|_]]} = init:get_argument(home),
     H.
+
+consult(File) ->
+    AbsFile = filename:absname(File),
+    case file:consult(AbsFile) of
+        {ok, V} ->
+            V;
+        _ ->
+            []
+    end.
 
 rebar_conf(Dir) ->
     Dir1 = filename:absname(Dir),
@@ -53,15 +58,6 @@ include(Dir) ->
 ebin(Dir) ->
     %% Dir/ebin
     filename:join(Dir, "ebin").
-
-consult(File) ->
-    AbsFile = filename:absname(File),
-    case file:consult(AbsFile) of
-        {ok, V} ->
-            V;
-        _ ->
-            []
-    end.
 
 deps(File) ->
     get_value(deps, consult(File), []).
@@ -116,3 +112,8 @@ last_modified(File) ->
         Else ->
             calendar:datetime_to_gregorian_seconds(Else)
     end.
+
+
+%% internal
+concat(L) ->
+    lists:concat(L).

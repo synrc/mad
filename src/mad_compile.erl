@@ -2,7 +2,7 @@
 
 -export([deps/1]).
 -export([app/1]).
--compile(export_all).
+
 -include("mad.hrl").
 
 
