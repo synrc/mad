@@ -1,5 +1,5 @@
 PROJECT = mad
-CT_SUITES = mad_utils
+CT_SUITES = mad_utils mad_deps
 
 .PHONY: all build
 

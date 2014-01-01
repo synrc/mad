@@ -1,18 +1,21 @@
 -module(mad_deps).
 
--export([path/0]).
+-export([container/0]).
 -export([path/1]).
 -export([clone/1]).
--export([paths/1]).
--export([ebins/1]).
 -export([name_and_repo/1]).
 -export([checkout_to/1]).
 
 -include("mad.hrl").
 
 
-path() ->
-    ?DEPS_PATH.
+container() ->
+    %% ~/.mad/container
+    ?CONTAINER_PATH.
+
+path(X) ->
+    %% ~/.mad/container/X
+    filename:join(?CONTAINER_PATH, X).
 
 clone([]) ->
     ok;
@@ -61,36 +64,12 @@ build_dep(Name, Cmd, Co) ->
     mad_utils:exec(Cmd, ["checkout", Co]),
     ok = file:set_cwd(Cwd).
 
-paths(Deps) ->
-    paths(Deps, []).
 
-paths([], Acc) ->
-    Acc;
-paths([H|T], Acc) when is_tuple(H) =:= false ->
-    paths(T, Acc);
-paths([H|T], Acc) ->
-    {Name, _} = name_and_repo(H),
-    Conf = mad_utils:rebar_conf(path(Name)),
-    Deps = mad_utils:get_value(deps, Conf, []),
-    Acc1 = paths(Deps, []),
-    paths(T, [path(Name)|Acc ++ Acc1]).
-
-ebins(Deps) ->
-    ebins(paths(Deps), []).
-
-ebins([], Acc) ->
-    Acc;
-ebins([H|T], Acc) ->
-    ebins(T, [filename:join(H, "ebin")|Acc]).
-
-checkout_to({_, V}) -> V;
-checkout_to(Else) -> Else.
-
+%% internal
 name_and_repo({Name, _, Repo}) ->
     {atom_to_list(Name), Repo};
 name_and_repo({Name, _, Repo, _}) ->
     {atom_to_list(Name), Repo}.
 
-path(X) ->
-    %% ~/.otp/deps/X
-    filename:join(?DEPS_PATH, X).
+checkout_to({_, V}) -> V;
+checkout_to(Else) -> Else.

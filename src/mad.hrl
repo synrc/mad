@@ -1,2 +1,2 @@
--define(DEPS_PATH, filename:join([mad_utils:home(), ".mad", "deps"])).
+-define(CONTAINER_PATH, filename:join([mad_utils:home(), ".mad", "container"])).
 -define(COMPILE_OPTS(Inc, Ebin), [report, {i, Inc}, {outdir, Ebin}]).
