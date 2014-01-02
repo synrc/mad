@@ -176,9 +176,9 @@ PLT_APPS ?=
 DIALYZER_OPTS ?= -Werror_handling -Wrace_conditions \
 	-Wunmatched_returns # -Wunderspecs
 
-build-plt: deps app
+build-plt: app
 	@dialyzer --build_plt --output_plt .$(PROJECT).plt \
-		--apps erts kernel stdlib $(PLT_APPS) -r deps/*/ebin
+		--apps erts kernel stdlib $(PLT_APPS)
 
 dialyze:
 	@dialyzer --src src --plt .$(PROJECT).plt --no_native $(DIALYZER_OPTS)
