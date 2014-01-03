@@ -1,47 +1,50 @@
 -module(mad_deps).
 
 -export([container/0]).
--export([path/1]).
--export([clone/1]).
+-export([path/2]).
+-export([clone/2]).
 -export([name_and_repo/1]).
 -export([checkout_to/1]).
+-export([get_publisher/1]).
 
--include("mad.hrl").
+-define(CONTAINER_PATH, filename:join([mad_utils:home(), ".mad", "container"])).
 
 
 container() ->
     %% ~/.mad/container
     ?CONTAINER_PATH.
 
-path(X) ->
+path(Publisher, Repo) ->
     %% ~/.mad/container/X
-    filename:join(?CONTAINER_PATH, X).
+    filename:join([?CONTAINER_PATH, Publisher, Repo]).
 
-clone([]) ->
+clone(_, []) ->
     ok;
-clone([H|T]) when is_tuple(H) =:= false ->
-    clone(T);
-clone([H|T]) ->
+clone(Cwd, [H|T]) when is_tuple(H) =:= false ->
+    clone(Cwd, T);
+clone(Cwd, [H|T]) ->
     {Name, Repo} = name_and_repo(H),
-    {Cmd, Url, Co} = case Repo of
+    {Cmd, Uri, Co} = case Repo of
                          V={_, _, _} ->
                              V;
                          {_Cmd, _Url, _Co, _} ->
                              {_Cmd, _Url, _Co}
                      end,
+    Cmd1 = atom_to_list(Cmd),
     Co1 = checkout_to(Co),
+    Publisher = get_publisher(Uri),
     case get(Name) of
         cloned ->
             ok;
         _ ->
-            clone_dep(Name, Cmd, Url),
-            build_dep(Name, Cmd, Co1)
+            clone_dep(Cwd, Publisher, Name, Cmd1, Uri),
+            build_dep(Cwd, Publisher, Name, Cmd1, Co1)
     end,
-    clone(T).
+    clone(Cwd, T).
 
-clone_dep(Name, Cmd, Url) ->
-    TrunkPath = path(Name),
-    Opts = ["clone", Url, TrunkPath],
+clone_dep(Cwd, Publisher, Name, Cmd, Uri) ->
+    TrunkPath = path(Publisher, Name),
+    Opts = ["clone", Uri, TrunkPath],
     io:format("dependency: ~s~n", [Name]),
     %% clone
     mad_utils:exec(Cmd, Opts),
@@ -50,12 +53,11 @@ clone_dep(Name, Cmd, Url) ->
     %% check dependencies of the dependency
     Conf = mad_utils:rebar_conf(TrunkPath),
     Conf1 = mad_utils:script(TrunkPath, Conf),
-    clone(mad_utils:get_value(deps, Conf1, [])).
+    clone(Cwd, mad_utils:get_value(deps, Conf1, [])).
 
 %% build dependency based on branch/tag/commit
-build_dep(Name, Cmd, Co) ->
-    TrunkPath = path(Name),
-    Cwd = mad_utils:cwd(),
+build_dep(Cwd, Publisher, Name, Cmd, Co) ->
+    TrunkPath = path(Publisher, Name),
     DepPath = filename:join([Cwd, "deps", Name]),
     %% get a copy of dependency from trunk
     mad_utils:exec("cp", ["-r", TrunkPath, DepPath]),
@@ -73,3 +75,9 @@ name_and_repo({Name, _, Repo, _}) ->
 
 checkout_to({_, V}) -> V;
 checkout_to(Else) -> Else.
+
+get_publisher(Uri) ->
+    S = [{git, 9418}|http_uri:scheme_defaults()],
+    {ok, {_, _, _, _, Path, _}} = http_uri:parse(Uri, [{scheme_defaults, S}]),
+    [Publisher|_] = string:tokens(Path, "/"),
+    Publisher.
