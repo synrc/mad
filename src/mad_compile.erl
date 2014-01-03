@@ -1,32 +1,32 @@
 -module(mad_compile).
 
--export([deps/1]).
+-export([deps/2]).
 -export([app/1]).
 
--include("mad.hrl").
+-define(COMPILE_OPTS(Inc, Ebin), [report, {i, Inc}, {outdir, Ebin}]).
 
 
 %% compile dependencies
-deps([]) ->
+deps(_, []) ->
     ok;
-deps([H|T]) ->
+deps(Cwd, [H|T]) ->
     {Name, _} = mad_deps:name_and_repo(H),
     case get(Name) of
         compiled ->
             ok;
         _ ->
-            dep(Name)
+            dep(Cwd, Name)
     end,
-    deps(T).
+    deps(Cwd, T).
 
 %% compile a dependency
-dep(DepName) ->
+dep(Cwd, Name) ->
     %% check dependencies of the dependency
     Cwd = mad_utils:cwd(),
-    DepPath = filename:join([Cwd, "deps", DepName]),
+    DepPath = filename:join([Cwd, "deps", Name]),
     Conf = mad_utils:rebar_conf(DepPath),
     Conf1 = mad_utils:script(DepPath, Conf),
-    deps(mad_utils:get_value(deps, Conf1, [])),
+    deps(Cwd, mad_utils:get_value(deps, Conf1, [])),
 
     %% add lib_dirs to path
     LibDirs = mad_utils:lib_dirs(DepPath, Conf1),
@@ -47,7 +47,7 @@ dep(DepName) ->
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
             mad_utils:exec("mkdir", ["-p", EbinDir]),
             lists:foreach(compile_fun(SrcDir, IncDir, EbinDir, Opts), Files),
-            put(DepName, compiled)
+            put(Name, compiled)
     end.
 
 app(Dir) ->
