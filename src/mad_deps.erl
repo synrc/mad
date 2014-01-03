@@ -9,15 +9,25 @@
 
 -define(CONTAINER_PATH, filename:join([mad_utils:home(), ".mad", "container"])).
 
+-type directory() :: string().
+-type name() :: atom().
+-type uri() :: string().
+-type version_control() :: git | hg.
+-type repo() :: {version_control(), uri(), {branch | tag, string()} | string()}.
+-type dependency() :: {name(), string(), repo()}.
 
+
+-spec container() -> directory().
 container() ->
     %% ~/.mad/container
     ?CONTAINER_PATH.
 
+-spec path(string(), string()) -> directory().
 path(Publisher, Repo) ->
     %% ~/.mad/container/X
     filename:join([?CONTAINER_PATH, Publisher, Repo]).
 
+-spec clone(directory(), [dependency()]) -> ok.
 clone(_, []) ->
     ok;
 clone(Cwd, [H|T]) when is_tuple(H) =:= false ->
@@ -42,6 +52,7 @@ clone(Cwd, [H|T]) ->
     end,
     clone(Cwd, T).
 
+-spec clone_dep(directory(), string(), string(), string(), uri()) -> ok.
 clone_dep(Cwd, Publisher, Name, Cmd, Uri) ->
     TrunkPath = path(Publisher, Name),
     Opts = ["clone", Uri, TrunkPath],
@@ -56,6 +67,7 @@ clone_dep(Cwd, Publisher, Name, Cmd, Uri) ->
     clone(Cwd, mad_utils:get_value(deps, Conf1, [])).
 
 %% build dependency based on branch/tag/commit
+-spec build_dep(directory(), string(), string(), string(), string()) -> ok.
 build_dep(Cwd, Publisher, Name, Cmd, Co) ->
     TrunkPath = path(Publisher, Name),
     DepPath = filename:join([Cwd, "deps", Name]),
@@ -68,14 +80,17 @@ build_dep(Cwd, Publisher, Name, Cmd, Co) ->
 
 
 %% internal
+-spec name_and_repo(dependency()) -> {string(), repo()}.
 name_and_repo({Name, _, Repo}) ->
     {atom_to_list(Name), Repo};
 name_and_repo({Name, _, Repo, _}) ->
     {atom_to_list(Name), Repo}.
 
+-spec checkout_to(term() | {any(), string}) -> term().
 checkout_to({_, V}) -> V;
 checkout_to(Else) -> Else.
 
+-spec get_publisher(uri()) -> string().
 get_publisher(Uri) ->
     S = [{git, 9418}|http_uri:scheme_defaults()],
     {ok, {_, _, _, _, Path, _}} = http_uri:parse(Uri, [{scheme_defaults, S}]),
