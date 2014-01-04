@@ -3,6 +3,14 @@
 -export([deps/2]).
 -export([app/1]).
 
+%% internal
+-export([erl_files/1]).
+-export([app_src_files/1]).
+-export([is_app_src/1]).
+-export([app_src_to_app/1]).
+-export([erl_to_beam/2]).
+-export([is_compiled/2]).
+
 -define(COMPILE_OPTS(Inc, Ebin), [report, {i, Inc}, {outdir, Ebin}]).
 
 
