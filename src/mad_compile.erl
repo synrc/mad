@@ -22,7 +22,6 @@ deps(Cwd, [H|T]) ->
 %% compile a dependency
 dep(Cwd, Name) ->
     %% check dependencies of the dependency
-    Cwd = mad_utils:cwd(),
     DepPath = filename:join([Cwd, "deps", Name]),
     Conf = mad_utils:rebar_conf(DepPath),
     Conf1 = mad_utils:script(DepPath, Conf),
