@@ -2,7 +2,7 @@
 
 -export([repos_path/0]).
 -export([path/2]).
--export([clone/2]).
+-export([fetch/2]).
 -export([name_and_repo/1]).
 -export([checkout_to/1]).
 -export([get_publisher/1]).
@@ -27,12 +27,12 @@ path(Publisher, Repo) ->
     %% ~/.mad/repos/Publisher/Repo
     filename:join([?REPOS_PATH, Publisher, Repo]).
 
--spec clone(directory(), [dependency()]) -> ok.
-clone(_, []) ->
+-spec fetch(directory(), [dependency()]) -> ok.
+fetch(_, []) ->
     ok;
-clone(Cwd, [H|T]) when is_tuple(H) =:= false ->
-    clone(Cwd, T);
-clone(Cwd, [H|T]) ->
+fetch(Cwd, [H|T]) when is_tuple(H) =:= false ->
+    fetch(Cwd, T);
+fetch(Cwd, [H|T]) ->
     {Name, Repo} = name_and_repo(H),
     {Cmd, Uri, Co} = case Repo of
                          V={_, _, _} ->
@@ -44,27 +44,27 @@ clone(Cwd, [H|T]) ->
     Co1 = checkout_to(Co),
     Publisher = get_publisher(Uri),
     case get(Name) of
-        cloned ->
+        fetched ->
             ok;
         _ ->
-            clone_dep(Cwd, Publisher, Name, Cmd1, Uri),
+            fetch_dep(Cwd, Publisher, Name, Cmd1, Uri),
             build_dep(Cwd, Publisher, Name, Cmd1, Co1)
     end,
-    clone(Cwd, T).
+    fetch(Cwd, T).
 
--spec clone_dep(directory(), string(), string(), string(), uri()) -> ok.
-clone_dep(Cwd, Publisher, Name, Cmd, Uri) ->
+-spec fetch_dep(directory(), string(), string(), string(), uri()) -> ok.
+fetch_dep(Cwd, Publisher, Name, Cmd, Uri) ->
     TrunkPath = path(Publisher, Name),
     Opts = ["clone", Uri, TrunkPath],
     io:format("dependency: ~s~n", [Name]),
-    %% clone
+    %% fetch
     mad_utils:exec(Cmd, Opts),
-    put(Name, cloned),
+    put(Name, fetched),
 
     %% check dependencies of the dependency
     Conf = mad_utils:rebar_conf(TrunkPath),
     Conf1 = mad_utils:script(TrunkPath, Conf),
-    clone(Cwd, mad_utils:get_value(deps, Conf1, [])).
+    fetch(Cwd, mad_utils:get_value(deps, Conf1, [])).
 
 %% build dependency based on branch/tag/commit
 -spec build_dep(directory(), string(), string(), string(), string()) -> ok.

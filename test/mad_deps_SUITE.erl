@@ -6,13 +6,13 @@
 -export([name_and_repo/1]).
 -export([checkout_to/1]).
 -export([get_publisher/1]).
--export([clone/1]).
+-export([fetch/1]).
 
 -import(helper, [get_value/2]).
 
 
 all() ->
-    [repos_path, path, name_and_repo, checkout_to, get_publisher, clone].
+    [repos_path, path, name_and_repo, checkout_to, get_publisher, fetch].
 
 repos_path(_) ->
     Path = filename:join([os:cmd("echo -n $HOME"), ".mad", "repos"]),
@@ -36,7 +36,7 @@ get_publisher(_) ->
     "s1n4" = mad_deps:get_publisher("https://github.com/s1n4/mad"),
     "xyz" = mad_deps:get_publisher("https://bitbucket.org/xyz/repo").
 
-clone(Config) ->
+fetch(Config) ->
     DataDir = get_value(data_dir, Config),
     DepsDir = filename:join(DataDir, "deps"),
     os:cmd("rm -rf " ++ DepsDir),
@@ -46,6 +46,6 @@ clone(Config) ->
     Deps = [{mad, ".*",
              {git, "git://github.com/s1n4/mad.git", {branch, "master"}}
             }],
-    mad_deps:clone(DataDir, Deps),
+    mad_deps:fetch(DataDir, Deps),
     {ok, _} = file:list_dir(filename:join(DepsDir, "mad")),
     os:cmd("rm -rf " ++ DepsDir).
