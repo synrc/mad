@@ -1,7 +1,7 @@
 -module(mad_deps_SUITE).
 
 -export([all/0]).
--export([container/1]).
+-export([repos_path/1]).
 -export([path/1]).
 -export([name_and_repo/1]).
 -export([checkout_to/1]).
@@ -12,14 +12,14 @@
 
 
 all() ->
-    [container, path, name_and_repo, checkout_to, get_publisher, clone].
+    [repos_path, path, name_and_repo, checkout_to, get_publisher, clone].
 
-container(_) ->
-    Path = filename:join([os:cmd("echo -n $HOME"), ".mad", "container"]),
-    Path = mad_deps:container().
+repos_path(_) ->
+    Path = filename:join([os:cmd("echo -n $HOME"), ".mad", "repos"]),
+    Path = mad_deps:repos_path().
 
 path(_) ->
-    Path = filename:join([os:cmd("echo -n $HOME"), ".mad", "container",
+    Path = filename:join([os:cmd("echo -n $HOME"), ".mad", "repos",
                           "publisher", "repo"]),
     Path = mad_deps:path("publisher", "repo").
 
@@ -40,8 +40,8 @@ clone(Config) ->
     DataDir = get_value(data_dir, Config),
     DepsDir = filename:join(DataDir, "deps"),
     os:cmd("rm -rf " ++ DepsDir),
-    %% make container and deps directories
-    os:cmd("mkdir -p " ++ mad_deps:container()),
+    %% make repos and deps directories
+    os:cmd("mkdir -p " ++ mad_deps:repos_path()),
     os:cmd("mkdir -p " ++ DepsDir),
     Deps = [{mad, ".*",
              {git, "git://github.com/s1n4/mad.git", {branch, "master"}}

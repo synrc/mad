@@ -1,13 +1,13 @@
 -module(mad_deps).
 
--export([container/0]).
+-export([repos_path/0]).
 -export([path/2]).
 -export([clone/2]).
 -export([name_and_repo/1]).
 -export([checkout_to/1]).
 -export([get_publisher/1]).
 
--define(CONTAINER_PATH, filename:join([mad_utils:home(), ".mad", "container"])).
+-define(REPOS_PATH, filename:join([mad_utils:home(), ".mad", "repos"])).
 
 -type directory() :: string().
 -type name() :: atom().
@@ -17,15 +17,15 @@
 -type dependency() :: {name(), string(), repo()}.
 
 
--spec container() -> directory().
-container() ->
-    %% ~/.mad/container
-    ?CONTAINER_PATH.
+-spec repos_path() -> directory().
+repos_path() ->
+    %% ~/.mad/repos
+    ?REPOS_PATH.
 
 -spec path(string(), string()) -> directory().
 path(Publisher, Repo) ->
-    %% ~/.mad/container/X
-    filename:join([?CONTAINER_PATH, Publisher, Repo]).
+    %% ~/.mad/repos/Publisher/Repo
+    filename:join([?REPOS_PATH, Publisher, Repo]).
 
 -spec clone(directory(), [dependency()]) -> ok.
 clone(_, []) ->

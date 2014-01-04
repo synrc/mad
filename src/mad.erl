@@ -6,8 +6,6 @@
 -export(['compile-app'/1]).
 -export(['compile-deps'/1]).
 
--include("mad.hrl").
-
 
 main([]) ->
     io:format("no args~n");
