@@ -80,7 +80,6 @@ app(Dir) ->
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
             mad_utils:exec("mkdir", ["-p", EbinDir]),
             lists:foreach(compile_fun(IncDir, EbinDir, Opts), Files),
-            code:add_path(EbinDir),
             ok
     end.
 
