@@ -6,8 +6,9 @@
 -export([is_app_src/1]).
 -export([app_src_to_app/1]).
 -export([erl_to_beam/1]).
--export([is_compiled/1]).
 -export([deps/1]).
+-export([app/1]).
+-export([is_compiled/1]).
 
 -import(helper, [get_value/2]).
 
@@ -15,7 +16,7 @@
 all() ->
     [
      erl_files, app_src_files, is_app_src, app_src_to_app, erl_to_beam, deps,
-     is_compiled
+     app, is_compiled
     ].
 
 erl_files(Config) ->
@@ -50,7 +51,21 @@ deps(Config) ->
     ok = application:load(one),
     ok = application:load(two),
     {ok, [one]} = application:get_key(one, modules),
-    {ok, [two]} = application:get_key(two, modules).
+    {ok, [two]} = application:get_key(two, modules),
+
+    ok = one:test_inc_hrl(),
+    ok = one:test_src_hrl(),
+    ok = two:test_inc_hrl(),
+    ok = two:test_src_hrl().
+
+app(Config) ->
+    DataDir = get_value(data_dir, Config),
+    ok = mad_compile:app(DataDir),
+    pong = three:ping(),
+    ok = application:load(three),
+    {ok, [three]} = application:get_key(three, modules),
+    ok = three:test_inc_hrl(),
+    ok = three:test_src_hrl().
 
 is_compiled(Config) ->
     DataDir = get_value(data_dir, Config),

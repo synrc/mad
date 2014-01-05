@@ -11,10 +11,14 @@
 -export([erl_to_beam/2]).
 -export([is_compiled/2]).
 
--define(COMPILE_OPTS(Inc, Ebin), [report, {i, Inc}, {outdir, Ebin}]).
+-define(COMPILE_OPTS(Inc, Ebin, Opts),
+        [report, {i, Inc}, {outdir, Ebin}] ++ Opts).
+
+-type directory() :: string().
 
 
 %% compile dependencies
+-spec deps(directory(), [mad_deps:dependency()]) -> ok.
 deps(_, []) ->
     ok;
 deps(Cwd, [H|T]) ->
@@ -28,6 +32,7 @@ deps(Cwd, [H|T]) ->
     deps(Cwd, T).
 
 %% compile a dependency
+-spec dep(directory(), string()) -> ok.
 dep(Cwd, Name) ->
     %% check dependencies of the dependency
     DepPath = filename:join([Cwd, "deps", Name]),
@@ -51,12 +56,15 @@ dep(Cwd, Name) ->
         Files ->
             IncDir = mad_utils:include(DepPath),
             EbinDir = mad_utils:ebin(DepPath),
+            code:add_path(EbinDir),
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
             mad_utils:exec("mkdir", ["-p", EbinDir]),
-            lists:foreach(compile_fun(SrcDir, IncDir, EbinDir, Opts), Files),
-            put(Name, compiled)
+            lists:foreach(compile_fun(IncDir, EbinDir, Opts), Files),
+            put(Name, compiled),
+            ok
     end.
 
+-spec app(directory()) -> ok.
 app(Dir) ->
     Conf = mad_utils:rebar_conf(Dir),
     Conf1 = mad_utils:script(Dir, Conf),
@@ -68,38 +76,42 @@ app(Dir) ->
         Files ->
             IncDir = mad_utils:include(Dir),
             EbinDir = mad_utils:ebin(Dir),
+            code:add_path(EbinDir),
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
             mad_utils:exec("mkdir", ["-p", EbinDir]),
-            lists:foreach(compile_fun(SrcDir, IncDir, EbinDir, Opts), Files),
-            code:add_path(EbinDir)
+            lists:foreach(compile_fun(IncDir, EbinDir, Opts), Files),
+            code:add_path(EbinDir),
+            ok
     end.
 
+-spec validate_property({atom(), term()}, term()) -> {atom(), term()}.
 validate_property({modules, _}, Modules) ->
     {modules, Modules};
 validate_property(Else, _) ->
     Else.
 
-compile_fun(SrcDir, IncDir, EbinDir, Opts) ->
-    fun(F) ->
-            code:add_path(EbinDir),
-            F1 = filename:join(SrcDir, F),
-            case is_app_src(F1) of
+-spec compile_fun(directory(), directory(), [compile:option()]) ->
+                         fun((file:name()) -> ok).
+compile_fun(IncDir, EbinDir, Opts) ->
+    fun(File) ->
+            case is_app_src(File) of
                 false ->
-                    Compiled = is_compiled(EbinDir, F1),
+                    Compiled = is_compiled(EbinDir, File),
                     if Compiled =:= false ->
-                            io:format("Compiling ~s~n", [F1]),
-                            compile:file(F1, ?COMPILE_OPTS(IncDir, EbinDir) ++ Opts);
+                            io:format("Compiling ~s~n", [File]),
+                            Opts1 = ?COMPILE_OPTS(IncDir, EbinDir, Opts),
+                            compile:file(File, Opts1);
                        true ->
                             ok
                     end;
                 true ->
                     %% add {modules, [Modules]} to .app file
-                    AppFile = filename:join(EbinDir, app_src_to_app(F1)),
+                    AppFile = filename:join(EbinDir, app_src_to_app(File)),
                     io:format("Writing ~s~n", [AppFile]),
                     BeamFiles = filelib:wildcard("*.beam", EbinDir),
                     Modules = [list_to_atom(filename:basename(X, ".beam"))
                                || X <- BeamFiles],
-                    [Struct|_] = mad_utils:consult(F1),
+                    [Struct|_] = mad_utils:consult(File),
                     {application, AppName, Props} = Struct,
                     Props1 = add_modules_property(Props),
                     Props2 = [validate_property(X, Modules) || X <- Props1],
@@ -108,25 +120,34 @@ compile_fun(SrcDir, IncDir, EbinDir, Opts) ->
             end
     end.
 
+%% find all .erl files in Dir
+-spec erl_files(directory()) -> [file:name()].
 erl_files(Dir) ->
     filelib:fold_files(Dir, ".erl", true, fun(F, Acc) -> [F|Acc] end, []).
 
+%% find all .app.src files in Dir
+-spec app_src_files(directory()) -> [file:name()].
 app_src_files(Dir) ->
     filelib:fold_files(Dir, ".app.src", true, fun(F, Acc) -> [F|Acc] end, []).
 
+-spec is_app_src(file:name()) -> boolean().
 is_app_src(Filename) ->
     Filename =/= filename:rootname(Filename, ".app.src").
 
+-spec app_src_to_app(file:name()) -> file:name().
 app_src_to_app(Filename) ->
     filename:basename(Filename, ".app.src") ++ ".app".
 
+-spec erl_to_beam(directory(), file:name()) -> file:name().
 erl_to_beam(EbinDir, Filename) ->
     filename:join(EbinDir, filename:basename(Filename, ".erl") ++ ".beam").
 
+-spec is_compiled(directory(), file:name()) -> boolean().
 is_compiled(EbinDir, ErlFile) ->
     BeamFile = erl_to_beam(EbinDir, ErlFile),
     mad_utils:last_modified(BeamFile) > mad_utils:last_modified(ErlFile).
 
+-spec add_modules_property([{atom(), term()}]) -> [{atom(), term()}].
 add_modules_property(Properties) ->
     case lists:keyfind(modules, 1, Properties) of
         {modules, _} ->
@@ -135,9 +156,12 @@ add_modules_property(Properties) ->
             Properties ++ [{modules, []}]
     end.
 
+-spec sort([file:name()]) -> [file:name()].
 sort(Files) ->
     sort_by_priority(Files, [], [], []).
 
+-spec sort_by_priority([file:name()], [file:name()], [file:name()], [file:name()])
+                      -> [file:name()].
 sort_by_priority([], High, Medium, Low) ->
     (High ++ Medium) ++ Low;
 sort_by_priority([H|T], High, Medium, Low) ->

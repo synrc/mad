@@ -15,6 +15,7 @@
 -type version_control() :: git | hg.
 -type repo() :: {version_control(), uri(), {branch | tag, string()} | string()}.
 -type dependency() :: {name(), string(), repo()}.
+-export_type([dependency/0]).
 
 
 -spec repos_path() -> directory().
