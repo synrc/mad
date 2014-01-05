@@ -56,9 +56,12 @@ dep(Cwd, Name) ->
         Files ->
             IncDir = mad_utils:include(DepPath),
             EbinDir = mad_utils:ebin(DepPath),
+
+            %% create EbinDir and add it to code path
+            file:make_dir(EbinDir),
             code:add_path(EbinDir),
+
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
-            mad_utils:exec("mkdir", ["-p", EbinDir]),
             lists:foreach(compile_fun(IncDir, EbinDir, Opts), Files),
             put(Name, compiled),
             ok
@@ -76,9 +79,12 @@ app(Dir) ->
         Files ->
             IncDir = mad_utils:include(Dir),
             EbinDir = mad_utils:ebin(Dir),
+
+            %% create EbinDir and add it to code path
+            file:make_dir(EbinDir),
             code:add_path(EbinDir),
+
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
-            mad_utils:exec("mkdir", ["-p", EbinDir]),
             lists:foreach(compile_fun(IncDir, EbinDir, Opts), Files),
             ok
     end.
