@@ -1,7 +1,7 @@
 -module(mad_compile).
 
--export([deps/2]).
--export([app/1]).
+-export([deps/3]).
+-export([app/2]).
 
 %% internal
 -export([erl_files/1]).
@@ -15,38 +15,40 @@
         [report, {i, Inc}, {outdir, Ebin}] ++ Opts).
 
 -type directory() :: string().
+-type filename() :: string().
 
 
 %% compile dependencies
--spec deps(directory(), [mad_deps:dependency()]) -> ok.
-deps(_, []) ->
+-spec deps(directory(), filename(), [mad_deps:dependency()]) -> ok.
+deps(_, _, []) ->
     ok;
-deps(Cwd, [H|T]) ->
+deps(Cwd, ConfigFile, [H|T]) ->
     {Name, _} = mad_deps:name_and_repo(H),
     case get(Name) of
         compiled ->
             ok;
         _ ->
-            dep(Cwd, Name)
+            dep(Cwd, ConfigFile, Name)
     end,
-    deps(Cwd, T).
+    deps(Cwd, ConfigFile, T).
 
 %% compile a dependency
--spec dep(directory(), string()) -> ok.
-dep(Cwd, Name) ->
+-spec dep(directory(), filename(), string()) -> ok.
+dep(Cwd, ConfigFile, Name) ->
     %% check dependencies of the dependency
     DepPath = filename:join([Cwd, "deps", Name]),
-    Conf = mad_utils:rebar_conf(DepPath),
-    Conf1 = mad_utils:script(DepPath, Conf),
-    deps(Cwd, mad_utils:get_value(deps, Conf1, [])),
+    DepConfigFile = filename:join(DepPath, ConfigFile),
+    Conf = mad_utils:consult(DepConfigFile),
+    Conf1 = mad_utils:script(DepConfigFile, Conf),
+    deps(Cwd, ConfigFile, mad_utils:get_value(deps, Conf1, [])),
 
     %% add lib_dirs to path
     LibDirs = mad_utils:lib_dirs(DepPath, Conf1),
     code:add_paths(LibDirs),
 
     %% compile sub_dirs and add them to path
-    SubDirs = mad_utils:sub_dirs(DepPath, Conf),
-    lists:foreach(fun app/1, SubDirs),
+    SubDirs = mad_utils:sub_dirs(DepPath, ConfigFile, Conf),
+    foreach(fun app/2, SubDirs, ConfigFile),
 
     SrcDir = mad_utils:src(DepPath),
     Files = sort(erl_files(SrcDir)) ++ app_src_files(SrcDir),
@@ -67,10 +69,11 @@ dep(Cwd, Name) ->
             ok
     end.
 
--spec app(directory()) -> ok.
-app(Dir) ->
-    Conf = mad_utils:rebar_conf(Dir),
-    Conf1 = mad_utils:script(Dir, Conf),
+-spec app(directory(), filename()) -> ok.
+app(Dir, ConfigFile) ->
+    ConfigFile1 = filename:join(Dir, ConfigFile),
+    Conf = mad_utils:consult(ConfigFile1),
+    Conf1 = mad_utils:script(ConfigFile1, Conf),
     SrcDir = mad_utils:src(Dir),
     Files = sort(erl_files(SrcDir)) ++ app_src_files(SrcDir),
     case Files of
@@ -185,3 +188,11 @@ sort_by_priority([H|T], High, Medium, Low) ->
                 {High1 -- [H], Medium1 -- [H], [H|Low1]}
         end,
     sort_by_priority(T, High2, Medium2, Low2).
+
+-spec foreach(fun((directory(), filename()) -> ok), [filename()], filename()) ->
+                     ok.
+foreach(_, [], _) ->
+    ok;
+foreach(Fun, [Dir|T], ConfigFile) ->
+    Fun(Dir, ConfigFile),
+    foreach(Fun, T, ConfigFile).
