@@ -4,14 +4,13 @@
 -export([exec/2]).
 -export([home/0]).
 -export([consult/1]).
--export([rebar_conf/1]).
 -export([src/1]).
 -export([include/1]).
 -export([ebin/1]).
 -export([deps/1]).
 -export([get_value/3]).
 -export([script/2]).
--export([sub_dirs/2]).
+-export([sub_dirs/3]).
 -export([lib_dirs/2]).
 -export([https_to_git/1]).
 -export([git_to_https/1]).
@@ -48,11 +47,6 @@ consult(File) ->
             []
     end.
 
--spec rebar_conf(directory()) -> [term()].
-rebar_conf(Dir) ->
-    Dir1 = filename:absname(Dir),
-    consult(filename:join(Dir1, "rebar.config")).
-
 -spec src(directory()) -> directory().
 src(Dir) ->
     %% Dir/src
@@ -80,29 +74,32 @@ get_value(Key, Opts, Default) ->
         _ -> Default
     end.
 
--spec script(directory(), [term()]) -> [term()].
-script(Dir, Conf) ->
-    File = filename:join(Dir, "rebar.config.script"),
-    case file:script(File, [{'CONFIG', Conf}]) of
+-spec script(file:name(), [term()]) -> [term()].
+script(ConfigFile, Conf) ->
+    File = ConfigFile ++ ".script",
+    Filename = filename:basename(File),
+    case file:script(File, [{'CONFIG', Conf}, {'SCRIPT', Filename}]) of
         {ok, Out} ->
             Out;
         {error, _} ->
             Conf
     end.
 
--spec sub_dirs(directory(), [term()]) -> [directory()].
-sub_dirs(Cwd, Conf) ->
-    sub_dirs(Cwd, get_value(sub_dirs, Conf, []), []).
+-spec sub_dirs(directory(), file:filename(), [term()]) -> [directory()].
+sub_dirs(Cwd, ConfigFile, Conf) ->
+    sub_dirs(Cwd, ConfigFile, get_value(sub_dirs, Conf, []), []).
 
--spec sub_dirs(directory(), [term()], [term()]) -> [directory()].
-sub_dirs(_, [], Acc) ->
+-spec sub_dirs(directory(), file:filename(), [term()], [term()]) -> [directory()].
+sub_dirs(_, _, [], Acc) ->
     Acc;
-sub_dirs(Cwd, [Dir|T], Acc) ->
+sub_dirs(Cwd, ConfigFile, [Dir|T], Acc) ->
     SubDir = filename:join(Cwd, Dir),
-    Conf = rebar_conf(SubDir),
-    Conf1 = script(SubDir, Conf),
-    Acc1 = sub_dirs(SubDir, get_value(sub_dirs, Conf1, []), Acc ++ [SubDir]),
-    sub_dirs(Cwd, T, Acc1).
+    ConfigFile1 = filename:join(SubDir, ConfigFile),
+    Conf = consult(ConfigFile1),
+    Conf1 = script(ConfigFile1, Conf),
+    Acc1 = sub_dirs(SubDir, ConfigFile, get_value(sub_dirs, Conf1, []),
+                    Acc ++ [SubDir]),
+    sub_dirs(Cwd, ConfigFile, T, Acc1).
 
 -spec lib_dirs(directory(), [term()]) -> [directory()].
 lib_dirs(Cwd, Conf) ->

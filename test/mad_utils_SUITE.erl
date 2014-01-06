@@ -5,7 +5,6 @@
 -export([exec/1]).
 -export([home/1]).
 -export([consult/1]).
--export([rebar_conf/1]).
 -export([src/1]).
 -export([include/1]).
 -export([ebin/1]).
@@ -23,8 +22,8 @@
 
 all() ->
     [
-     cwd, exec, home, consult, rebar_conf, src, include, ebin, deps, get_value,
-     script, lib_dirs, sub_dirs, https_to_git, git_to_https, last_modified
+     cwd, exec, home, consult, src, include, ebin, deps, get_value, script,
+     lib_dirs, sub_dirs, https_to_git, git_to_https, last_modified
     ].
 
 cwd(_) ->
@@ -46,14 +45,6 @@ consult(Config) ->
                           {branch, "master"}}}
             ]},
      {erl_opts, [d, 'X']}] = mad_utils:consult(File ++ ".config").
-
-rebar_conf(Config) ->
-    [] = mad_utils:rebar_conf("."),
-    [{deps, [
-             {mad, ".*", {git, "git://github.com/s1n4/mad.git",
-                          {branch, "master"}}}
-            ]},
-     {erl_opts, [d, 'X']}] = mad_utils:rebar_conf(get_value(data_dir, Config)).
 
 src(_) ->
     "/path/to/app/src" = mad_utils:src("/path/to/app").
@@ -77,13 +68,14 @@ get_value(_) ->
     [0,1,2,"and so on"] = mad_utils:get_value(numbers, Opts, undefined).
 
 script(Config) ->
-    [a, b, c] = mad_utils:script(mad_utils:cwd(), [a, b, c]),
-    Dir = get_value(data_dir, Config),
+    [a, b, c] = mad_utils:script("rebar.config", [a, b, c]),
+    File = filename:join(get_value(data_dir, Config), "rebar.config"),
     [{sub_dirs, ["sub_dir1", "sub_dir2"]},
-     a, b, c] = mad_utils:script(Dir, [a, b, c]).
+     a, b, c] = mad_utils:script(File, [a, b, c]).
 
 sub_dirs(Config) ->
-    ["/sub_dir0"] = mad_utils:sub_dirs("/", [{sub_dirs, ["sub_dir0"]}]),
+    ["/sub_dir0"] = mad_utils:sub_dirs("/", "rebar.config",
+                                       [{sub_dirs, ["sub_dir0"]}]),
     DataDir = get_value(data_dir, Config),
     SD1 = filename:absname(filename:join(DataDir, "sub_dir1")),
     SD2 = filename:join(SD1, "trap"),
@@ -91,7 +83,8 @@ sub_dirs(Config) ->
     SD4 = filename:join(SD3, "time-machine"),
     [
      SD1, SD2, SD3, SD4
-    ] =  mad_utils:sub_dirs(DataDir, [{sub_dirs, ["sub_dir1", "sub_dir2"]}]).
+    ] =  mad_utils:sub_dirs(DataDir, "rebar.config",
+                            [{sub_dirs, ["sub_dir1", "sub_dir2"]}]).
 
 lib_dirs(Config) ->
     [] = mad_utils:lib_dirs("/", [{lib_dirs, ["lib_dir0"]}]),
