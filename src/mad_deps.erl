@@ -2,7 +2,7 @@
 
 -export([repos_path/0]).
 -export([path/2]).
--export([fetch/2]).
+-export([fetch/3]).
 -export([name_and_repo/1]).
 -export([checkout_to/1]).
 -export([get_publisher/1]).
@@ -10,6 +10,7 @@
 -define(REPOS_PATH, filename:join([mad_utils:home(), ".mad", "repos"])).
 
 -type directory() :: string().
+-type filename() :: string().
 -type name() :: atom().
 -type uri() :: string().
 -type version_control() :: git | hg.
@@ -28,12 +29,12 @@ path(Publisher, Repo) ->
     %% ~/.mad/repos/Publisher/Repo
     filename:join([?REPOS_PATH, Publisher, Repo]).
 
--spec fetch(directory(), [dependency()]) -> ok.
-fetch(_, []) ->
+-spec fetch(directory(), filename(), [dependency()]) -> ok.
+fetch(_, _, []) ->
     ok;
-fetch(Cwd, [H|T]) when is_tuple(H) =:= false ->
-    fetch(Cwd, T);
-fetch(Cwd, [H|T]) ->
+fetch(Cwd, ConfigFile, [H|T]) when is_tuple(H) =:= false ->
+    fetch(Cwd, ConfigFile, T);
+fetch(Cwd, ConfigFile, [H|T]) ->
     {Name, Repo} = name_and_repo(H),
     {Cmd, Uri, Co} = case Repo of
                          V={_, _, _} ->
@@ -48,13 +49,14 @@ fetch(Cwd, [H|T]) ->
         fetched ->
             ok;
         _ ->
-            fetch_dep(Cwd, Publisher, Name, Cmd1, Uri),
+            fetch_dep(Cwd, ConfigFile, Publisher, Name, Cmd1, Uri),
             build_dep(Cwd, Publisher, Name, Cmd1, Co1)
     end,
-    fetch(Cwd, T).
+    fetch(Cwd, ConfigFile, T).
 
--spec fetch_dep(directory(), string(), string(), string(), uri()) -> ok.
-fetch_dep(Cwd, Publisher, Name, Cmd, Uri) ->
+-spec fetch_dep(directory(), filename(), string(), string(), string(), uri())
+               -> ok.
+fetch_dep(Cwd, ConfigFile, Publisher, Name, Cmd, Uri) ->
     TrunkPath = path(Publisher, Name),
     Opts = ["clone", Uri, TrunkPath],
     io:format("dependency: ~s~n", [Name]),
@@ -63,9 +65,10 @@ fetch_dep(Cwd, Publisher, Name, Cmd, Uri) ->
     put(Name, fetched),
 
     %% check dependencies of the dependency
-    Conf = mad_utils:rebar_conf(TrunkPath),
-    Conf1 = mad_utils:script(TrunkPath, Conf),
-    fetch(Cwd, mad_utils:get_value(deps, Conf1, [])).
+    TrunkConfigFile = filename:join(TrunkPath, ConfigFile),
+    Conf = mad_utils:consult(TrunkConfigFile),
+    Conf1 = mad_utils:script(TrunkConfigFile, Conf),
+    fetch(Cwd, ConfigFile, mad_utils:get_value(deps, Conf1, [])).
 
 %% build dependency based on branch/tag/commit
 -spec build_dep(directory(), string(), string(), string(), string()) -> ok.

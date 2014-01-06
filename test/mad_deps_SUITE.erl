@@ -46,6 +46,6 @@ fetch(Config) ->
     Deps = [{mad, ".*",
              {git, "git://github.com/s1n4/mad.git", {branch, "master"}}
             }],
-    mad_deps:fetch(DataDir, Deps),
+    mad_deps:fetch(DataDir, "rebar.config", Deps),
     {ok, _} = file:list_dir(filename:join(DepsDir, "mad")),
     os:cmd("rm -rf " ++ DepsDir).
