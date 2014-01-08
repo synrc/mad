@@ -1,25 +1,18 @@
 #!/usr/bin/env escript
 
 main(_) ->
-    Files = lists:ukeysort(1, lists:flatten(files())),
-    {ok, {"mad", ZipBin}} = zip:create("mad", Files, [memory]),
-    Script = iolist_to_binary([
-                               "#!/usr/bin/env escript\n",
-                               "%% " ++ comment(),
-                               "%%! -pa mad/mad/ebin\n",
-                               ZipBin]),
-    file:write_file("mad", Script),
-    os:cmd("chmod +x mad").
+    App = "mad",
+    EmuArgs = "-noshell -noinput",
+    Files = files(),
+    escript:create(App, [shebang, {comment, ""}, {emu_args, EmuArgs},
+                         {archive, Files, []}]),
+    ok = file:change_mode(App, 8#764).
 
 files() ->
-    [read_file(F) || F <- filelib:wildcard("*", "ebin")].
+    [{filename:basename(F), read_file(F)}
+     || F <- filelib:wildcard(filename:join("ebin", "*")) ++
+            filelib:wildcard(filename:join(["deps", "*", "ebin", "*"]))].
 
-read_file(F) ->
-    [[{"ebin/", <<>>}], {F, file_contents(F)}].
-
-file_contents(F) ->
-    {ok, Bin} = file:read_file(filename:join("ebin", F)),
+read_file(File) ->
+    {ok, Bin} = file:read_file(filename:absname(File)),
     Bin.
-
-comment() ->
-    "Dependency manager for Erlang\n".
