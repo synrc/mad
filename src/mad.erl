@@ -1,61 +1,74 @@
 -module(mad).
 
 -export([main/1]).
--export(['clone-deps'/1]).
--export([compile/1]).
--export(['compile-app'/1]).
--export(['compile-deps'/1]).
+-export(['fetch-deps'/3]).
+-export([compile/3]).
+-export(['compile-app'/3]).
+-export(['compile-deps'/3]).
 
 
 main([]) ->
-    io:format("no args~n");
+    help();
 main(Args) ->
-    Cwd = mad_utils:cwd(),
-    code:add_path(mad_utils:ebin(Cwd)),
-    Conf = mad_utils:rebar_conf(Cwd),
-    Conf1 = mad_utils:script(Cwd, Conf),
-    Fun = fun(F) -> F1 = list_to_atom(F), ?MODULE:F1(Conf1) end,
-    lists:foreach(Fun, Args).
+    {Opts, Params} = case getopt:parse(option_spec_list(), Args) of
+                         {ok, {Opts1, Params1}} ->
+                             {Opts1, [list_to_atom(E) || E <- Params1]};
+                         {error, {Reason, Data}} ->
+                             help(Reason, Data)
+                     end,
+    maybe_help(Opts, Params),
+    lists:foreach(fun(E) ->
+                          case erlang:function_exported(?MODULE, E, 3) of
+                              true -> ok;
+                              false -> help("invalid_parameter", E)
+                          end
+                  end, Params),
 
-%% clone dependencies
-'clone-deps'(Conf) ->
+    Paths = ["ebin"|filelib:wildcard(filename:join(["deps", "*", "ebin"]))],
+    code:add_paths(Paths),
+    Cwd = mad_utils:cwd(),
+    ConfigFile = get_value(config_file, Opts, "rebar.config"),
+    Conf = mad_utils:consult(filename:join(Cwd, ConfigFile)),
+    Conf1 = mad_utils:script(Cwd, Conf),
+    Fun = fun(F) -> ?MODULE:F(Cwd, ConfigFile, Conf1) end,
+    lists:foreach(Fun, Params).
+
+%% fetch dependencies
+'fetch-deps'(Cwd, ConfigFile, Conf) ->
     case get_value(deps, Conf, []) of
         [] ->
             ok;
         Deps ->
-            mad_utils:exec("mkdir", ["-p", mad_deps:container()]),
-            mad_utils:exec("mkdir", ["-p", "deps"]),
-            mad_deps:clone(Deps)
+            file:make_dir(mad_deps:repos_path()),
+            file:make_dir("deps"),
+            mad_deps:fetch(Cwd, ConfigFile, Deps)
     end.
 
 %% compile dependencies and the app
-compile(Conf) ->
+compile(Cwd, ConfigFile, Conf) ->
     Cwd = mad_utils:cwd(),
     %% add lib_dirs to path
     LibDirs = mad_utils:lib_dirs(Cwd, Conf),
     code:add_paths(LibDirs),
 
     %% compile dependencies
-    'compile-deps'(Conf),
-    %% check sub_dirs if they have something to be compiled
-    SubDirs = mad_utils:sub_dirs(Cwd, Conf),
-    lists:foreach(fun mad_compile:app/1, SubDirs),
+    'compile-deps'(Cwd, ConfigFile, Conf),
 
     %% compile the app
-    'compile-app'(Conf).
+    'compile-app'(Cwd, ConfigFile, Conf).
 
 %% compile a project according to the conventions
-'compile-app'(Conf) ->
-    Cwd = mad_utils:cwd(),
+'compile-app'(Cwd, ConfigFile, Conf) ->
     %% add lib_dirs to path
     LibDirs = mad_utils:lib_dirs(Cwd, Conf),
     code:add_paths(LibDirs),
 
-    Dirs = [Cwd|mad_utils:sub_dirs(Cwd, Conf)],
-    lists:foreach(fun mad_compile:app/1, Dirs).
+    %% check sub_dirs if they have something to be compiled
+    Dirs = [mad_utils:sub_dirs(Cwd, ConfigFile, Conf)] ++ [Cwd],
+    mad_compile:foreach(fun mad_compile:app/2, Dirs, ConfigFile).
 
-'compile-deps'(Conf) ->
-    mad_compile:deps(get_value(deps, Conf, [])).
+'compile-deps'(Cwd, ConfigFile, Conf) ->
+    mad_compile:deps(Cwd, ConfigFile, get_value(deps, Conf, [])).
 
 get_value(Key, Opts, Default) ->
     case lists:keyfind(Key, 1, Opts) of
@@ -63,3 +76,42 @@ get_value(Key, Opts, Default) ->
             Value;
         _ -> Default
     end.
+
+option_spec_list() ->
+    [
+     {help, $h, "help", undefined, "Displays this message"},
+     {config_file, $C, "config", {string, "rebar.config"}, "Rebar config file to use"}
+    ].
+
+maybe_help(Opts, Params) ->
+    Fun = fun(L) ->
+                  case lists:member(help, L) of
+                      true ->
+                          help();
+                      false ->
+                          ok
+                  end
+          end,
+    Fun(Opts),
+    Fun(Params).
+
+help("invalid_parameter", Data) ->
+    help(io_lib:format("invalid_parameter \"~s\"", [Data]));
+help(Reason, Data) ->
+    help(io_lib:format("~s ~p", [Reason, Data])).
+
+help(Msg) ->
+    io:format("Error: ~s~n~n", [Msg]),
+    help().
+
+help() ->
+    io:format("Erlang dependency manager~n"),
+    Params = [
+              {"", ""},
+              {"fetch-deps", "Fetches dependencies"},
+              {"compile-deps", "Compiles dependencies"},
+              {"compile-app", "Compiles application"},
+              {"compile", "Compiles dependencies and application"}
+             ],
+    getopt:usage(option_spec_list(), escript:script_name(), "", Params),
+    halt().

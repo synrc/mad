@@ -3,3 +3,4 @@ ebin
 erl_crash.dump
 logs
 .mad.plt
+deps
