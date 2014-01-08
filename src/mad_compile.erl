@@ -2,6 +2,7 @@
 
 -export([deps/3]).
 -export([app/2]).
+-export([foreach/3]).
 
 %% internal
 -export([erl_files/1]).
