@@ -71,5 +71,7 @@ is_compiled(Config) ->
     DataDir = get_value(data_dir, Config),
     SrcDir = filename:join([DataDir, "deps", "one", "src"]),
     EbinDir = filename:join([SrcDir, "..", "ebin"]),
-    false = mad_compile:is_compiled(EbinDir, filename:join(SrcDir, "x.erl")),
-    true = mad_compile:is_compiled(EbinDir, filename:join(SrcDir, "one.erl")).
+    BeamFile1 = filename:join(EbinDir, "x.beam"),
+    BeamFile2 = filename:join(EbinDir, "one.beam"),
+    false = mad_compile:is_compiled(BeamFile1, filename:join(SrcDir, "x.erl")),
+    true = mad_compile:is_compiled(BeamFile2, filename:join(SrcDir, "one.erl")).
