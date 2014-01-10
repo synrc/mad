@@ -19,13 +19,22 @@ main(Args) ->
     maybe_invalid(Params),
     maybe_help(Opts, Params),
 
-    Paths = ["ebin"|filelib:wildcard(filename:join(["deps", "*", "ebin"]))],
-    code:add_paths(Paths),
     Cwd = mad_utils:cwd(),
     ConfigFile = get_value(config_file, Opts, "rebar.config"),
     ConfigFileAbs = filename:join(Cwd, ConfigFile),
     Conf = mad_utils:consult(ConfigFileAbs),
     Conf1 = mad_utils:script(ConfigFileAbs, Conf),
+
+    %% TODO: deps_dir might be a list of directories, add them all to code path
+    DepsDir = filename:join([hd(mad_utils:get_value(deps_dir, Conf1, "deps")),
+                             "*", "ebin"]),
+    Paths = ["ebin"|filelib:wildcard(DepsDir)],
+    code:add_paths(Paths),
+
+    %% add lib_dirs to path
+    LibDirs = mad_utils:lib_dirs(Cwd, Conf),
+    code:add_paths(LibDirs),
+
     Fun = fun(F) -> ?MODULE:F(Cwd, ConfigFile, Conf1) end,
     lists:foreach(Fun, Params).
 
@@ -42,11 +51,6 @@ main(Args) ->
 
 %% compile dependencies and the app
 compile(Cwd, ConfigFile, Conf) ->
-    Cwd = mad_utils:cwd(),
-    %% add lib_dirs to path
-    LibDirs = mad_utils:lib_dirs(Cwd, Conf),
-    code:add_paths(LibDirs),
-
     %% compile dependencies
     'compile-deps'(Cwd, ConfigFile, Conf),
 
@@ -55,10 +59,6 @@ compile(Cwd, ConfigFile, Conf) ->
 
 %% compile a project according to the conventions
 'compile-app'(Cwd, ConfigFile, Conf) ->
-    %% add lib_dirs to path
-    LibDirs = mad_utils:lib_dirs(Cwd, Conf),
-    code:add_paths(LibDirs),
-
     %% check sub_dirs if they have something to be compiled
     Dirs = [mad_utils:sub_dirs(Cwd, ConfigFile, Conf)] ++ [Cwd],
     mad_compile:foreach(fun mad_compile:app/2, Dirs, ConfigFile).
