@@ -16,8 +16,8 @@ main(Args) ->
                          {error, {Reason, Data}} ->
                              help(Reason, Data)
                      end,
-    maybe_help(Opts, Params),
     maybe_invalid(Params),
+    maybe_help(Opts, Params),
 
     Paths = ["ebin"|filelib:wildcard(filename:join(["deps", "*", "ebin"]))],
     code:add_paths(Paths),
