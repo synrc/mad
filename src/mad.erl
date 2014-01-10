@@ -17,19 +17,15 @@ main(Args) ->
                              help(Reason, Data)
                      end,
     maybe_help(Opts, Params),
-    lists:foreach(fun(E) ->
-                          case erlang:function_exported(?MODULE, E, 3) of
-                              true -> ok;
-                              false -> help("invalid_parameter", E)
-                          end
-                  end, Params),
+    maybe_invalid(Params),
 
     Paths = ["ebin"|filelib:wildcard(filename:join(["deps", "*", "ebin"]))],
     code:add_paths(Paths),
     Cwd = mad_utils:cwd(),
     ConfigFile = get_value(config_file, Opts, "rebar.config"),
-    Conf = mad_utils:consult(filename:join(Cwd, ConfigFile)),
-    Conf1 = mad_utils:script(Cwd, Conf),
+    ConfigFileAbs = filename:join(Cwd, ConfigFile),
+    Conf = mad_utils:consult(ConfigFileAbs),
+    Conf1 = mad_utils:script(ConfigFileAbs, Conf),
     Fun = fun(F) -> ?MODULE:F(Cwd, ConfigFile, Conf1) end,
     lists:foreach(Fun, Params).
 
@@ -94,6 +90,14 @@ maybe_help(Opts, Params) ->
           end,
     Fun(Opts),
     Fun(Params).
+
+maybe_invalid(Params) ->
+    lists:foreach(fun(E) ->
+                          case erlang:function_exported(?MODULE, E, 3) of
+                              true -> ok;
+                              false -> help("invalid_parameter", E)
+                          end
+                  end, Params).
 
 help("invalid_parameter", Data) ->
     help(io_lib:format("invalid_parameter \"~s\"", [Data]));
