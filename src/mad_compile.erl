@@ -175,11 +175,11 @@ sort_by_priority([], High, Medium, Low) ->
     (High ++ Medium) ++ Low;
 sort_by_priority([H|T], High, Medium, Low) ->
     {High1, Medium1, Low1} =
-        case mad_utils:exec("sed", ["-n", "'/-callback/p'", H]) of
-            [] ->
-                {High, [H|Medium], Low};
-            _ ->
-                {[H|High], Medium, Low}
+        case is_behaviour(H) of
+            true ->
+                {[H|High], Medium, Low};
+            false ->
+                {High, [H|Medium], Low}
         end,
     {High2, Medium2, Low2} =
         case mad_utils:exec("sed", ["-n", "'/-compile/p'", H]) of
@@ -197,3 +197,13 @@ foreach(_, [], _) ->
 foreach(Fun, [Dir|T], ConfigFile) ->
     Fun(Dir, ConfigFile),
     foreach(Fun, T, ConfigFile).
+
+-spec is_behaviour(file:name()) -> boolean().
+is_behaviour(File) ->
+    case filelib:is_file(File) of
+        true ->
+            [] =/= mad_utils:exec("sed", ["-n", "-e", "'/-callback/p'", "-e",
+                                          "'/behaviour_info\\/1/p'", File]);
+        _ ->
+            false
+    end.
