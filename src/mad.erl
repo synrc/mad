@@ -26,7 +26,7 @@ main(Args) ->
     Conf1 = mad_utils:script(ConfigFileAbs, Conf),
 
     %% TODO: deps_dir might be a list of directories, add them all to code path
-    DepsDir = filename:join([hd(mad_utils:get_value(deps_dir, Conf1, "deps")),
+    DepsDir = filename:join([hd(mad_utils:get_value(deps_dir, Conf1, ["deps"])),
                              "*", "ebin"]),
     Paths = ["ebin"|filelib:wildcard(DepsDir)],
     code:add_paths(Paths),
