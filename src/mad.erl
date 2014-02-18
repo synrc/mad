@@ -42,7 +42,6 @@ main(Args) ->
                 deps_fetch -> skip;
                 Dir -> file:make_dir(Dir) end,
             FetchDir = mad_utils:get_value(deps_dir, Conf, ["deps"]),
-            io:format("Make Fetch Dir: ~p",[FetchDir]),
             file:make_dir(FetchDir),
             mad_deps:fetch(Cwd, Conf, ConfigFile, Deps)
     end.
