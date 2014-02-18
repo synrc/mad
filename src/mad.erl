@@ -2,9 +2,9 @@
 -copyright('Sina Samavati').
 -export([main/1,'fetch-deps'/3,compile/3,'compile-app'/3,'compile-deps'/3]).
 
-main([]) ->
-    help();
+main([]) -> help();
 main(Args) ->
+
     {Opts, Params} = case getopt:parse(option_spec_list(), Args) of
                          {ok, {Opts1, Params1}} ->
                              {Opts1, [list_to_atom(E) || E <- Params1]};
@@ -35,8 +35,7 @@ main(Args) ->
 %% fetch dependencies
 'fetch-deps'(Cwd, ConfigFile, Conf) ->
     case get_value(deps, Conf, []) of
-        [] ->
-            ok;
+        [] -> ok;
         Deps ->
             Cache = mad_utils:get_value(deps_dir, Conf, deps_fetch),
             case Cache of
@@ -68,8 +67,7 @@ get_value(Key, Opts, Default) ->
     case lists:keyfind(Key, 1, Opts) of
         {Key, Value} ->
             Value;
-        _ -> Default
-    end.
+        _ -> Default end.
 
 option_spec_list() ->
     [

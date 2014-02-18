@@ -1,14 +1,7 @@
-%%-*- mode: erlang -*-
-
 {application, mad,
- [
-  {description, "Dependency manager for Erlang"},
+ [{description, "Dependency manager for Erlang"},
   {vsn, ""},
   {registered, []},
-  {applications, [
-                  kernel,
-                  stdlib
-                 ]},
+  {applications, [kernel,stdlib]},
   {mod, { mad_app, []}},
-  {env, []}
- ]}.
+  {env, []}]}.

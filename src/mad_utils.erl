@@ -1,28 +1,19 @@
 -module(mad_utils).
 -copyright('Sina Samavati').
 -export([cwd/0,exec/2,home/0,consult/1,src/1,include/1,ebin/1,deps/1,get_value/3,
-         script/2,sub_dirs/3,lib_dirs/2,https_to_git/1,git_to_https/1,last_modified/1]).
+         script/2,sub_dirs/3,lib_dirs/2,last_modified/1]).
 
 -type directory() :: string().
 
-
-%% get current working directory
 -spec cwd() -> directory().
-cwd() ->
-    {ok, Cwd} = file:get_cwd(),
-    Cwd.
+cwd() -> {ok, Cwd} = file:get_cwd(), Cwd.
 
-%% execute a shell command
 exec(Cmd, Opts) ->
     Opts1 = [" " ++ X || X <- Opts],
     os:cmd(Cmd ++ lists:concat(Opts1)).
 
-%% return $HOME
 -spec home() -> directory().
-home() ->
-    %% ~/
-    {ok, [[H|_]]} = init:get_argument(home),
-    H.
+home() -> {ok, [[H|_]]} = init:get_argument(home), H.
 
 -spec consult(file:name_all()) -> [term()].
 consult(File) ->
@@ -35,31 +26,23 @@ consult(File) ->
     end.
 
 -spec src(directory()) -> directory().
-src(Dir) ->
-    %% Dir/src
-    filename:join(Dir, "src").
+src(Dir) -> filename:join(Dir, "src").
 
 -spec include(directory()) -> directory().
-include(Dir) ->
-    %% Dir/include
-    filename:join(Dir, "include").
+include(Dir) -> filename:join(Dir, "include").
 
 -spec ebin(directory()) -> directory().
-ebin(Dir) ->
-    %% Dir/ebin
-    filename:join(Dir, "ebin").
+ebin(Dir) -> filename:join(Dir, "ebin").
 
 -spec deps(file:name_all()) -> [term()].
-deps(File) ->
-    get_value(deps, consult(File), []).
+deps(File) -> get_value(deps, consult(File), []).
 
 -spec get_value(term(), [{term(), term()}], Default) -> term() | Default.
 get_value(Key, Opts, Default) ->
     case lists:keyfind(Key, 1, Opts) of
         {Key, Value} ->
             Value;
-        _ -> Default
-    end.
+        _ -> Default end.
 
 -spec script(file:name(), [term()]) -> [term()].
 script(ConfigFile, Conf) ->
@@ -76,8 +59,7 @@ sub_dirs(Cwd, ConfigFile, Conf) ->
     sub_dirs(Cwd, ConfigFile, get_value(sub_dirs, Conf, []), []).
 
 -spec sub_dirs(directory(), file:filename(), [term()], [term()]) -> [directory()].
-sub_dirs(_, _, [], Acc) ->
-    Acc;
+sub_dirs(_, _, [], Acc) -> Acc;
 sub_dirs(Cwd, ConfigFile, [Dir|T], Acc) ->
     SubDir = filename:join(Cwd, Dir),
     ConfigFile1 = filename:join(SubDir, ConfigFile),
@@ -88,29 +70,16 @@ sub_dirs(Cwd, ConfigFile, [Dir|T], Acc) ->
     sub_dirs(Cwd, ConfigFile, T, Acc1).
 
 -spec lib_dirs(directory(), [term()]) -> [directory()].
-lib_dirs(Cwd, Conf) ->
-    lib_dirs(Cwd, get_value(lib_dirs, Conf, []), []).
+lib_dirs(Cwd, Conf) -> lib_dirs(Cwd, get_value(lib_dirs, Conf, []), []).
 
 -spec lib_dirs(directory(), [term()], [term()]) -> [directory()].
-lib_dirs(_, [], Acc) ->
-    Acc;
+lib_dirs(_, [], Acc) -> Acc;
 lib_dirs(Cwd, [H|T], Acc) ->
     Dirs = filelib:wildcard(filename:join([Cwd, H, "*", "ebin"])),
     lib_dirs(Cwd, T, Acc ++ Dirs).
 
--spec https_to_git(string()) -> string().
-https_to_git(X) ->
-    re:replace(X, "https://", "git://", [{return, list}]).
-
--spec git_to_https(string()) -> string().
-git_to_https(X) ->
-    re:replace(X, "git://", "https://", [{return, list}]).
-
 -spec last_modified(file:name_all()) -> Seconds :: non_neg_integer().
 last_modified(File) ->
     case filelib:last_modified(File) of
-        0 ->
-            0;
-        Else ->
-            calendar:datetime_to_gregorian_seconds(Else)
-    end.
+        0 -> 0;
+        Else -> calendar:datetime_to_gregorian_seconds(Else) end.

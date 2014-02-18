@@ -10,16 +10,12 @@
 
 %% compile dependencies
 -spec deps(directory(), any(), filename(), [mad_deps:dependency()]) -> ok.
-deps(_, _, _, []) ->
-    ok;
+deps(_, _, _, []) -> ok;
 deps(Cwd, Conf, ConfigFile, [H|T]) ->
     {Name, _} = mad_deps:name_and_repo(H),
     case get(Name) of
-        compiled ->
-            ok;
-        _ ->
-            dep(Cwd, Conf, ConfigFile, Name)
-    end,
+        compiled -> ok;
+        _ -> dep(Cwd, Conf, ConfigFile, Name) end,
     deps(Cwd, Conf, ConfigFile, T).
 
 %% compile a dependency
@@ -44,8 +40,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     SrcDir = filename:join([mad_utils:src(DepPath)]),
     Files = sort(erl_files(SrcDir)) ++ app_src_files(SrcDir),
     case Files of
-        [] ->
-            ok;
+        [] -> ok;
         Files ->
             IncDir = mad_utils:include(DepPath),
             EbinDir = mad_utils:ebin(DepPath),
@@ -67,8 +62,7 @@ app(Dir, Conf, ConfigFile) ->
     SrcDir = mad_utils:src(Dir),
     Files = sort(erl_files(SrcDir)) ++ app_src_files(SrcDir),
     case Files of
-        [] ->
-            ok;
+        [] -> ok;
         Files ->
             IncDir = mad_utils:include(Dir),
             EbinDir = mad_utils:ebin(Dir),
@@ -104,9 +98,7 @@ compile_fun(IncDir, EbinDir, Opts) ->
                             io:format("Compiling ~s~n", [File]),
                             Opts1 = ?COMPILE_OPTS(IncDir, EbinDir, Opts),
                             compile:file(File, Opts1);
-                       true ->
-                            ok
-                    end;
+                       true -> ok end;
                 true ->
                     %% add {modules, [Modules]} to .app file
                     AppFile = filename:join(EbinDir, app_src_to_app(File)),
@@ -169,24 +161,16 @@ sort_by_priority([], High, Medium, Low) ->
 sort_by_priority([H|T], High, Medium, Low) ->
     {High1, Medium1, Low1} =
         case is_behaviour(H) of
-            true ->
-                {[H|High], Medium, Low};
-            false ->
-                {High, [H|Medium], Low}
-        end,
+            true -> {[H|High], Medium, Low};
+            false -> {High, [H|Medium], Low} end,
     {High2, Medium2, Low2} =
         case mad_utils:exec("sed", ["-n", "'/-compile/p'", H]) of
-               [] ->
-                {High1, Medium1, Low1};
-               _ ->
-                {High1 -- [H], Medium1 -- [H], [H|Low1]}
-        end,
+               [] -> {High1, Medium1, Low1};
+               _ -> {High1 -- [H], Medium1 -- [H], [H|Low1]} end,
     sort_by_priority(T, High2, Medium2, Low2).
 
--spec foreach(fun((directory(), filename()) -> ok), [filename()], any(), filename()) ->
-                     ok.
-foreach(_, [], _, _) ->
-    ok;
+-spec foreach(fun((directory(), filename()) -> ok), [filename()], any(), filename()) -> ok.
+foreach(_, [], _, _) -> ok;
 foreach(Fun, [Dir|T], Config, ConfigFile) ->
     Fun(Dir, Config, ConfigFile),
     foreach(Fun, T, Config, ConfigFile).
@@ -197,9 +181,7 @@ is_behaviour(File) ->
         true ->
             [] =/= mad_utils:exec("sed", ["-n", "-e", "'/-callback/p'", "-e",
                                           "'/behaviour_info\\/1/p'", File]);
-        _ ->
-            false
-    end.
+        _ -> false end.
 
 get_kv(K, Opts, Default) ->
     V = mad_utils:get_value(K, Opts, Default),
