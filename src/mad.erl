@@ -38,7 +38,10 @@ main(Args) ->
         [] ->
             ok;
         Deps ->
-            file:make_dir(mad_deps:repos_path()),
+            Cache = mad_utils:get_value(deps_dir, Conf, deps_fetch),
+            case Cache of
+                deps_fetch -> skip;
+                Dir -> file:make_dir(Dir) end,
             FetchDir = mad_utils:get_value(deps_dir, Conf, ["deps"]),
             file:make_dir(FetchDir),
             mad_deps:fetch(Cwd, Conf, ConfigFile, Deps)
