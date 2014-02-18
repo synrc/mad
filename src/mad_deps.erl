@@ -39,9 +39,11 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
         Dir -> filename:join([Dir,get_publisher(Uri),Name]) end,
 
     Opts = ["clone", Uri, TrunkPath ],
-    io:format("==> dependency: ~p tag: ~p~n", [Uri,Co]),
     %% fetch
     mad_utils:exec(Cmd, Opts),
+    io:format("==> dependency: ~p tag: ~p~n", [Uri,Co]),
+    mad_utils:exec(Cmd, ["checkout", lists:concat([Co]) ] ),
+
     put(Name, fetched),
 
     %% check dependencies of the dependency
@@ -55,12 +57,11 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
 
 %% build dependency based on branch/tag/commit
 -spec build_dep(directory(), any(), string(), string(), string(), string(), string(), string()) -> ok.
-build_dep(Cwd, Conf, _ConfFile, Publisher, Name, Cmd, Co, Dir) ->
+build_dep(Cwd, Conf, _ConfFile, Publisher, Name, _Cmd, _Co, Dir) ->
     TrunkPath = filename:join([Dir, Publisher, Name]),
     DepsDir = filename:join([mad_utils:get_value(deps_dir, Conf, ["deps"]),Name]),
     mad_utils:exec("cp", ["-r", TrunkPath, DepsDir]),
     ok = file:set_cwd(DepsDir),
-    mad_utils:exec(Cmd, ["checkout", lists:concat([Co])]),
     ok = file:set_cwd(Cwd).
 
 %% internal

@@ -1,6 +1,6 @@
 -module(mad).
 -copyright('Sina Samavati').
--export([main/1,'fetch-deps'/3,compile/3,'compile-app'/3,'compile-deps'/3]).
+-export([main/1,'get-deps'/3,compile/3,'compile-app'/3,'compile-deps'/3]).
 
 main([]) -> help();
 main(Args) ->
@@ -33,7 +33,7 @@ main(Args) ->
     lists:foreach(Fun, Params).
 
 %% fetch dependencies
-'fetch-deps'(Cwd, ConfigFile, Conf) ->
+'get-deps'(Cwd, ConfigFile, Conf) ->
     case get_value(deps, Conf, []) of
         [] -> ok;
         Deps ->
@@ -108,7 +108,7 @@ help() ->
     io:format("Erlang dependency manager~n"),
     Params = [
               {"", ""},
-              {"fetch-deps", "Fetches dependencies"},
+              {"get-deps", "Fetches dependencies"},
               {"compile-deps", "Compiles dependencies"},
               {"compile-app", "Compiles application"},
               {"compile", "Compiles dependencies and application"}
