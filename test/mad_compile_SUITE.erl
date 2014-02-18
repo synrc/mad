@@ -45,7 +45,7 @@ erl_to_beam(_) ->
 deps(Config) ->
     DataDir = get_value(data_dir, Config),
     Deps = [{one, "", {}}, {two, "", {}}],
-    ok = mad_compile:deps(DataDir, "rebar.config", Deps),
+    ok = mad_compile:deps(DataDir, Config, "rebar.config", Deps),
     pong = one:ping(),
     pong = two:ping(),
     ok = application:load(one),
@@ -60,7 +60,7 @@ deps(Config) ->
 
 app(Config) ->
     DataDir = get_value(data_dir, Config),
-    ok = mad_compile:app(DataDir, "rebar.config"),
+    ok = mad_compile:app(DataDir, Config, "rebar.config"),
     pong = three:ping(),
     ok = application:load(three),
     {ok, [three]} = application:get_key(three, modules),
