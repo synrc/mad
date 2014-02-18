@@ -1,12 +1,6 @@
 -module(mad_deps).
-
--export([repos_path/0]).
--export([path/2]).
--export([fetch/4]).
--export([name_and_repo/1]).
--export([checkout_to/1]).
--export([get_publisher/1]).
-
+-copyright('Sina Samavati').
+-export([repos_path/0,path/2,fetch/4,name_and_repo/1,checkout_to/1,get_publisher/1]).
 -define(REPOS_PATH, filename:join([mad_utils:home(), ".mad", "repos"])).
 
 -type directory() :: string().
@@ -17,7 +11,6 @@
 -type repo() :: {version_control(), uri(), {branch | tag, string()} | string()}.
 -type dependency() :: {name(), string(), repo()}.
 -export_type([dependency/0]).
-
 
 -spec repos_path() -> directory().
 repos_path() ->

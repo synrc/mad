@@ -1,47 +1,36 @@
 -module(mad_compile).
-
--export([deps/3]).
--export([app/2]).
--export([foreach/3]).
-
-%% internal
--export([erl_files/1]).
--export([app_src_files/1]).
--export([is_app_src/1]).
--export([app_src_to_app/1]).
--export([erl_to_beam/2]).
--export([is_compiled/2]).
-
+-copyright('Sina Samavati').
+-export([deps/4,app/3,foreach/4]).
+-export([erl_files/1,app_src_files/1,is_app_src/1,app_src_to_app/1,erl_to_beam/2,is_compiled/2]).
 -define(COMPILE_OPTS(Inc, Ebin, Opts),
         [report, {i, Inc}, {outdir, Ebin}] ++ Opts).
 
 -type directory() :: string().
 -type filename() :: string().
 
-
 %% compile dependencies
--spec deps(directory(), filename(), [mad_deps:dependency()]) -> ok.
-deps(_, _, []) ->
+-spec deps(directory(), any(), filename(), [mad_deps:dependency()]) -> ok.
+deps(_, _, _, []) ->
     ok;
-deps(Cwd, ConfigFile, [H|T]) ->
+deps(Cwd, Conf, ConfigFile, [H|T]) ->
     {Name, _} = mad_deps:name_and_repo(H),
     case get(Name) of
         compiled ->
             ok;
         _ ->
-            dep(Cwd, ConfigFile, Name)
+            dep(Cwd, Conf, ConfigFile, Name)
     end,
-    deps(Cwd, ConfigFile, T).
+    deps(Cwd, Conf, ConfigFile, T).
 
 %% compile a dependency
--spec dep(directory(), filename(), string()) -> ok.
-dep(Cwd, ConfigFile, Name) ->
+-spec dep(directory(), any(), filename(), string()) -> ok.
+dep(Cwd, _Conf, ConfigFile, Name) ->
     %% check dependencies of the dependency
     DepPath = filename:join([Cwd, "deps", Name]),
     DepConfigFile = filename:join(DepPath, ConfigFile),
     Conf = mad_utils:consult(DepConfigFile),
     Conf1 = mad_utils:script(DepConfigFile, Conf),
-    deps(Cwd, ConfigFile, mad_utils:get_value(deps, Conf1, [])),
+    deps(Cwd, Conf, ConfigFile, mad_utils:get_value(deps, Conf1, [])),
 
     %% add lib_dirs to path
     LibDirs = mad_utils:lib_dirs(DepPath, Conf1),
@@ -49,7 +38,7 @@ dep(Cwd, ConfigFile, Name) ->
 
     %% compile sub_dirs and add them to path
     SubDirs = mad_utils:sub_dirs(DepPath, ConfigFile, Conf),
-    foreach(fun app/2, SubDirs, ConfigFile),
+    foreach(fun app/3, SubDirs, Conf, ConfigFile),
 
     SrcDir = mad_utils:src(DepPath),
     Files = sort(erl_files(SrcDir)) ++ app_src_files(SrcDir),
@@ -70,10 +59,10 @@ dep(Cwd, ConfigFile, Name) ->
             ok
     end.
 
--spec app(directory(), filename()) -> ok.
-app(Dir, ConfigFile) ->
+-spec app(directory(), any(), filename()) -> ok.
+app(Dir, Conf, ConfigFile) ->
     ConfigFile1 = filename:join(Dir, ConfigFile),
-    Conf = mad_utils:consult(ConfigFile1),
+%    Conf = mad_utils:consult(ConfigFile1),
     Conf1 = mad_utils:script(ConfigFile1, Conf),
     SrcDir = mad_utils:src(Dir),
     Files = sort(erl_files(SrcDir)) ++ app_src_files(SrcDir),
@@ -194,13 +183,13 @@ sort_by_priority([H|T], High, Medium, Low) ->
         end,
     sort_by_priority(T, High2, Medium2, Low2).
 
--spec foreach(fun((directory(), filename()) -> ok), [filename()], filename()) ->
+-spec foreach(fun((directory(), filename()) -> ok), [filename()], any(), filename()) ->
                      ok.
-foreach(_, [], _) ->
+foreach(_, [], _, _) ->
     ok;
-foreach(Fun, [Dir|T], ConfigFile) ->
-    Fun(Dir, ConfigFile),
-    foreach(Fun, T, ConfigFile).
+foreach(Fun, [Dir|T], Config, ConfigFile) ->
+    Fun(Dir, Config, ConfigFile),
+    foreach(Fun, T, Config, ConfigFile).
 
 -spec is_behaviour(file:name()) -> boolean().
 is_behaviour(File) ->

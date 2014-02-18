@@ -1,20 +1,7 @@
 -module(mad_utils).
-
--export([cwd/0]).
--export([exec/2]).
--export([home/0]).
--export([consult/1]).
--export([src/1]).
--export([include/1]).
--export([ebin/1]).
--export([deps/1]).
--export([get_value/3]).
--export([script/2]).
--export([sub_dirs/3]).
--export([lib_dirs/2]).
--export([https_to_git/1]).
--export([git_to_https/1]).
--export([last_modified/1]).
+-copyright('Sina Samavati').
+-export([cwd/0,exec/2,home/0,consult/1,src/1,include/1,ebin/1,deps/1,get_value/3,
+         script/2,sub_dirs/3,lib_dirs/2,https_to_git/1,git_to_https/1,last_modified/1]).
 
 -type directory() :: string().
 

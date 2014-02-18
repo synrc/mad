@@ -1,11 +1,6 @@
 -module(mad).
-
--export([main/1]).
--export(['fetch-deps'/3]).
--export([compile/3]).
--export(['compile-app'/3]).
--export(['compile-deps'/3]).
-
+-copyright('Sina Samavati').
+-export([main/1,'fetch-deps'/3,compile/3,'compile-app'/3,'compile-deps'/3]).
 
 main([]) ->
     help();
@@ -61,7 +56,7 @@ compile(Cwd, ConfigFile, Conf) ->
 'compile-app'(Cwd, ConfigFile, Conf) ->
     %% check sub_dirs if they have something to be compiled
     Dirs = [mad_utils:sub_dirs(Cwd, ConfigFile, Conf)] ++ [Cwd],
-    mad_compile:foreach(fun mad_compile:app/2, Dirs, ConfigFile).
+    mad_compile:foreach(fun mad_compile:app/3, Dirs, Conf, ConfigFile).
 
 'compile-deps'(Cwd, ConfigFile, Conf) ->
     mad_compile:deps(Cwd, Conf, ConfigFile, get_value(deps, Conf, [])).
