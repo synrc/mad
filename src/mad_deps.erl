@@ -76,7 +76,6 @@ build_dep(Cwd, Conf, _ConfFile, Publisher, Name, Cmd, Co) ->
     TrunkPath = path(Publisher, Name),
 %    DepsDir = filename:join([Cwd, "deps", Name]),
     DepsDir = mad_utils:get_value(deps_dir, Conf, ["deps"]),
-    io:format("Build Dep: ~p",[Conf]),
     %% get a copy of dependency from trunk
     mad_utils:exec("cp", ["-r", TrunkPath, DepsDir]),
     %% change cwd to the copy of trunk and checkout to Co
