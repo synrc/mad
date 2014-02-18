@@ -25,9 +25,8 @@ main(Args) ->
     Conf = mad_utils:consult(ConfigFileAbs),
     Conf1 = mad_utils:script(ConfigFileAbs, Conf),
 
-    %% TODO: deps_dir might be a list of directories, add them all to code path
-    DepsDir = filename:join([hd(mad_utils:get_value(deps_dir, Conf1, ["deps"])),
-                             "*", "ebin"]),
+    %% rebar should create deps dir in deps_dir only, this is not a list
+    DepsDir = filename:join([mad_utils:get_value(deps_dir, Conf1, ["deps"]),"*","ebin"]),
     Paths = ["ebin"|filelib:wildcard(DepsDir)],
     code:add_paths(Paths),
 
@@ -45,8 +44,9 @@ main(Args) ->
             ok;
         Deps ->
             file:make_dir(mad_deps:repos_path()),
-            file:make_dir("deps"),
-            mad_deps:fetch(Cwd, ConfigFile, Deps)
+            FetchDir = mad_utils:get_value(deps_dir, Conf, ["deps"]),
+            file:make_dir(FetchDir),
+            mad_deps:fetch(Cwd, Conf, ConfigFile, Deps)
     end.
 
 %% compile dependencies and the app
@@ -64,7 +64,7 @@ compile(Cwd, ConfigFile, Conf) ->
     mad_compile:foreach(fun mad_compile:app/2, Dirs, ConfigFile).
 
 'compile-deps'(Cwd, ConfigFile, Conf) ->
-    mad_compile:deps(Cwd, ConfigFile, get_value(deps, Conf, [])).
+    mad_compile:deps(Cwd, Conf, ConfigFile, get_value(deps, Conf, [])).
 
 get_value(Key, Opts, Default) ->
     case lists:keyfind(Key, 1, Opts) of
