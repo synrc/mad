@@ -26,7 +26,8 @@ deps(Cwd, Conf, ConfigFile, [H|T]) ->
 -spec dep(directory(), any(), filename(), string()) -> ok.
 dep(Cwd, _Conf, ConfigFile, Name) ->
     %% check dependencies of the dependency
-    DepPath = filename:join([Cwd, "deps", Name]),
+    DepsDir = filename:join([mad_utils:get_value(deps_dir, _Conf, ["deps"])]),
+    DepPath = filename:join([Cwd, DepsDir, Name]),
     DepConfigFile = filename:join(DepPath, ConfigFile),
     Conf = mad_utils:consult(DepConfigFile),
     Conf1 = mad_utils:script(DepConfigFile, Conf),
@@ -40,7 +41,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     SubDirs = mad_utils:sub_dirs(DepPath, ConfigFile, Conf),
     foreach(fun app/3, SubDirs, Conf, ConfigFile),
 
-    SrcDir = mad_utils:src(DepPath),
+    SrcDir = filename:join([mad_utils:src(DepPath)]),
     Files = sort(erl_files(SrcDir)) ++ app_src_files(SrcDir),
     case Files of
         [] ->
@@ -62,7 +63,6 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
 -spec app(directory(), any(), filename()) -> ok.
 app(Dir, Conf, ConfigFile) ->
     ConfigFile1 = filename:join(Dir, ConfigFile),
-%    Conf = mad_utils:consult(ConfigFile1),
     Conf1 = mad_utils:script(ConfigFile1, Conf),
     SrcDir = mad_utils:src(Dir),
     Files = sort(erl_files(SrcDir)) ++ app_src_files(SrcDir),
