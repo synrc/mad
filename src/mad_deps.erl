@@ -57,7 +57,9 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
 -spec build_dep(directory(), any(), string(), string(), string(), string(), string(), string()) -> ok.
 build_dep(Cwd, Conf, _ConfFile, Publisher, Name, Cmd, Co, Dir) ->
     TrunkPath = filename:join([Dir, Publisher, Name]),
-    DepsDir = mad_utils:get_value(deps_dir, Conf, ["deps"]),
+    io:format("Cache Dir: ~p~n",[TrunkPath]),
+    DepsDir = filename:join([mad_utils:get_value(deps_dir, Conf, ["deps"]),Name]),
+    io:format("Deps Dir: ~p~n",[DepsDir]),
     mad_utils:exec("cp", ["-r", TrunkPath, DepsDir]),
     ok = file:set_cwd(DepsDir),
     mad_utils:exec(Cmd, ["checkout", lists:concat([Co])]),
