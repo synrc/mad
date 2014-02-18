@@ -79,10 +79,9 @@ script(ConfigFile, Conf) ->
     File = ConfigFile ++ ".script",
     Filename = filename:basename(File),
     case file:script(File, [{'CONFIG', Conf}, {'SCRIPT', Filename}]) of
-        {ok, Out} ->
-            Out;
-        {error, _} ->
-            Conf
+        {ok, {error,_}} -> Conf;
+        {ok, Out} -> Out;
+        {error, _} -> Conf
     end.
 
 -spec sub_dirs(directory(), file:filename(), [term()]) -> [directory()].
