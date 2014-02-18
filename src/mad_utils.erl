@@ -7,10 +7,7 @@
 
 -spec cwd() -> directory().
 cwd() -> {ok, Cwd} = file:get_cwd(), Cwd.
-
-exec(Cmd, Opts) ->
-    Opts1 = [" " ++ X || X <- Opts],
-    os:cmd(Cmd ++ lists:concat(Opts1)).
+exec(Cmd, Opts) -> os:cmd([Cmd," ",string:join(Opts," ")]).
 
 -spec home() -> directory().
 home() -> {ok, [[H|_]]} = init:get_argument(home), H.

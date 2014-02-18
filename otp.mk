@@ -5,8 +5,8 @@ comma := $(empty),$(empty)
 ERL_LIBS := $(subst $(space),:,$(ROOTS))
 
 test: ct
-compile: fetch-deps
-fetch-deps compile clean:
+compile: get-deps
+get-deps compile clean:
 	./mad $@
 escript: compile
 	./build

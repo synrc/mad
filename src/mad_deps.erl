@@ -1,6 +1,6 @@
 -module(mad_deps).
 -copyright('Sina Samavati').
--export([fetch/4,name_and_repo/1,checkout_to/1,get_publisher/1]).
+-export([fetch/4,name_and_repo/1,get_publisher/1]).
 
 -type directory() :: string().
 -type filename() :: string().
@@ -23,11 +23,10 @@ fetch(Cwd, Config, ConfigFile, [H|T]) ->
                              {_Cmd, _Url, _Co}
                      end,
     Cmd1 = atom_to_list(Cmd),
-    Co1 = checkout_to(Co),
     Cache = mad_utils:get_value(cache, Config, deps_fetch),
     case get(Name) of
         fetched -> ok;
-        _ -> fetch_dep(Cwd, Config, ConfigFile, Name, Cmd1, Uri, Co1, Cache)
+        _ -> fetch_dep(Cwd, Config, ConfigFile, Name, Cmd1, Uri, Co, Cache)
     end,
     fetch(Cwd, Config, ConfigFile, T).
 
@@ -38,11 +37,15 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
         deps_fetch -> filename:join([mad_utils:get_value(deps_dir,Config,"deps"),Name]);
         Dir -> filename:join([Dir,get_publisher(Uri),Name]) end,
 
-    Opts = ["clone", Uri, TrunkPath ],
-    %% fetch
-    mad_utils:exec(Cmd, Opts),
     io:format("==> dependency: ~p tag: ~p~n", [Uri,Co]),
-    mad_utils:exec(Cmd, ["checkout", lists:concat([Co]) ] ),
+
+    {R,Co1} = case Co of
+        {_,Rev} ->
+            {["git clone ",Uri," ",TrunkPath," && cd ",TrunkPath,
+             " && git checkout \"",Rev,"\"" ],Rev};
+        Master -> {["git clone ", Uri," ", TrunkPath ],lists:concat([Master])} end,
+
+    os:cmd(R),
 
     put(Name, fetched),
 
@@ -53,14 +56,14 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
     fetch(Cwd, Config, ConfigFile, mad_utils:get_value(deps, Conf1, [])),
     case Cache of
        deps_fetch -> skip;
-       CacheDir -> build_dep(Cwd, Config, ConfigFile, get_publisher(Uri), Name, Cmd, Co, CacheDir) end.
+       CacheDir -> build_dep(Cwd, Config, ConfigFile, get_publisher(Uri), Name, Cmd, Co1, CacheDir) end.
 
 %% build dependency based on branch/tag/commit
 -spec build_dep(directory(), any(), string(), string(), string(), string(), string(), string()) -> ok.
 build_dep(Cwd, Conf, _ConfFile, Publisher, Name, _Cmd, _Co, Dir) ->
     TrunkPath = filename:join([Dir, Publisher, Name]),
     DepsDir = filename:join([mad_utils:get_value(deps_dir, Conf, ["deps"]),Name]),
-    mad_utils:exec("cp", ["-r", TrunkPath, DepsDir]),
+    os:cmd(["cp -r ", TrunkPath, " ", DepsDir]),
     ok = file:set_cwd(DepsDir),
     ok = file:set_cwd(Cwd).
 
@@ -68,10 +71,6 @@ build_dep(Cwd, Conf, _ConfFile, Publisher, Name, _Cmd, _Co, Dir) ->
 -spec name_and_repo(dependency()) -> {string(), repo()}.
 name_and_repo({Name, _, Repo}) -> {atom_to_list(Name), Repo};
 name_and_repo({Name, _, Repo, _}) -> {atom_to_list(Name), Repo}.
-
--spec checkout_to(term() | {any(), string}) -> term().
-checkout_to({_, V}) -> V;
-checkout_to(Else) -> Else.
 
 -spec get_publisher(uri()) -> string().
 get_publisher(Uri) ->
