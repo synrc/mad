@@ -73,7 +73,7 @@ build_dep(Cwd, Conf, _ConfFile, Publisher, Name, Cmd, Co) ->
     mad_utils:exec("cp", ["-r", TrunkPath, DepsDir]),
     %% change cwd to the copy of trunk and checkout to Co
     ok = file:set_cwd(DepsDir),
-    mad_utils:exec(Cmd, ["checkout", Co]),
+    mad_utils:exec(Cmd, ["checkout", lists:concat([Co])]),
     ok = file:set_cwd(Cwd).
 
 %% internal
