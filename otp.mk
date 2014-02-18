@@ -4,7 +4,7 @@ space := $(empty) $(empty)
 comma := $(empty),$(empty)
 ERL_LIBS := $(subst $(space),:,$(ROOTS))
 
-test: eunit ct
+test: ct
 compile: fetch-deps
 fetch-deps compile clean:
 	./mad $@
