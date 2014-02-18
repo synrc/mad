@@ -8,6 +8,17 @@ It shall:
 * be fully compatible with rebar configuration.
 * rescue us from cloning duplicate repositories.
 
+## Build
+
+    $ make
+
+And put 'mad' to PATH.
+
+## Usage
+
+    $ mad fetch-deps
+    $ mad compile
+
 ## Contribute
 
 * Open up [issues](https://github.com/s1n4/mad/issues)
