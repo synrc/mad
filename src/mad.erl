@@ -1,6 +1,6 @@
 -module(mad).
 -copyright('Sina Samavati').
--export([main/1,'get-deps'/3,compile/3,'compile-app'/3,'compile-deps'/3]).
+-compile(export_all).
 
 main([]) -> help();
 main(Args) ->
@@ -48,17 +48,12 @@ main(Args) ->
 
 %% compile dependencies and the app
 compile(Cwd, ConfigFile, Conf) ->
-    %% compile dependencies
     'compile-deps'(Cwd, ConfigFile, Conf),
+    'compile-apps'(Cwd, ConfigFile, Conf).
 
-    %% compile the app
-    'compile-app'(Cwd, ConfigFile, Conf).
-
-%% compile a project according to the conventions
-'compile-app'(Cwd, ConfigFile, Conf) ->
-    %% check sub_dirs if they have something to be compiled
+'compile-apps'(Cwd, ConfigFile, Conf) ->
     Dirs = mad_utils:sub_dirs(Cwd, ConfigFile, Conf),
-    mad_compile:foreach(fun mad_compile:app/3, Dirs, Conf, ConfigFile).
+    mad_compile:deps(Cwd, Conf, ConfigFile, Dirs).
 
 'compile-deps'(Cwd, ConfigFile, Conf) ->
     mad_compile:deps(Cwd, Conf, ConfigFile, get_value(deps, Conf, [])).
@@ -105,13 +100,13 @@ help(Msg) ->
     help().
 
 help() ->
-    io:format("Erlang dependency manager~n"),
+    io:format("Manage Deps~n"),
     Params = [
               {"", ""},
-              {"get-deps", "Fetches dependencies"},
-              {"compile-deps", "Compiles dependencies"},
-              {"compile-app", "Compiles application"},
-              {"compile", "Compiles dependencies and application"}
+              {"get-deps", "Fetch dependencies"},
+              {"compile-deps", "Compile dependencies"},
+              {"compile-apps", "Compile applications"},
+              {"compile", "Compile dependencies and applications"}
              ],
     getopt:usage(option_spec_list(), escript:script_name(), "", Params),
     halt().

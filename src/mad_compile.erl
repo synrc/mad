@@ -1,7 +1,6 @@
 -module(mad_compile).
 -copyright('Sina Samavati').
--export([deps/4,app/3,foreach/4]).
--export([erl_files/1,app_src_files/1,app_src_to_app/1,erl_to_beam/2,is_compiled/2]).
+-compile(export_all).
 -define(COMPILE_OPTS(Inc, Ebin, Opts), [report, {i, Inc}, {outdir, Ebin}] ++ Opts).
 
 -type directory() :: string().
@@ -12,7 +11,7 @@
 deps(_, _, _, []) -> ok;
 deps(Cwd, Conf, ConfigFile, [H|T]) ->
     {Name, _} = mad_deps:name_and_repo(H),
-    case get(Name) of
+    case get(mad_utils:to_atom(Name)) of
         compiled -> ok;
         _ -> dep(Cwd, Conf, ConfigFile, Name) end,
     deps(Cwd, Conf, ConfigFile, T).
@@ -20,6 +19,7 @@ deps(Cwd, Conf, ConfigFile, [H|T]) ->
 %% compile a dependency
 -spec dep(directory(), any(), filename(), string()) -> ok.
 dep(Cwd, _Conf, ConfigFile, Name) ->
+    io:format("==> ~p~n",[Name]),
     %% check dependencies of the dependency
     DepsDir = filename:join([mad_utils:get_value(deps_dir, _Conf, ["deps"])]),
     DepPath = filename:join([Cwd, DepsDir, Name]),
@@ -32,12 +32,8 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     LibDirs = mad_utils:lib_dirs(DepPath, Conf1),
     code:add_paths(LibDirs),
 
-    %% compile sub_dirs and add them to path
-    SubDirs = mad_utils:sub_dirs(DepPath, ConfigFile, Conf),
-    foreach(fun app/3, SubDirs, Conf, ConfigFile),
-
     SrcDir = filename:join([mad_utils:src(DepPath)]),
-    Files = yrl_files(SrcDir) ++ sort(erl_files(SrcDir)) ++ app_src_files(SrcDir),
+    Files = yrl_files(SrcDir) ++ erl_files(SrcDir) ++ app_src_files(SrcDir),
 
     case Files of
         [] -> ok;
@@ -54,33 +50,10 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
 
             dtl(DepPath,Conf1),
 
-            put(Name, compiled),
+            put(mad_utils:to_atom(Name), compiled),
             ok
     end.
 
--spec app(directory(), any(), filename()) -> ok.
-app(Dir, Conf, ConfigFile) ->
-    ConfigFile1 = filename:join(Dir, ConfigFile),
-    Conf1 = mad_utils:consult(ConfigFile1),
-    SrcDir = mad_utils:src(Dir),
-    Files = sort(erl_files(SrcDir)) ++ app_src_files(SrcDir),
-
-    case Files of
-        [] -> ok;
-        Files ->
-            IncDir = mad_utils:include(Dir),
-            EbinDir = mad_utils:ebin(Dir),
-
-            %% create EbinDir and add it to code path
-            file:make_dir(EbinDir),
-            code:add_path(EbinDir),
-
-            Opts = mad_utils:get_value(erl_opts, Conf1, []),
-            lists:foreach(compile_fun(IncDir, EbinDir, Opts), Files),
-            ok
-    end,
-    dtl(Dir,Conf1),
-    ok.
 
 dtl(Dir,Config) ->
     case mad_utils:get_value(erlydtl_opts, Config, []) of
@@ -99,8 +72,11 @@ compile_fun(Inc,Bin,Opt) -> fun(File) -> compile(File,Inc,Bin,Opt,filetype(File)
 filetype(File) -> L=length(hd(string:tokens(File,"."))), string:substr(File,L+1,length(File)).
 
 compile(File,Inc,Bin,Opt,".yrl") ->
-    yecc:file(File),
-    compile(yrl_to_erl(File),Inc,Bin,Opt,".erl");
+    ErlFile = yrl_to_erl(File),
+    Compiled = is_compiled(ErlFile,File),
+    if Compiled == false ->
+        yecc:file(File),
+        compile(ErlFile,Inc,Bin,Opt,".erl"); true -> ok end;
 compile(File,Inc,Bin,Opt,".erl") ->
     BeamFile = erl_to_beam(Bin, File),
     Compiled = is_compiled(BeamFile, File),
@@ -112,6 +88,8 @@ compile(File,Inc,Bin,Opt,".erl") ->
     true -> ok end;
 compile(File,_Inc,Bin,_Opt,".app.src") ->
     AppFile = filename:join(Bin, app_src_to_app(File)),
+    Compiled = is_compiled(AppFile, File),
+    if  Compiled =:= false ->
     io:format("Writing ~s~n", [AppFile]),
     BeamFiles = filelib:wildcard("*.beam", Bin),
     Modules = [list_to_atom(filename:basename(X, ".beam")) || X <- BeamFiles],
@@ -122,6 +100,7 @@ compile(File,_Inc,Bin,_Opt,".app.src") ->
     Struct1 = {application, AppName, Props2},
     file:write_file(AppFile, io_lib:format("~p.~n", [Struct1])),
     ok;
+    true -> ok end;
 compile(File,_Inc,_Bin,_Opt,_) ->
     io:format("Unknown file type: ~p~n",[File]).
 
@@ -134,10 +113,10 @@ compile(File,_Inc,_Bin,_Opt,_) ->
 -spec sort([file:name()]) -> [file:name()].
 -spec sort_by_priority([file:name()], [file:name()], [file:name()], [file:name()]) -> [file:name()].
 
-sort(Files) -> sort_by_priority(Files, [], [], []).
 erl_files(Dir) -> filelib:fold_files(Dir, ".erl", true, fun(F, Acc) -> [F|Acc] end, []).
 yrl_files(Dir) -> filelib:fold_files(Dir, ".yrl", true, fun(F, Acc) -> [F|Acc] end, []).
-app_src_files(Dir) -> filelib:fold_files(Dir, ".app.src", true, fun(F, Acc) -> [F|Acc] end, []).
+app_src_files(Dir) -> filelib:fold_files(Dir, ".app.src", false, fun(F, Acc) -> [F|Acc] end, []).
+
 app_src_to_app(Filename) -> filename:basename(Filename, ".app.src") ++ ".app".
 yrl_to_erl(Filename) -> filename:join(filename:dirname(Filename),filename:basename(Filename, ".yrl")) ++ ".erl".
 erl_to_beam(Bin, Filename) -> filename:join(Bin, filename:basename(Filename, ".erl") ++ ".beam").
@@ -147,32 +126,11 @@ add_modules_property(Properties) ->
         {modules, _} -> Properties;
         _ -> Properties ++ [{modules, []}] end.
 
-
-sort_by_priority([], High, Medium, Low) -> (High ++ Medium) ++ Low;
-sort_by_priority([H|T], High, Medium, Low) ->
-    {High1, Medium1, Low1} =
-        case is_behaviour(H) of
-            true -> {[H|High], Medium, Low};
-            false -> {High, [H|Medium], Low} end,
-    {High2, Medium2, Low2} =
-        case mad_utils:exec("sed", ["-n", "'/-compile/p'", H]) of
-               [] -> {High1, Medium1, Low1};
-               _ -> {High1 -- [H], Medium1 -- [H], [H|Low1]} end,
-    sort_by_priority(T, High2, Medium2, Low2).
-
 -spec foreach(fun((directory(), filename()) -> ok), [filename()], any(), filename()) -> ok.
 foreach(_, [], _, _) -> ok;
 foreach(Fun, [Dir|T], Config, ConfigFile) ->
     Fun(Dir, Config, ConfigFile),
     foreach(Fun, T, Config, ConfigFile).
-
--spec is_behaviour(file:name()) -> boolean().
-is_behaviour(File) ->
-    case filelib:is_file(File) of
-        true ->
-            [] =/= mad_utils:exec("sed", ["-n", "-e", "'/-callback/p'", "-e",
-                                          "'/behaviour_info\\/1/p'", File]);
-        _ -> false end.
 
 get_kv(K, Opts, Default) ->
     V = mad_utils:get_value(K, Opts, Default),

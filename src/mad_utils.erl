@@ -1,7 +1,6 @@
 -module(mad_utils).
 -copyright('Sina Samavati').
--export([cwd/0,exec/2,home/0,consult/1,src/1,include/1,ebin/1,deps/1,get_value/3,
-         script/2,sub_dirs/3,lib_dirs/2,last_modified/1]).
+-compile(export_all).
 
 -type directory() :: string().
 
@@ -80,3 +79,9 @@ last_modified(File) ->
     case filelib:last_modified(File) of
         0 -> 0;
         Else -> calendar:datetime_to_gregorian_seconds(Else) end.
+
+to_atom(X) when is_atom(X) -> X;
+to_atom(X) when is_list(X) -> list_to_atom(X);
+to_atom(X) when is_binary(X) -> to_atom(binary_to_list(X));
+to_atom(X) -> X.
+
