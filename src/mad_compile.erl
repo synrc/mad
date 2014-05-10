@@ -61,7 +61,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
 -spec app(directory(), any(), filename()) -> ok.
 app(Dir, Conf, ConfigFile) ->
     ConfigFile1 = filename:join(Dir, ConfigFile),
-    Conf1 = mad_utils:script(ConfigFile1, Conf),
+    Conf1 = mad_utils:consult(ConfigFile1),
     SrcDir = mad_utils:src(Dir),
     Files = sort(erl_files(SrcDir)) ++ app_src_files(SrcDir),
 
@@ -85,8 +85,7 @@ app(Dir, Conf, ConfigFile) ->
 dtl(Dir,Config) ->
     case mad_utils:get_value(erlydtl_opts, Config, []) of
         [] -> skip;
-         X -> io:format("Dir: ~p DTL: ~p~n",[Dir,X]),
-              compile_erlydtl_files(validate_erlydtl_opts(Dir,X)) end.
+         X -> compile_erlydtl_files(validate_erlydtl_opts(Dir,X)) end.
 
 
 -spec validate_property({atom(), term()}, term()) -> {atom(), term()}.
