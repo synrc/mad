@@ -49,12 +49,14 @@ main(Args) ->
 
 %% compile dependencies and the app
 compile(Cwd, ConfigFile, Conf) ->
-    'compile-deps'(Cwd, ConfigFile, Conf),
-    'compile-apps'(Cwd, ConfigFile, Conf).
+    'compile-apps'(Cwd, ConfigFile, Conf),
+    'compile-deps'(Cwd, ConfigFile, Conf).
 
 'compile-apps'(Cwd, ConfigFile, Conf) ->
-    Dirs = mad_utils:sub_dirs(Cwd, ConfigFile, Conf),
-    mad_compile:deps(Cwd, Conf, ConfigFile, Dirs).
+    Dirs = get_value(sub_dirs, Conf, []),
+    case Dirs of
+        [] -> mad_compile:dep(Cwd, Conf, ConfigFile, Cwd);
+        Apps -> mad_compile:deps(Cwd, Conf, ConfigFile, Apps) end.
 
 'compile-deps'(Cwd, ConfigFile, Conf) ->
     mad_compile:deps(Cwd, Conf, ConfigFile, get_value(deps, Conf, [])).

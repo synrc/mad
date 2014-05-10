@@ -10,7 +10,7 @@ main(_) ->
 
 files() ->
     [{filename:basename(F), read_file(F)}
-     || F <- filelib:wildcard(filename:join("apps/mad/ebin", "*")) ++
+     || F <- filelib:wildcard(filename:join("ebin", "*")) ++
             filelib:wildcard(filename:join(["deps", "*", "ebin", "*"]))].
 
 read_file(File) ->

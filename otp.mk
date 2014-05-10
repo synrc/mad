@@ -7,7 +7,7 @@ ERL_LIBS := $(subst $(space),:,$(ROOTS))
 test: ct
 compile: get-deps
 get-deps compile clean:
-	./mad $@
+	rebar $@
 escript: compile
 	./build
 $(PLT_NAME):

@@ -11,7 +11,7 @@
 deps(_, _, _, []) -> ok;
 deps(Cwd, Conf, ConfigFile, [H|T]) ->
     {Name, _} = mad_deps:name_and_repo(H),
-    case get(mad_utils:to_atom(Name)) of
+    case get(Name) of
         compiled -> ok;
         _ -> dep(Cwd, Conf, ConfigFile, Name) end,
     deps(Cwd, Conf, ConfigFile, T).
@@ -50,7 +50,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
 
             dtl(DepPath,Conf1),
 
-            put(mad_utils:to_atom(Name), compiled),
+            put(Name, compiled),
             ok
     end.
 
