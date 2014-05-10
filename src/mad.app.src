@@ -3,5 +3,4 @@
   {vsn, ""},
   {registered, []},
   {applications, [kernel,stdlib]},
-  {mod, { mad_app, []}},
   {env, []}]}.
