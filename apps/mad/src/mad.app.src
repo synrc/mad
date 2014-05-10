@@ -1,0 +1,7 @@
+{application, mad,
+ [{description, "MAD VXZ Manage Deps"},
+  {vsn, ""},
+  {registered, []},
+  {applications, [kernel,stdlib]},
+  {mod, { mad_app, []}},
+  {env, []}]}.
