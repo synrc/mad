@@ -1,15 +1,15 @@
 MAD
 ===
 
-A simple dependency manager for development purposes.
+A simple rebar-compatible dependency manager.
 
 Goals
 -----
 
 It shall:
 
-* be fully compatible with rebar configuration.
-* rescue us from cloning duplicate repositories.
+* be compatible with rebar configuration.
+* be as small and fast as possible.
 
 Build
 -----
@@ -21,12 +21,13 @@ And put 'mad' to PATH.
 Usage
 -----
 
-    $ mad fetch-deps
+    $ mad get-deps
     $ mad compile
 
 Credits
 -------
 
+* Maxim Sokhatsky
 * Sina Samavati
 
 OM A HUM
