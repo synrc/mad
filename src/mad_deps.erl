@@ -69,6 +69,8 @@ build_dep(Cwd, Conf, _ConfFile, Publisher, Name, _Cmd, _Co, Dir) ->
 
 %% internal
 -spec name_and_repo(dependency()) -> {string(), repo()}.
+name_and_repo({Name, _, Repo}) when is_list(Name) -> {Name, Repo};
+name_and_repo({Name, _, Repo, _}) when is_list(Name) -> {Name, Repo};
 name_and_repo({Name, _, Repo}) -> {atom_to_list(Name), Repo};
 name_and_repo({Name, _, Repo, _}) -> {atom_to_list(Name), Repo};
 name_and_repo(Name) -> {Name,Name}.
