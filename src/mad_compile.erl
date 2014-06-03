@@ -69,7 +69,9 @@ validate_property(Else, _) -> Else.
     fun((file:name(),string(),string(),list(tuple(any(),any())),string()) -> ok).
 compile_fun(Inc,Bin,Opt) -> fun(File) -> compile(File,Inc,Bin,Opt,filetype(File)) end.
 
-filetype(File) -> L=length(hd(string:tokens(File,"."))), string:substr(File,L+1,length(File)).
+filetype(Path) ->
+    File = filename:basename(Path),
+    L=length(hd(string:tokens(File,"."))), string:substr(File, L + 1, length(File)).
 
 compile(File,Inc,Bin,Opt,".yrl") ->
     ErlFile = yrl_to_erl(File),
