@@ -1,5 +1,5 @@
 {application, mad,
- [{description, "MAD VXZ Manage Deps"},
+ [{description, "MAD VXZ Build Tool"},
   {vsn, "0.8"},
   {registered, []},
   {applications, [kernel,stdlib,re]},
