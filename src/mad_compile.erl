@@ -63,17 +63,16 @@ port(Dir,Config) ->
 
 compile_port(Dir,Specs,Config) ->
     {_,System} = os:type(),
+    filelib:ensure_dir(Dir ++ "/priv/"),
     Env = [ {Var,Val} || {System,Var,Val} <- mad_utils:get_value(port_env, Config, []) ],
     [ begin 
            Template = string:join(filelib:wildcard(Dir ++"/" ++ Files)," ") 
               ++ " CFLAGS LDFLAGS -o " ++ Dir ++ "/" ++ Out,
-%       Template = string:join(filelib:wildcard(Files)," ") 
-%              ++ " CFLAGS LDFLAGS -o " ++ Out,
-       io:format("Template: ~p",[Template]),
        Args = string:strip(replace_env(Template,Env),both,32),
-       io:format("Compile Port~n Dir: ~p, Files: ~p, Env: ~p",[Dir,Args,Env]),
-       Res = sh:run("cc",string:tokens(Args," "),binary,Dir,Env),
-       io:format("Compile Result: ~p",[Res])
+       {Atom,Status,Report} = sh:run("cc",string:tokens(Args," "),binary,Dir,Env),
+       case Status == 0 of
+          true -> skip;
+          false -> io:format("Port Compilation Error: ~p",[Report]) end
       end || {System,Out,Files} <- Specs].
 
 replace_env(String, []) -> String;
