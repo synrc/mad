@@ -3,11 +3,7 @@
 -compile(export_all).
 -define(COMPILE_OPTS(Inc, Ebin, Opts), [report, {i, Inc}, {outdir, Ebin}] ++ Opts).
 
--type directory() :: string().
--type filename() :: string().
-
 %% compile dependencies
--spec deps(directory(), any(), filename(), [mad_deps:dependency()]) -> ok.
 deps(_, _, _, []) -> ok;
 deps(Cwd, Conf, ConfigFile, [H|T]) ->
     {Name, _} = mad_deps:name_and_repo(H),
@@ -17,7 +13,6 @@ deps(Cwd, Conf, ConfigFile, [H|T]) ->
     deps(Cwd, Conf, ConfigFile, T).
 
 %% compile a dependency
--spec dep(directory(), any(), filename(), string()) -> ok.
 dep(Cwd, _Conf, ConfigFile, Name) ->
     io:format("==> ~p~n",[Name]),
     %% check dependencies of the dependency
@@ -61,14 +56,10 @@ dtl(Dir,Config) ->
          X -> compile_erlydtl_files(validate_erlydtl_opts(Dir,X)) end.
 
 
--spec validate_property({atom(), term()}, term()) -> {atom(), term()}.
 validate_property({modules, _}, Modules) -> {modules, Modules};
 validate_property(Else, _) -> Else.
 
--spec compile_fun(directory(), directory(), [compile:option()]) ->
-    fun((file:name(),string(),string(),list(tuple(any(),any())),string()) -> ok).
 compile_fun(Inc,Bin,Opt) -> fun(File) -> compile(File,Inc,Bin,Opt,filetype(File)) end.
-
 filetype(Path) -> "." ++ string:join(tl(string:tokens(filename:basename(Path), ".")), ".").
 
 compile(File,Inc,Bin,Opt,".yrl") ->
@@ -104,13 +95,6 @@ compile(File,_Inc,Bin,_Opt,".app.src") ->
 compile(File,_Inc,_Bin,_Opt,_) ->
     io:format("Unknown file type: ~p~n",[File]).
 
--spec erl_files(directory()) -> [file:name()].
--spec app_src_files(directory()) -> [file:name()].
--spec app_src_to_app(file:name()) -> file:name().
--spec erl_to_beam(directory(), file:name()) -> file:name().
--spec is_compiled(directory(), file:name()) -> boolean().
--spec add_modules_property([{atom(), term()}]) -> [{atom(), term()}].
-
 erl_files(Dir) -> filelib:fold_files(Dir, ".erl", true, fun(F, Acc) -> [F|Acc] end, []).
 yrl_files(Dir) -> filelib:fold_files(Dir, ".yrl", true, fun(F, Acc) -> [F|Acc] end, []).
 app_src_files(Dir) -> filelib:fold_files(Dir, ".app.src", false, fun(F, Acc) -> [F|Acc] end, []).
@@ -124,7 +108,6 @@ add_modules_property(Properties) ->
         {modules, _} -> Properties;
         _ -> Properties ++ [{modules, []}] end.
 
--spec foreach(fun((directory(), filename()) -> ok), [filename()], any(), filename()) -> ok.
 foreach(_, [], _, _) -> ok;
 foreach(Fun, [Dir|T], Config, ConfigFile) ->
     Fun(Dir, Config, ConfigFile),

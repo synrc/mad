@@ -2,16 +2,6 @@
 -copyright('Sina Samavati').
 -compile(export_all).
 
--type directory() :: string().
--type filename() :: string().
--type name() :: atom().
--type uri() :: string().
--type version_control() :: git | hg.
--type repo() :: {version_control(), uri(), {branch | tag, string()} | string()}.
--type dependency() :: {name(), string(), repo()}.
--export_type([dependency/0]).
-
--spec fetch(directory(), any(), filename(), [dependency()]) -> ok.
 fetch(_, _Config, _, []) -> ok;
 fetch(Cwd, Config, ConfigFile, [H|T]) when is_tuple(H) =:= false -> fetch(Cwd, Config, ConfigFile, T);
 fetch(Cwd, Config, ConfigFile, [H|T]) ->
@@ -30,7 +20,6 @@ fetch(Cwd, Config, ConfigFile, [H|T]) ->
     end,
     fetch(Cwd, Config, ConfigFile, T).
 
--spec fetch_dep(directory(), any(), filename(), string(), string(), uri(), any(), atom()) -> ok.
 fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
 
     TrunkPath = case Cache of
@@ -59,7 +48,6 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
        CacheDir -> build_dep(Cwd, Config, ConfigFile, get_publisher(Uri), Name, Cmd, Co1, CacheDir) end.
 
 %% build dependency based on branch/tag/commit
--spec build_dep(directory(), any(), string(), string(), string(), string(), string(), string()) -> ok.
 build_dep(Cwd, Conf, _ConfFile, Publisher, Name, _Cmd, _Co, Dir) ->
     TrunkPath = filename:join([Dir, Publisher, Name]),
     DepsDir = filename:join([mad_utils:get_value(deps_dir, Conf, ["deps"]),Name]),
@@ -68,14 +56,12 @@ build_dep(Cwd, Conf, _ConfFile, Publisher, Name, _Cmd, _Co, Dir) ->
     ok = file:set_cwd(Cwd).
 
 %% internal
--spec name_and_repo(dependency()) -> {string(), repo()}.
 name_and_repo({Name, _, Repo}) when is_list(Name) -> {Name, Repo};
 name_and_repo({Name, _, Repo, _}) when is_list(Name) -> {Name, Repo};
 name_and_repo({Name, _, Repo}) -> {atom_to_list(Name), Repo};
 name_and_repo({Name, _, Repo, _}) -> {atom_to_list(Name), Repo};
 name_and_repo(Name) -> {Name,Name}.
 
--spec get_publisher(uri()) -> string().
 get_publisher(Uri) ->
     case http_uri:parse(Uri, [{scheme_defaults,
             [{git, 9418}|http_uri:scheme_defaults()]}]) of
