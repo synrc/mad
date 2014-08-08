@@ -125,7 +125,8 @@ app_src_files(Dir) -> filelib:fold_files(Dir, ".app.src", false, fun(F, Acc) -> 
 app_src_to_app(Filename) -> filename:basename(Filename, ".app.src") ++ ".app".
 yrl_to_erl(Filename) -> filename:join(filename:dirname(Filename),filename:basename(Filename, ".yrl")) ++ ".erl".
 erl_to_beam(Bin, Filename) -> filename:join(Bin, filename:basename(Filename, ".erl") ++ ".beam").
-is_compiled(BeamFile, File) -> mad_utils:last_modified(BeamFile) > mad_utils:last_modified(File).
+file_to_beam(Bin, Filename) -> filename:join(Bin, filename:basename(Filename) ++ ".beam").
+is_compiled(BeamFile, File) -> mad_utils:last_modified(BeamFile) >= mad_utils:last_modified(File).
 add_modules_property(Properties) ->
     case lists:keyfind(modules, 1, Properties) of
         {modules, _} -> Properties;
@@ -171,7 +172,7 @@ compile_erlydtl_files(Opts) ->
 
     Compile = fun(F) ->
         ModuleName = module_name(F, SourceExt, ModuleExt),
-        BeamFile = erl_to_beam(OutDir, atom_to_list(ModuleName)),
+        BeamFile = file_to_beam(OutDir, atom_to_list(ModuleName)),
         Compiled = is_compiled(BeamFile, F),
         if  Compiled =:= false ->
             io:format("DTL Compiling ~s~n", [F]),

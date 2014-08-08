@@ -2,5 +2,5 @@
  [{description, "MAD VXZ Build Tool"},
   {vsn, "0.8"},
   {registered, []},
-  {applications, [kernel,stdlib,re]},
+  {applications, [kernel,stdlib]},
   {env, []}]}.
