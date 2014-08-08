@@ -2,5 +2,5 @@
  [{description, "MAD VXZ Manage Deps"},
   {vsn, ""},
   {registered, []},
-  {applications, [kernel,stdlib]},
+  {applications, [kernel,stdlib,re]},
   {env, []}]}.

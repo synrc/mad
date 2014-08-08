@@ -44,6 +44,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             lists:foreach(compile_fun(IncDir, EbinDir, Opts), Files),
 
             dtl(DepPath,Conf1),
+            port(DepPath,Conf1),
 
             put(Name, compiled),
             ok
@@ -55,6 +56,29 @@ dtl(Dir,Config) ->
         [] -> skip;
          X -> compile_erlydtl_files(validate_erlydtl_opts(Dir,X)) end.
 
+port(Dir,Config) ->
+    case mad_utils:get_value(port_specs, Config, []) of
+        [] -> skip;
+         X -> compile_port(Dir,X,Config) end.
+
+compile_port(Dir,Specs,Config) ->
+    {_,System} = os:type(),
+    Env = [ {Var,Val} || {System,Var,Val} <- mad_utils:get_value(port_env, Config, []) ],
+    [ begin 
+           Template = string:join(filelib:wildcard(Dir ++"/" ++ Files)," ") 
+              ++ " CFLAGS LDFLAGS -o " ++ Dir ++ "/" ++ Out,
+%       Template = string:join(filelib:wildcard(Files)," ") 
+%              ++ " CFLAGS LDFLAGS -o " ++ Out,
+       io:format("Template: ~p",[Template]),
+       Args = string:strip(replace_env(Template,Env),both,32),
+       io:format("Compile Port~n Dir: ~p, Files: ~p, Env: ~p",[Dir,Args,Env]),
+       Res = sh:run("cc",string:tokens(Args," "),binary,Dir,Env),
+       io:format("Compile Result: ~p",[Res])
+      end || {System,Out,Files} <- Specs].
+
+replace_env(String, []) -> String;
+replace_env(String, [{K,V}|Env]) ->
+   replace_env(re:replace(String, K, V, [global, {return, list}]),Env).
 
 validate_property({modules, _}, Modules) -> {modules, Modules};
 validate_property(Else, _) -> Else.
