@@ -1,6 +1,6 @@
 compile: get-deps
 get-deps compile clean:
-	rebar $@
+	./mad $@
 escript: compile
 	./build
 ct: get-deps compile

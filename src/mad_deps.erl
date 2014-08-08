@@ -41,7 +41,7 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
     %% check dependencies of the dependency
     TrunkConfigFile = filename:join(TrunkPath, ConfigFile),
     Conf = mad_utils:consult(TrunkConfigFile),
-    Conf1 = mad_utils:script(TrunkConfigFile, Conf),
+    Conf1 = mad_utils:script(TrunkConfigFile, Conf, Name),
     fetch(Cwd, Config, ConfigFile, mad_utils:get_value(deps, Conf1, [])),
     case Cache of
        deps_fetch -> skip;

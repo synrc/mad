@@ -20,7 +20,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     DepPath = filename:join([Cwd, DepsDir, Name]),
     DepConfigFile = filename:join(DepPath, ConfigFile),
     Conf = mad_utils:consult(DepConfigFile),
-    Conf1 = mad_utils:script(DepConfigFile, Conf),
+    Conf1 = mad_utils:script(DepConfigFile, Conf, Name),
     deps(Cwd, Conf, ConfigFile, mad_utils:get_value(deps, Conf1, [])),
 
     %% add lib_dirs to path
@@ -66,7 +66,7 @@ compile_port(Dir,Specs,Config) ->
     filelib:ensure_dir(Dir ++ "/priv/"),
     Env = [ {Var,Val} || {System,Var,Val} <- mad_utils:get_value(port_env, Config, []) ],
     [ begin 
-           Template = string:join(filelib:wildcard(Dir ++"/" ++ Files)," ") 
+           Template = string:join(filelib:wildcard(Dir ++ "/" ++ Files)," ") 
               ++ " CFLAGS LDFLAGS -o " ++ Dir ++ "/" ++ Out,
        Args = string:strip(replace_env(Template,Env),both,32),
        {Atom,Status,Report} = sh:run("cc",string:tokens(Args," "),binary,Dir,Env),

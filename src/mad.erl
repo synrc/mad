@@ -10,7 +10,7 @@ main(Params) ->
     ConfigFile = "rebar.config",
     ConfigFileAbs = filename:join(Cwd, ConfigFile),
     Conf = mad_utils:consult(ConfigFileAbs),
-    Conf1 = mad_utils:script(ConfigFileAbs, Conf),
+    Conf1 = mad_utils:script(ConfigFileAbs, Conf, ""),
 
     %% rebar should create deps dir in deps_dir only, this is not a list
     DepsDir = filename:join([mad_utils:get_value(deps_dir, Conf1, ["deps"]),"*","ebin"]),

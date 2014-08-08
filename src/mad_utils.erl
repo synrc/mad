@@ -27,10 +27,10 @@ get_value(Key, Opts, Default) ->
             Value;
         _ -> Default end.
 
-script(ConfigFile, Conf) ->
+script(ConfigFile, Conf, Name) ->
     File = ConfigFile ++ ".script",
     Filename = filename:basename(File),
-    case file:script(File, [{'CONFIG', Conf}, {'SCRIPT', Filename}]) of
+    case file:script(File, [{'CONFIG', Conf}, {'SCRIPT', File}]) of
         {ok, {error,_}} -> Conf;
         {ok, Out} -> Out;
         {error, _} -> Conf
@@ -44,7 +44,7 @@ sub_dirs(Cwd, ConfigFile, [Dir|T], Acc) ->
     SubDir = filename:join(Cwd, Dir),
     ConfigFile1 = filename:join(SubDir, ConfigFile),
     Conf = consult(ConfigFile1),
-    Conf1 = script(ConfigFile1, Conf),
+    Conf1 = script(ConfigFile1, Conf, Dir),
     Acc1 = sub_dirs(SubDir, ConfigFile, get_value(sub_dirs, Conf1, []),
                     Acc ++ [SubDir]),
     sub_dirs(Cwd, ConfigFile, T, Acc1).
