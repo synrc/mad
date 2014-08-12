@@ -16,4 +16,4 @@ load_config() ->
 load_apps([]) -> [application:ensure_started(A)||A<-mad_plan:applist()];
 load_apps(Params) -> [application:ensure_all_started(list_to_atom(A))||A<-Params].
 
-main(Params) -> user_drv:start(), load_config(), load_apps(Params), timer:sleep(infinity).
+main(Params) -> load_config(), load_apps(Params), user_drv:start(), timer:sleep(infinity).
