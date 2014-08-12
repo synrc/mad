@@ -11,6 +11,6 @@ read_file(File) -> {ok, Bin} = file:read_file(filename:absname(File)), Bin.
 
 files() ->
     [{filename:basename(F), read_file(F)}
-     || F <- filelib:wildcard(filename:join("ebin", "*")) ++
+     || F <- filelib:wildcard(              filename:join("ebin", "*")) ++
              filelib:wildcard(filename:join(["apps", "*", "ebin", "*"])) ++
              filelib:wildcard(filename:join(["deps", "*", "ebin", "*"]))].

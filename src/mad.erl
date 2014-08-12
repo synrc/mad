@@ -48,11 +48,14 @@ plan(Cwd,ConfigFileName,Config,Params) ->
     mad_plan:main(mad_plan:applist()).
 
 repl(Cwd,ConfigFileName,Config,Params) ->
-    mad_console:main(Params).
+    mad_repl:main(Params).
+
+tool(Cwd,ConfigFileName,Config,Params) ->
+    mad_tool:main(filename:basename(mad_utils:cwd())).
 
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).
 help(Msg) -> io:format("Error: ~s~n~n", [Msg]), help().
 help() ->
     io:format("SRC VXZ MAD Build Tool version 1.0~n"),
-    io:format("mad deps compile plan start stop repl attach release ~n"),
+    io:format("mad deps compile plan start stop repl attach release tool ~n"),
     halt().

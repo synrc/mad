@@ -1,4 +1,4 @@
--module(mad_console).
+-module(mad_repl).
 -compile(export_all).
 
 main(Params) ->
@@ -11,4 +11,5 @@ main(Params) ->
               io:format("~p : ~p = ~p~n",[App,K,V]),
               application:set_env(App,K,V) end || {K,V} <- Cfg ]  || {App,Cfg} <- Apps]
              end,
-   [application:start(A)||A<-mad_plan:applist()], user_drv:start(), timer:sleep(infinity).
+   [application:start(A)||A<-mad_plan:applist()], shell:start(),
+   timer:sleep(infinity).
