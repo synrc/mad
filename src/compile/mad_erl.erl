@@ -8,7 +8,7 @@ compile(File,Inc,Bin,Opt) ->
     BeamFile = erl_to_beam(Bin, File),
     Compiled = mad_compile:is_compiled(BeamFile, File),
     if  Compiled =:= false ->
-        io:format("Compiling ~s~n", [File]),
+        io:format("Compiling ~s~n\r", [File]),
         Opts1 = ?COMPILE_OPTS(Inc, Bin, Opt),
         compile:file(File, Opts1),
         ok;

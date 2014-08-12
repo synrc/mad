@@ -26,7 +26,7 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
         deps_fetch -> filename:join([mad_utils:get_value(deps_dir,Config,"deps"),Name]);
         Dir -> filename:join([Dir,get_publisher(Uri),Name]) end,
 
-    io:format("==> dependency: ~p tag: ~p~n\n\r", [Uri,Co]),
+    io:format("==> dependency: ~p tag: ~p~n\r", [Uri,Co]),
 
     {R,Co1} = case Co of
         {_,Rev} ->
