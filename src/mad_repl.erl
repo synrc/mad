@@ -7,9 +7,10 @@ load_config() ->
       [] -> skip;
       File ->
             {ok,[Apps]} = file:consult(File),
-            [  [ begin
-              io:format("~p : ~p = ~p~n",[App,K,V]),
-              application:set_env(App,K,V) end || {K,V} <- Cfg ]  || {App,Cfg} <- Apps]
+            [ begin io:format("~p:~n",[App]),
+              [ begin
+              io:format("\t{~p,~p}~n",[K,V]),
+              application:set_env(App,K,V) end || {K,V} <- Cfg ] end || {App,Cfg} <- Apps]
              end.
 
 load_apps([]) -> [application:start(A)||A<-mad_plan:applist()];
