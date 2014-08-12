@@ -1,11 +1,12 @@
 -module(mad_plan).
 -compile(export_all).
 
-applist() ->
-    case file:read_file(".applist") of
-         {ok,Binary} -> parse_applist(binary_to_list(Binary)++"."); 
-         {error,Reason} -> main([ list_to_atom(filename:basename(App))
-                             || App <- filelib:wildcard("{apps,deps}/*")  ] -- ['rebar.config']) end.
+applist() -> [kernel,stdlib,crypto,mnesia,kvs,cowlib,ranch,cowboy,compiler,syntax_tools,erlydtl,gproc,xmerl,n2o,n2o_sample,fs,active,avz,rest].
+
+%    case file:read_file(".applist") of
+%         {ok,Binary} -> parse_applist(binary_to_list(Binary)++"."); 
+%         {error,Reason} -> main([ list_to_atom(filename:basename(App))
+%                             || App <- filelib:wildcard("{apps,deps}/*")  ] -- ['rebar.config']) end.
 
 parse_applist(AppList) ->
     {ok,Tokens,_EndLine} = erl_scan:string(AppList),

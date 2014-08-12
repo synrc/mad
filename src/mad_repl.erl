@@ -13,7 +13,7 @@ load_config() ->
               application:set_env(App,K,V) end || {K,V} <- Cfg ] end || {App,Cfg} <- Apps]
              end.
 
-load_apps([]) -> [application:start(A)||A<-mad_plan:applist()];
+load_apps([]) -> [application:ensure_started(A)||A<-mad_plan:applist()];
 load_apps(Params) -> [application:ensure_all_started(list_to_atom(A))||A<-Params].
 
-main(Params) -> load_config(), load_apps(Params), user_drv:start(), timer:sleep(infinity).
+main(Params) -> shell:start(), load_config(), load_apps(Params), timer:sleep(infinity).

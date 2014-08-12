@@ -57,10 +57,10 @@ repl(Cwd,ConfigFileName,Config,Params) ->
     io:format("Repl Params: ~p~n",[Params]),
     mad_repl:main(Params).
 
-tool(Cwd,ConfigFileName,Config,Params) ->
+bundle(Cwd,ConfigFileName,Config,Params) ->
     io:format("Tool Params: ~p~n",[Params]),
     Name = case Params of [] -> filename:basename(mad_utils:cwd()); E -> E end,
-    mad_tool:main(Name).
+    mad_bundle:main(Name).
 
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).
 help(Msg) -> io:format("Error: ~s~n~n", [Msg]), help().
@@ -68,8 +68,8 @@ help() ->
     io:format("VXZ MAD Build Tool version 1.0~n"),
     io:format("BNF: ~n"),
     io:format("    invoke := mad params~n"),
-    io:format("    params := run params ~n"),
+    io:format("    params := [] | run params ~n"),
     io:format("       run := command [ help | options ]~n"),
-    io:format("       cmd := deps | compile | run | stop | repl | attach | release | tool~n"),
+    io:format("       cmd := deps | compile | run | stop | repl | attach | release | bundle~n"),
     halt().
 

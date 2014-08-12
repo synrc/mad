@@ -1,4 +1,4 @@
--module(mad_tool).
+-module(mad_bundle).
 -compile(export_all).
 
 main(App) ->
