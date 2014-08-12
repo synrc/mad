@@ -2,7 +2,7 @@
 -compile(export_all).
 
 main(App) ->
-    EmuArgs = "-noshell -noinput",
+    EmuArgs = "-noshell -noinput -boot start_sasl",
     Files = files(),
     escript:create(App, [shebang, {comment, ""}, {emu_args, EmuArgs}, {archive, Files, []}]),
     ok = file:change_mode(App, 8#764).

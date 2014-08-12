@@ -16,13 +16,13 @@ main(Params) ->
     Conf1 = mad_script:script(ConfigFileAbs, Conf, ""),
 
     %% rebar should create deps dir in deps_dir only, this is not a list
-    DepsDir = filename:join([mad_utils:get_value(deps_dir, Conf1, ["deps"]),"*","ebin"]),
-    Paths = ["ebin"|filelib:wildcard(DepsDir)],
-    code:add_paths(Paths),
+%    DepsDir = filename:join([mad_utils:get_value(deps_dir, Conf1, ["deps"]),"*","ebin"]),
+%    Paths = ["ebin"|filelib:wildcard(DepsDir)],
+%    code:add_paths(Paths),
 
     %% add lib_dirs to path
-    LibDirs = mad_utils:lib_dirs(Cwd, Conf),
-    code:add_paths(LibDirs),
+%    LibDirs = mad_utils:lib_dirs(Cwd, Conf),
+%    code:add_paths(LibDirs),
 
     Fun = fun({Name,Params}) -> ?MODULE:Name(Cwd, ConfigFile, Conf1, Params) end,
     lists:foreach(Fun, FP).
