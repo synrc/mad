@@ -7,9 +7,9 @@ load_config() ->
       [] -> skip;
       File ->
             {ok,[Apps]} = file:consult(File),
-            [ begin %io:format("~p:~n",[App]),
+            [ begin io:format("~p:~n",[App]),
               [ begin
-%              io:format("\t{~p,~p}~n",[K,V]),
+              io:format("\t{~p,~p}~n",[K,V]),
               application:set_env(App,K,V) end || {K,V} <- Cfg ] end || {App,Cfg} <- Apps]
              end.
 
@@ -18,12 +18,13 @@ load_apps(["applist"]) -> [ application:start(A) ||A<-mad_plan:applist()];
 load_apps(Params) -> [application:ensure_all_started(list_to_atom(A))||A<-Params].
 
 main(Params) -> 
-    Path = filelib:wildcard("{apps,deps}/*/ebin") ++ 
-           filelib:wildcard(code:root_dir() ++ 
-              "/lib/{compiler,syntax_tools,sasl,tools,mnesia,reltool,xmerl,crypto,kernel,stdlib}-*/ebin"),
+    user_drv:start(),
+    Path = filelib:wildcard(code:root_dir() ++ 
+              "/lib/{compiler,syntax_tools,sasl,tools,mnesia,reltool,xmerl,crypto,kernel,stdlib}-*/ebin") ++
+          filelib:wildcard("{apps,deps}/*/ebin"),
     code:set_path(Path),
-    io:format("CodePath: ~p~n",[code:get_path()]),
+    error_logger:info_msg("CodePath: ~p~n\r\n",[code:get_path()]),
     load_config(), load_apps(Params),
     case Params of
         ["applist"] -> skip;
-        _ -> user_drv:start(), timer:sleep(infinity) end.
+        _ ->  timer:sleep(infinity) end.
