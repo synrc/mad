@@ -6,6 +6,9 @@
 main([]) -> help();
 main(Params) ->
 
+    FP = mad_utils:fold_params(Params),
+    io:format("Params: ~p~n",[FP]),
+
     Cwd = mad_utils:cwd(),
     ConfigFile = "rebar.config",
     ConfigFileAbs = filename:join(Cwd, ConfigFile),
@@ -21,11 +24,12 @@ main(Params) ->
     LibDirs = mad_utils:lib_dirs(Cwd, Conf),
     code:add_paths(LibDirs),
 
-    Fun = fun(F) -> Name = list_to_atom(F), ?MODULE:Name(Cwd, ConfigFile, Conf1,Params) end,
-    lists:foreach(Fun, Params).
+    Fun = fun({Name,Params}) -> ?MODULE:Name(Cwd, ConfigFile, Conf1, Params) end,
+    lists:foreach(Fun, FP).
 
 %% fetch dependencies
 deps(Cwd, ConfigFile, Conf, Params) ->
+    io:format("Deps Params: ~p~n",[Params]),
     case mad_utils:get_value(deps, Conf, []) of
         [] -> ok;
         Deps ->
@@ -40,17 +44,21 @@ deps(Cwd, ConfigFile, Conf, Params) ->
 
 %% compile dependencies and the app
 compile(Cwd, ConfigFile, Conf, Params) ->
+    io:format("Compile Params: ~p~n",[Params]),
     mad_compile:'compile-deps'(Cwd, ConfigFile, Conf),
     mad_compile:'compile-apps'(Cwd, ConfigFile, Conf).
 
 %% reltool apps resolving
 plan(Cwd,ConfigFileName,Config,Params) ->
+    io:format("Plan Params: ~p~n",[Params]),
     mad_plan:main(mad_plan:applist()).
 
 repl(Cwd,ConfigFileName,Config,Params) ->
+    io:format("Repl Params: ~p~n",[Params]),
     mad_repl:main(Params).
 
 tool(Cwd,ConfigFileName,Config,Params) ->
+    io:format("Tool Params: ~p~n",[Params]),
     mad_tool:main(filename:basename(mad_utils:cwd())).
 
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).
@@ -59,3 +67,4 @@ help() ->
     io:format("SRC VXZ MAD Build Tool version 1.0~n"),
     io:format("mad deps compile plan start stop repl attach release tool ~n"),
     halt().
+

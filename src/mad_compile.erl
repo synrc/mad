@@ -55,6 +55,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
 compile_fun(Inc,Bin,Opt) -> fun(File) -> (module(filetype(File))):compile(File,Inc,Bin,Opt) end.
 
 module("erl") -> mad_erl;
+module("erl.src") -> mad_utils;
 module("yrl") -> mad_yecc;
 module("app.src") -> mad_app.
 

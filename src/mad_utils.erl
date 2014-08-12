@@ -66,3 +66,25 @@ to_atom(X) when is_list(X) -> list_to_atom(X);
 to_atom(X) when is_binary(X) -> to_atom(binary_to_list(X));
 to_atom(X) -> X.
 
+atomize("com"++_) -> compile;
+atomize("rep"++_) -> repl;
+atomize("tol"++_) -> tool;
+atomize("dep"++_) -> deps;
+atomize("pla"++_) -> plan;
+atomize(Else) -> Else.
+
+atomize_params_commands(Params) -> atomize_params_commands(Params,[]).
+atomize_params_commands([],New) -> New;
+atomize_params_commands([H|T], New) -> atomize_params_commands(T,[atomize(H)|New]).
+
+fold_params(Params) -> 
+   Atomized = atomize_params_commands(Params),
+   {[],Fold} = lists:foldl(fun(X,{Current,Result}) -> 
+      case atomize(X) of
+           X when is_atom(X) -> {[],[{X,Current}|Result]};
+           E -> {[E|Current],Result} end
+      end, {[],[]}, Atomized),
+   Fold.
+
+compile(File,Inc,Bin,Opt) -> ok.
+
