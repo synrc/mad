@@ -3,7 +3,6 @@
 -compile(export_all).
 
 cwd() -> {ok, Cwd} = file:get_cwd(), Cwd.
-exec(Cmd, Opts) -> os:cmd([Cmd," ",string:join(Opts," ")]).
 
 home() -> {ok, [[H|_]]} = init:get_argument(home), H.
 
