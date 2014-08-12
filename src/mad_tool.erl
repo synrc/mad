@@ -13,4 +13,5 @@ files() ->
     [{filename:basename(F), read_file(F)}
      || F <- filelib:wildcard(              filename:join("ebin", "*")) ++
              filelib:wildcard(filename:join(["apps", "*", "ebin", "*"])) ++
+             filelib:wildcard(filename:join(["apps", "*", "priv", "templates", "*" ])) ++
              filelib:wildcard(filename:join(["deps", "*", "ebin", "*"]))].

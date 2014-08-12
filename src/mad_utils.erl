@@ -68,7 +68,7 @@ to_atom(X) -> X.
 
 atomize("com"++_) -> compile;
 atomize("rep"++_) -> repl;
-atomize("tol"++_) -> tool;
+atomize("too"++_) -> tool;
 atomize("dep"++_) -> deps;
 atomize("pla"++_) -> plan;
 atomize(Else) -> Else.
