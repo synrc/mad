@@ -14,13 +14,16 @@ load_config() ->
              end.
 
 load_apps([]) -> [ application:start(A) ||A<-mad_plan:applist()];
+load_apps(["applist"]) -> [ application:start(A) ||A<-mad_plan:applist()];
 load_apps(Params) -> [application:ensure_all_started(list_to_atom(A))||A<-Params].
 
 main(Params) -> 
     Path = filelib:wildcard("{apps,deps}/*/ebin") ++ 
            filelib:wildcard(code:root_dir() ++ 
-              "/lib/{compiler,syntax_tools,tools,mnesia,reltool,xmerl,crypto,kernel,stdlib}-*/ebin"),
+              "/lib/{compiler,syntax_tools,sasl,tools,mnesia,reltool,xmerl,crypto,kernel,stdlib}-*/ebin"),
     code:set_path(Path),
     io:format("CodePath: ~p~n",[code:get_path()]),
-    load_config(), load_apps(Params), user_drv:start(), 
-     timer:sleep(infinity).
+    load_config(), load_apps(Params),
+    case Params of
+        ["applist"] -> skip;
+        _ -> user_drv:start(), timer:sleep(infinity) end.
