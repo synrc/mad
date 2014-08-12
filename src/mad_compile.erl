@@ -40,7 +40,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
 
             %% create EbinDir and add it to code path
             file:make_dir(EbinDir),
-            code:add_path(EbinDir),
+%            code:add_path(EbinDir),
 
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
             lists:foreach(compile_fun(IncDir, EbinDir, Opts), Files),
