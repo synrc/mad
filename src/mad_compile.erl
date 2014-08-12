@@ -13,7 +13,7 @@ deps(Cwd, Conf, ConfigFile, [H|T]) ->
 
 %% compile a dependency
 dep(Cwd, _Conf, ConfigFile, Name) ->
-    io:format("==> ~p~n",[Name]),
+    io:format("==> ~p~n\r\n",[Name]),
     %% check dependencies of the dependency
     DepsDir = filename:join([mad_utils:get_value(deps_dir, _Conf, ["deps"])]),
     DepPath = filename:join([Cwd, DepsDir, Name]),

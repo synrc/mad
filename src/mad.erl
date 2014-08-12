@@ -7,7 +7,7 @@ main([]) -> help();
 main(Params) ->
 
     FP = mad_utils:fold_params(Params),
-    io:format("Params: ~p~n",[FP]),
+    io:format("Params: ~p~n\r",[FP]),
 
     Cwd = mad_utils:cwd(),
     ConfigFile = "rebar.config",
@@ -44,7 +44,7 @@ deps(Cwd, ConfigFile, Conf, Params) ->
 
 %% compile dependencies and the app
 compile(Cwd, ConfigFile, Conf, Params) ->
-    io:format("Compile Params: ~p~n",[Params]),
+    io:format("Compile Params: ~p~n\r",[Params]),
     mad_compile:'compile-deps'(Cwd, ConfigFile, Conf),
     mad_compile:'compile-apps'(Cwd, ConfigFile, Conf).
 
