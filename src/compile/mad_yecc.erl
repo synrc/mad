@@ -1,0 +1,12 @@
+-module(mad_yecc).
+-compile(export_all).
+
+yrl_to_erl(F) -> filename:join(filename:dirname(F),filename:basename(F, ".yrl")) ++ ".erl".
+
+compile(File,Inc,Bin,Opt) ->
+    ErlFile = yrl_to_erl(File),
+    Compiled = mad_compile:is_compiled(ErlFile,File),
+    if Compiled == false ->
+        yecc:file(File),
+        mad_erl:compile(ErlFile,Inc,Bin,Opt); true -> ok end.
+

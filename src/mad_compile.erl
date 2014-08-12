@@ -1,7 +1,6 @@
 -module(mad_compile).
 -copyright('Sina Samavati').
 -compile(export_all).
--define(COMPILE_OPTS(Inc, Ebin, Opts), [report, {i, Inc}, {outdir, Ebin}] ++ Opts).
 
 %% compile dependencies
 deps(_, _, _, []) -> ok;
@@ -20,7 +19,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     DepPath = filename:join([Cwd, DepsDir, Name]),
     DepConfigFile = filename:join(DepPath, ConfigFile),
     Conf = mad_utils:consult(DepConfigFile),
-    Conf1 = mad_utils:script(DepConfigFile, Conf, Name),
+    Conf1 = mad_script:script(DepConfigFile, Conf, Name),
     deps(Cwd, Conf, ConfigFile, mad_utils:get_value(deps, Conf1, [])),
 
     %% add lib_dirs to path
@@ -28,7 +27,10 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     code:add_paths(LibDirs),
 
     SrcDir = filename:join([mad_utils:src(DepPath)]),
-    Files = yrl_files(SrcDir) ++ erl_files(SrcDir) ++ app_src_files(SrcDir),
+
+    Files = files(SrcDir,".yrl") ++ 
+            files(SrcDir,".erl") ++ 
+            files(SrcDir,".app.src"),
 
     case Files of
         [] -> ok;
@@ -43,141 +45,28 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
             lists:foreach(compile_fun(IncDir, EbinDir, Opts), Files),
 
-            dtl(DepPath,Conf1),
-            port(DepPath,Conf1),
+            mad_dtl:compile(DepPath,Conf1),
+            mad_port:compile(DepPath,Conf1),
 
             put(Name, compiled),
             ok
     end.
 
+compile_fun(Inc,Bin,Opt) -> fun(File) -> (module(filetype(File))):compile(File,Inc,Bin,Opt) end.
 
-dtl(Dir,Config) ->
-    case mad_utils:get_value(erlydtl_opts, Config, []) of
-        [] -> skip;
-         X -> compile_erlydtl_files(validate_erlydtl_opts(Dir,X)) end.
+module("erl") -> mad_erl;
+module("yrl") -> mad_yecc;
+module("app.src") -> mad_app.
 
-port(Dir,Config) ->
-    case mad_utils:get_value(port_specs, Config, []) of
-        [] -> skip;
-         X -> compile_port(Dir,X,Config) end.
-
-compile_port(Dir,Specs,Config) ->
-    {_,System} = os:type(),
-    filelib:ensure_dir(Dir ++ "/priv/"),
-    Env = [ {Var,Val} || {System,Var,Val} <- mad_utils:get_value(port_env, Config, []) ],
-    [ begin 
-           Template = string:join(filelib:wildcard(Dir ++ "/" ++ Files)," ") 
-              ++ " CFLAGS LDFLAGS -o " ++ Dir ++ "/" ++ Out,
-       Args = string:strip(replace_env(Template,Env),both,32),
-       {Atom,Status,Report} = sh:run("cc",string:tokens(Args," "),binary,Dir,Env),
-       case Status == 0 of
-          true -> skip;
-          false -> io:format("Port Compilation Error: ~p",[Report]) end
-      end || {System,Out,Files} <- Specs].
-
-replace_env(String, []) -> String;
-replace_env(String, [{K,V}|Env]) ->
-   replace_env(re:replace(String, K, V, [global, {return, list}]),Env).
-
-validate_property({modules, _}, Modules) -> {modules, Modules};
-validate_property(Else, _) -> Else.
-
-compile_fun(Inc,Bin,Opt) -> fun(File) -> compile(File,Inc,Bin,Opt,filetype(File)) end.
-filetype(Path) -> "." ++ string:join(tl(string:tokens(filename:basename(Path), ".")), ".").
-
-compile(File,Inc,Bin,Opt,".yrl") ->
-    ErlFile = yrl_to_erl(File),
-    Compiled = is_compiled(ErlFile,File),
-    if Compiled == false ->
-        yecc:file(File),
-        compile(ErlFile,Inc,Bin,Opt,".erl"); true -> ok end;
-compile(File,Inc,Bin,Opt,".erl") ->
-    BeamFile = erl_to_beam(Bin, File),
-    Compiled = is_compiled(BeamFile, File),
-    if  Compiled =:= false ->
-        io:format("Compiling ~s~n", [File]),
-        Opts1 = ?COMPILE_OPTS(Inc, Bin, Opt),
-        compile:file(File, Opts1),
-        ok;
-    true -> ok end;
-compile(File,_Inc,Bin,_Opt,".app.src") ->
-    AppFile = filename:join(Bin, app_src_to_app(File)),
-    Compiled = is_compiled(AppFile, File),
-    if  Compiled =:= false ->
-    io:format("Writing ~s~n", [AppFile]),
-    BeamFiles = filelib:wildcard("*.beam", Bin),
-    Modules = [list_to_atom(filename:basename(X, ".beam")) || X <- BeamFiles],
-    [Struct|_] = mad_utils:consult(File),
-    {application, AppName, Props} = Struct,
-    Props1 = add_modules_property(Props),
-    Props2 = [validate_property(X, Modules) || X <- Props1],
-    Struct1 = {application, AppName, Props2},
-    file:write_file(AppFile, io_lib:format("~p.~n", [Struct1])),
-    ok;
-    true -> ok end;
-compile(File,_Inc,_Bin,_Opt,_) ->
-    io:format("Unknown file type: ~p~n",[File]).
-
-erl_files(Dir) -> filelib:fold_files(Dir, ".erl", true, fun(F, Acc) -> [F|Acc] end, []).
-yrl_files(Dir) -> filelib:fold_files(Dir, ".yrl", true, fun(F, Acc) -> [F|Acc] end, []).
-app_src_files(Dir) -> filelib:fold_files(Dir, ".app.src", false, fun(F, Acc) -> [F|Acc] end, []).
-
-app_src_to_app(Filename) -> filename:basename(Filename, ".app.src") ++ ".app".
-yrl_to_erl(Filename) -> filename:join(filename:dirname(Filename),filename:basename(Filename, ".yrl")) ++ ".erl".
-erl_to_beam(Bin, Filename) -> filename:join(Bin, filename:basename(Filename, ".erl") ++ ".beam").
-file_to_beam(Bin, Filename) -> filename:join(Bin, filename:basename(Filename) ++ ".beam").
+filetype(Path) -> string:join(tl(string:tokens(filename:basename(Path), ".")), ".").
+files(Dir,Ext) -> filelib:fold_files(Dir, Ext, true, fun(F, Acc) -> [F|Acc] end, []).
 is_compiled(BeamFile, File) -> mad_utils:last_modified(BeamFile) >= mad_utils:last_modified(File).
-add_modules_property(Properties) ->
-    case lists:keyfind(modules, 1, Properties) of
-        {modules, _} -> Properties;
-        _ -> Properties ++ [{modules, []}] end.
 
-foreach(_, [], _, _) -> ok;
-foreach(Fun, [Dir|T], Config, ConfigFile) ->
-    Fun(Dir, Config, ConfigFile),
-    foreach(Fun, T, Config, ConfigFile).
+'compile-apps'(Cwd, ConfigFile, Conf) ->
+    Dirs = mad_utils:sub_dirs(Cwd, ConfigFile, Conf),
+    case Dirs of
+        [] -> mad_compile:dep(Cwd, Conf, ConfigFile, Cwd);
+        Apps -> mad_compile:deps(Cwd, Conf, ConfigFile, Apps) end.
 
-get_kv(K, Opts, Default) ->
-    V = mad_utils:get_value(K, Opts, Default),
-    KV = {K, V},
-    {KV, Opts -- [KV]}.
-
-validate_erlydtl_opts(Cwd, Opts) ->
-    DefaultDocRoot = filename:join("priv", "templates"),
-    {DocRoot, Opts1} = get_kv(doc_root, Opts, DefaultDocRoot),
-    {OutDir, Opts2} = get_kv(out_dir, Opts1, "ebin"),
-    {CompilerOpts, Opts3} = get_kv(compiler_options, Opts2, []),
-    {SourceExt, Opts4} = get_kv(source_ext, Opts3, ".dtl"),
-    {ModuleExt, Opts5} = get_kv(module_ext, Opts4, ""),
-
-    {_, DocRootDir} = DocRoot,
-    DocRoot1 = {doc_root, filename:join(Cwd, DocRootDir)},
-    {_, OutDir1} = OutDir,
-    OutDir2 = {out_dir, filename:join(Cwd, OutDir1)},
-
-    [DocRoot1, OutDir2, CompilerOpts, SourceExt, ModuleExt|Opts5].
-
-module_name(File, Ext, NewExt) ->
-    list_to_atom(filename:basename(File, Ext) ++ NewExt).
-
-compile_erlydtl_files(Opts) ->
-
-    {{_, DocRoot},   Opts1} = get_kv(doc_root,   Opts,  ""),
-    {{_, SourceExt}, Opts2} = get_kv(source_ext, Opts1, ""),
-    {{_, ModuleExt}, Opts3} = get_kv(module_ext, Opts2, ""),
-    {{_, OutDir},        _} = get_kv(out_dir,    Opts3, ""),
-
-    Files = filelib:fold_files(DocRoot, SourceExt, true,
-                               fun(F, Acc) -> [F|Acc] end, []),
-
-    Compile = fun(F) ->
-        ModuleName = module_name(F, SourceExt, ModuleExt),
-        BeamFile = file_to_beam(OutDir, atom_to_list(ModuleName)),
-        Compiled = is_compiled(BeamFile, F),
-        if  Compiled =:= false ->
-            io:format("DTL Compiling ~s~n", [F]),
-            erlydtl:compile(F, ModuleName, Opts3);
-        true -> ok end
-    end,
-
-    lists:foreach(Compile, Files).
+'compile-deps'(Cwd, ConfigFile, Conf) ->
+    mad_compile:deps(Cwd, Conf, ConfigFile, mad_utils:get_value(deps, Conf, [])).

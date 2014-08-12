@@ -10,7 +10,7 @@ main(Params) ->
     ConfigFile = "rebar.config",
     ConfigFileAbs = filename:join(Cwd, ConfigFile),
     Conf = mad_utils:consult(ConfigFileAbs),
-    Conf1 = mad_utils:script(ConfigFileAbs, Conf, ""),
+    Conf1 = mad_script:script(ConfigFileAbs, Conf, ""),
 
     %% rebar should create deps dir in deps_dir only, this is not a list
     DepsDir = filename:join([mad_utils:get_value(deps_dir, Conf1, ["deps"]),"*","ebin"]),
@@ -21,12 +21,12 @@ main(Params) ->
     LibDirs = mad_utils:lib_dirs(Cwd, Conf),
     code:add_paths(LibDirs),
 
-    Fun = fun(F) -> Name = list_to_atom(F), ?MODULE:Name(Cwd, ConfigFile, Conf1) end,
+    Fun = fun(F) -> Name = list_to_atom(F), ?MODULE:Name(Cwd, ConfigFile, Conf1,Params) end,
     lists:foreach(Fun, Params).
 
 %% fetch dependencies
-'get-deps'(Cwd, ConfigFile, Conf) ->
-    case get_value(deps, Conf, []) of
+deps(Cwd, ConfigFile, Conf, Params) ->
+    case mad_utils:get_value(deps, Conf, []) of
         [] -> ok;
         Deps ->
             Cache = mad_utils:get_value(deps_dir, Conf, deps_fetch),
@@ -39,27 +39,20 @@ main(Params) ->
     end.
 
 %% compile dependencies and the app
-compile(Cwd, ConfigFile, Conf) ->
-    'compile-deps'(Cwd, ConfigFile, Conf),
-    'compile-apps'(Cwd, ConfigFile, Conf).
+compile(Cwd, ConfigFile, Conf, Params) ->
+    mad_compile:'compile-deps'(Cwd, ConfigFile, Conf),
+    mad_compile:'compile-apps'(Cwd, ConfigFile, Conf).
 
-'compile-apps'(Cwd, ConfigFile, Conf) ->
-    Dirs = mad_utils:sub_dirs(Cwd, ConfigFile, Conf),
-    case Dirs of
-        [] -> mad_compile:dep(Cwd, Conf, ConfigFile, Cwd);
-        Apps -> mad_compile:deps(Cwd, Conf, ConfigFile, Apps) end.
+%% reltool apps resolving
+plan(Cwd,ConfigFileName,Config,Params) ->
+    mad_plan:main(mad_plan:applist()).
 
-'compile-deps'(Cwd, ConfigFile, Conf) ->
-    mad_compile:deps(Cwd, Conf, ConfigFile, get_value(deps, Conf, [])).
-
-get_value(Key, Opts, Default) ->
-    case lists:keyfind(Key, 1, Opts) of
-        {Key, Value} -> Value;
-        _ -> Default end.
+repl(Cwd,ConfigFileName,Config,Params) ->
+    mad_console:main(Params).
 
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).
 help(Msg) -> io:format("Error: ~s~n~n", [Msg]), help().
 help() ->
-    io:format("Manage Deps~n"),
-    io:format("mad get-deps compile~n"),
+    io:format("SRC VXZ MAD Build Tool version 1.0~n"),
+    io:format("mad deps compile plan start stop repl attach release ~n"),
     halt().
