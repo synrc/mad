@@ -7,7 +7,7 @@ applist() ->
     case file:read_file(".applist") of
          {ok,Binary} -> parse_applist(binary_to_list(Binary)); 
          {error,Reason} -> main([ list_to_atom(filename:basename(App))
-                || App <- filelib:wildcard("{apps,deps}/*/")] -- disabled()) end.
+                || App <- filelib:wildcard("{apps,deps}/*/")] -- ['rebar.conifg']) end.
 
 parse_applist(AppList) -> 
    Res = string:tokens(string:strip(string:strip(AppList,right,$]),left,$[),","),
