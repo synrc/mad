@@ -5,6 +5,7 @@
 
 main([]) -> help();
 main(Params) ->
+    io:format("Bundle: ~p~n\r",[escript:script_name()]),
 
     FP = mad_utils:fold_params(Params),
     io:format("Params: ~p~n\r",[FP]),
@@ -50,8 +51,8 @@ repl(Cwd,ConfigFileName,Config,Params) ->
 
 bundle(Cwd,ConfigFileName,Config,Params) ->
     io:format("Tool Params: ~p~n",[Params]),
-    Name = case Params of [] -> filename:basename(mad_utils:cwd()); E -> E end,
-    mad_bundle:main(Name).
+    Name = case Params of [] -> mad_utils:cwd(); E -> E end,
+    mad_bundle:main(filename:basename(Name)).
 
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).
 help(Msg) -> io:format("Error: ~s~n~n", [Msg]), help().
