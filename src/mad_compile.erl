@@ -23,7 +23,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     deps(Cwd, Conf, ConfigFile, mad_utils:get_value(deps, Conf1, [])),
 
     %% add lib_dirs to path
-    LibDirs = mad_utils:lib_dirs(DepPath, Conf1),
+%    LibDirs = mad_utils:lib_dirs(DepPath, Conf1),
 %    code:add_paths(LibDirs),
 
     SrcDir = filename:join([mad_utils:src(DepPath)]),
@@ -40,7 +40,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
 
             %% create EbinDir and add it to code path
             file:make_dir(EbinDir),
-%            code:add_path(EbinDir),
+            code:replace_path(Name,EbinDir),
 
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
             lists:foreach(compile_fun(IncDir, EbinDir, Opts), Files),
