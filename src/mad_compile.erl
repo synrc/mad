@@ -22,10 +22,6 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     Conf1 = mad_script:script(DepConfigFile, Conf, Name),
     deps(Cwd, Conf, ConfigFile, mad_utils:get_value(deps, Conf1, [])),
 
-    %% add lib_dirs to path
-%    LibDirs = mad_utils:lib_dirs(DepPath, Conf1),
-%    code:add_paths(LibDirs),
-
     SrcDir = filename:join([mad_utils:src(DepPath)]),
 
     Files = files(SrcDir,".yrl") ++ 
