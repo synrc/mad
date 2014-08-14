@@ -2,7 +2,7 @@
 
 main(_) ->
     App = "mad",
-    EmuArgs = "-noshell -noinput",
+    EmuArgs = "-noshell",
     Files = files(),
     escript:create(App, [shebang, {comment, ""}, {emu_args, EmuArgs}, {archive, Files, []}]),
     ok = file:change_mode(App, 8#764).

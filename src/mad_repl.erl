@@ -62,7 +62,9 @@ main(Params) ->
     io:format("Applications: ~p\n\r",[applist()]),
     Config = load_config(),
 
-    user_drv:start(),
+    case os:type() of
+         {win32,nt} -> shell:start();
+                  _ -> user_drv:start() end,
 
     load_apps(Params,Config),
     case Params of

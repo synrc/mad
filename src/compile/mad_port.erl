@@ -13,7 +13,7 @@ compile(Dir,Config) ->
 compile_port(Dir,Specs,Config) ->
     {_,System} = os:type(),
     filelib:ensure_dir(Dir ++ "/priv/"),
-    Env = [ {Var,Val} || {System,Var,Val} <- mad_utils:get_value(port_env, Config, []) ],
+    Env = [ {Var,Val} || {Sys,Var,Val} <- mad_utils:get_value(port_env, Config, []), Sys == System ],
     [ begin 
            Template = string:join(filelib:wildcard(Dir ++ "/" ++ Files)," ") 
               ++ " CFLAGS LDFLAGS -o " ++ Dir ++ "/" ++ Out,
@@ -22,4 +22,4 @@ compile_port(Dir,Specs,Config) ->
        case Status == 0 of
           true -> skip;
           false -> io:format("Port Compilation Error: ~p",[Report]) end
-      end || {System,Out,Files} <- Specs].
+      end || {Sys,Out,Files} <- Specs, Sys == System].
