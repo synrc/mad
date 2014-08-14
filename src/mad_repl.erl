@@ -10,7 +10,7 @@ applist() ->
          {ok,Binary} -> parse_applist(Binary); 
          {error,Reason} ->
            case mad_repl:load_file(Name) of
-              <<>> -> main([ list_to_atom(filename:basename(App))
+              <<>> -> mad_plan:main([ list_to_atom(filename:basename(App))
                 || App <- filelib:wildcard("{apps,deps}/*"), filelib:is_dir(App) ]);
               Plan -> parse_applist(Plan) end end.
 
@@ -71,7 +71,9 @@ main(Params) ->
 
 load() ->
 
-    ets:new(filesystem,[set,named_table,{keypos,1},public]),
+    case ets:info(filesystem) of
+         undefined -> ets:new(filesystem,[set,named_table,{keypos,1},public]);
+         _ -> skip end,
 
     {ok,Sections} = escript:extract(escript:script_name(),[]),
     [Bin] = [B||{archive,B}<-Sections],

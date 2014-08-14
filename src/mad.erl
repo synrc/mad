@@ -43,7 +43,8 @@ compile(Cwd, ConfigFile, Conf, Params) ->
 %% reltool apps resolving
 plan(Cwd,ConfigFileName,Config,Params) ->
     io:format("Plan Params: ~p~n",[Params]),
-    mad_plan:main(mad_plan:applist()).
+    mad_repl:load(),
+    mad_repl:applist().
 
 repl(Cwd,ConfigFileName,Config,Params) ->
     io:format("Repl Params: ~p~n",[Params]),

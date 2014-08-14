@@ -8,6 +8,6 @@ main(AppList) ->
     {ok, Server} = reltool:start_server([{config, Relconfig}]),
     {ok, {release, _Node, _Erts, Apps}} = reltool_server:get_rel(Server, "node"),
     Ordered = [element(1, A) || A <- Apps] -- mad_repl:disabled(),
-    io:format("Ordered: ~p~n",[Ordered]),
-    io:format("Applist Generation: ~w~n", [file:write_file(".applist",io_lib:format("~w",[Ordered]))]),
+    io:format("Ordered: ~p~n\r",[Ordered]),
+    io:format("Applist Generation: ~w~n\r", [file:write_file(".applist",io_lib:format("~w",[Ordered]))]),
     Ordered.
