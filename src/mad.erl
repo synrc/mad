@@ -1,5 +1,5 @@
 -module(mad).
--copyright('Sina Samavati').
+-copyright('Maxim Sokhatsky').
 -compile(export_all).
 -export([main/1]).
 
@@ -55,6 +55,14 @@ bundle(Cwd,ConfigFileName,Config,Params) ->
     Name = case Params of [] -> mad_utils:cwd(); E -> E end,
     mad_bundle:main(filename:basename(Name)).
 
+app(Cwd,ConfigFileName,Config,Params) ->
+    io:format("Create App Params: ~p~n",[Params]),
+    mad_create:app(Params).
+
+lib(Cwd,ConfigFileName,Config,Params) ->
+    io:format("Create Lib Params: ~p~n",[Params]),
+    mad_create:lib(Params).
+
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).
 help(Msg) -> io:format("Error: ~s~n~n", [Msg]), help().
 help() ->
@@ -63,6 +71,6 @@ help() ->
     io:format("    invoke := mad params~n"),
     io:format("    params := [] | run params ~n"),
     io:format("       run := command [ help | options ]~n"),
-    io:format("       cmd := deps | compile | run | stop | repl | attach | release | bundle~n"),
+    io:format("       cmd := app | lib | deps | compile | bundle~n"),
+    io:format("              run | stop | attach | repl ~n"),
     halt().
-

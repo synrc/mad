@@ -1,7 +1,6 @@
 compile: deps
-deps compile clean:
+deps compile:
 	./mad $@
 escript: compile
-	./build
-
+	./mad dep com bun mad
 .PHONY: deps compile escript

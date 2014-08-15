@@ -1,4 +1,5 @@
 -module(mad_script).
+-copyright('Sina Samavati').
 -compile(export_all).
 
 script(ConfigFile, Conf, Name) ->

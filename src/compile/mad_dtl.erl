@@ -1,4 +1,5 @@
 -module(mad_dtl).
+-copyright('Sina Samavati').
 -compile(export_all).
 
 compile(Dir,Config) ->

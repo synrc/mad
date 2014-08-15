@@ -1,4 +1,5 @@
 -module(mad_port).
+-copyright('Maxim Sokhatsky').
 -compile(export_all).
 
 replace_env(String, []) -> String;

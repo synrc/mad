@@ -1,4 +1,5 @@
 -module(mad_bundle).
+-copyright('Maxim Sokhatsky').
 -compile(export_all).
 
 main(App) ->

@@ -1,4 +1,5 @@
 -module(mad_repl).
+-copyright('Maxim Sokhatsky').
 -compile(export_all).
 
 disabled() -> [wx,webtool,ssl,runtime_tools,public_key,observer,inets,asn1,et,eunit,hipe].
@@ -91,7 +92,7 @@ load() ->
 unfold_zips(Bin) ->
     {ok,Unzip} = zip:unzip(Bin,[memory]),
     [ begin
-%        io:format("Unzip: ~p~n\r",[U]),
+        io:format("Unzip: ~p~n\r",[U]),
         ets:insert(filesystem,{U,FileBin}),
         case U of
             "static.gz" -> unfold_zips(FileBin);

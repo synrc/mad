@@ -70,6 +70,8 @@ atomize("rep"++_) -> repl;
 atomize("bun"++_) -> bundle;
 atomize("dep"++_) -> deps;
 atomize("pla"++_) -> plan;
+atomize("app"++_) -> app;
+atomize("lib"++_) -> lib;
 atomize(Else) -> Else.
 
 atomize_params_commands(Params) -> atomize_params_commands(Params,[]).

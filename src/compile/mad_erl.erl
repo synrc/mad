@@ -1,4 +1,5 @@
 -module(mad_erl).
+-copyright('Sina Samavati').
 -compile(export_all).
 -define(COMPILE_OPTS(Inc, Ebin, Opts), [report, {i, Inc}, {outdir, Ebin}] ++ Opts).
 

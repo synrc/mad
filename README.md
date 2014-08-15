@@ -21,13 +21,15 @@ And put 'mad' to PATH.
 Usage
 -----
 
-    $ mad get-deps
-    $ mad compile
+    $ mad deps compile repl
+    $ mad app "sample"
+    $ mad deps compile bundle "web_app"
 
 Credits
 -------
 
 * Maxim Sokhatsky
 * Sina Samavati
+* Vladimir Kirillov
 
 OM A HUM

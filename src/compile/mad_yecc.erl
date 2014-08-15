@@ -1,4 +1,5 @@
 -module(mad_yecc).
+-copyright('Sina Samavati').
 -compile(export_all).
 
 yrl_to_erl(F) -> filename:join(filename:dirname(F),filename:basename(F, ".yrl")) ++ ".erl".
