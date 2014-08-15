@@ -11,7 +11,8 @@ compile(Dir,Config) ->
          X -> compile_port(Dir,X,Config) end.
 
 compile_port(Dir,Specs,Config) ->
-    {_,System} = os:type(),
+    {_,S} = os:type(),
+    System = atom_to_list(S),
     filelib:ensure_dir(Dir ++ "/priv/"),
     Env = [ {Var,Val} || {Sys,Var,Val} <- mad_utils:get_value(port_env, Config, []), Sys == System ],
     [ begin 
