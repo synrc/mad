@@ -4,6 +4,11 @@
 disabled() -> [wx,webtool,ssl,runtime_tools,public_key,observer,inets,asn1,et,eunit,hipe].
 system() -> [compiler,syntax_tools,sasl,tools,mnesia,reltool,xmerl,crypto,kernel,stdlib].
 
+local_app() -> 
+    case filename:basename(filelib:wildcard("ebin/*.app"),".app") of
+         [] -> [];
+         A -> [list_to_atom(A)] end.
+
 applist() -> 
     Name = ".applist",
     case file:read_file(Name) of
@@ -11,15 +16,17 @@ applist() ->
          {error,Reason} ->
            case mad_repl:load_file(Name) of
               <<>> -> mad_plan:main([ list_to_atom(filename:basename(App))
-                || App <- filelib:wildcard("{apps,deps}/*"), filelib:is_dir(App) ]);
+                || App <- wildcards(["{apps,deps}/*"]), filelib:is_dir(App) ]);
               Plan -> parse_applist(Plan) end end.
+
+wildcards(List) -> lists:concat([filelib:wildcard(X)||X<-List]).
 
 parse_applist(AppList) -> 
    Res = string:tokens(string:strip(string:strip(binary_to_list(AppList),right,$]),left,$[),","),
    [ list_to_atom(R) || R <-Res ]  -- disabled().
 
 load_config() ->
-   Config = filelib:wildcard("rels/*/files/sys.config"),
+   Config = wildcards(["rels/*/files/sys.config","sys.config"]),
    Apps = case Config of
       [] -> case mad_repl:load_file("sys.config") of
             <<>> -> [];
@@ -55,7 +62,7 @@ cwd() -> {ok, Cwd} = file:get_cwd(), Cwd.
 main(Params) -> 
     SystemPath = filelib:wildcard(code:root_dir() ++ 
       "/lib/{"++ string:join([atom_to_list(X)||X<-mad_repl:system()],",") ++ "}-*/ebin"),
-    UserPath = filelib:wildcard("{apps,deps}/*/ebin"),
+    UserPath = wildcards(["{apps,deps}/*/ebin","ebin"]),
     code:set_path(SystemPath++UserPath),
     code:add_path(filename:join([cwd(),filename:basename(escript:script_name())])),
     load(),
@@ -98,10 +105,13 @@ load_file(Name)  ->
 
 load_config(A) when is_atom(A) -> load_config(atom_to_list(A));
 load_config(A) when is_list(A) ->
-    Name = A ++".app",
-    case ets:lookup(filesystem,Name) of
-        [{Name,Bin}] -> parse(binary_to_list(Bin));
-        _ -> [] end.
+    AppFile = A ++".app",
+    Name = wildcards(["{apps,deps}/*/ebin/"++AppFile,"ebin/"++AppFile]),
+    case file:read_file(Name) of
+         {ok,Bin} -> parse(binary_to_list(Bin));
+         {error,_} -> case ets:lookup(filesystem,AppFile) of
+                          [{Name,Bin}] -> parse(binary_to_list(Bin));
+                          _ -> [] end end.
 
 parse(String) ->
     {ok,Tokens,_EndLine} = erl_scan:string(String),
