@@ -38,6 +38,11 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             file:make_dir(EbinDir),
             code:replace_path(Name,EbinDir),
 
+%            sh:run("erlc",["-o"++"apps/n2o_sample/ebin/",
+%                                 "-Iapps/n2o_sample/include"]++
+%              filelib:wildcard("apps/n2o_sample/src/web_sup.erl"),binary,
+%              filename:absname("."),[{"ERL_LIBS","apps:deps"}]).
+
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
             lists:foreach(compile_fun(IncDir, EbinDir, Opts), Files),
 

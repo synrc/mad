@@ -43,8 +43,8 @@ compile(Cwd, ConfigFile, Conf, Params) ->
 %% reltool apps resolving
 plan(Cwd,ConfigFileName,Config,Params) ->
     io:format("Plan Params: ~p~n",[Params]),
-    mad_repl:load(),
-    mad_repl:applist().
+    mad_plan:main([ list_to_atom(filename:basename(App))
+        || App <- filelib:wildcard("{apps,deps}/*"), filelib:is_dir(App) ]).
 
 repl(Cwd,ConfigFileName,Config,Params) ->
     io:format("Repl Params: ~p~n",[Params]),
