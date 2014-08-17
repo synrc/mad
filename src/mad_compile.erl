@@ -29,7 +29,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     SrcDir = filename:join([mad_utils:src(DepPath)]),
 
     Files = files(SrcDir,".yrl") ++ 
-            %files(SrcDir,".erl") ++ % comment this to build with erlc/1
+            files(SrcDir,".erl") ++ % comment this to build with erlc/1
             files(SrcDir,".app.src"),
 
     case Files of
@@ -42,7 +42,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             file:make_dir(EbinDir),
             code:replace_path(Name,EbinDir),
 
-            erlc(DepPath), % comment this to build with files/2
+            %erlc(DepPath), % comment this to build with files/2
 
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
             lists:foreach(compile_fun(IncDir, EbinDir, Opts), Files),
