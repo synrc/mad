@@ -28,6 +28,14 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
 
     io:format("==> dependency: ~p tag: ~p~n\r", [Uri,Co]),
 
+    {_, {_, _, RepoHost, _, _, _}} = http_uri:parse(Uri, [{scheme_defaults, [{git, 22}]}]),
+    {GetAddrResult, GetAddrData} = inet:getaddr(RepoHost, inet),
+    case GetAddrResult of
+        error -> exit(erlang:iolist_to_binary(io_lib:format("get dependency error: ~p", [GetAddrData])));
+        _ -> true
+    end,
+
+
     {R,Co1} = case Co of
         {_,Rev} ->
             {["git clone ",Uri," ",TrunkPath," && cd ",TrunkPath,
