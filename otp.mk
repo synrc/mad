@@ -1,6 +1,3 @@
-compile: deps
-deps compile:
-	./mad $@
-escript: compile
+escript:
 	./mad dep com bun mad
-.PHONY: deps compile escript
+.PHONY: escript

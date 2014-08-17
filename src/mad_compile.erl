@@ -13,10 +13,14 @@ deps(Cwd, Conf, ConfigFile, [H|T]) ->
 
 %% compile a dependency
 dep(Cwd, _Conf, ConfigFile, Name) ->
-    io:format("==> ~p~n\r",[Name]),
     %% check dependencies of the dependency
     DepsDir = filename:join([mad_utils:get_value(deps_dir, _Conf, ["deps"])]),
     DepPath = filename:join([Cwd, DepsDir, Name]),
+    io:format("==> ~p~n\r",[Name]),
+
+    case filelib:wildcard(DepPath++"/ebin/"++list(Name)++".app") /= [] of
+         true -> skip; _ ->
+
     DepConfigFile = filename:join(DepPath, ConfigFile),
     Conf = mad_utils:consult(DepConfigFile),
     Conf1 = mad_script:script(DepConfigFile, Conf, Name),
@@ -25,7 +29,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     SrcDir = filename:join([mad_utils:src(DepPath)]),
 
     Files = files(SrcDir,".yrl") ++ 
-            files(SrcDir,".erl") ++ 
+            %files(SrcDir,".erl") ++ % comment this to build with erlc/1
             files(SrcDir,".app.src"),
 
     case Files of
@@ -38,10 +42,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             file:make_dir(EbinDir),
             code:replace_path(Name,EbinDir),
 
-%            sh:run("erlc",["-o"++"apps/n2o_sample/ebin/",
-%                                 "-Iapps/n2o_sample/include"]++
-%              filelib:wildcard("apps/n2o_sample/src/web_sup.erl"),binary,
-%              filename:absname("."),[{"ERL_LIBS","apps:deps"}]).
+            erlc(DepPath), % comment this to build with files/2
 
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
             lists:foreach(compile_fun(IncDir, EbinDir, Opts), Files),
@@ -51,7 +52,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
 
             put(Name, compiled),
             ok
-    end.
+    end end.
 
 compile_fun(Inc,Bin,Opt) -> fun(File) -> (module(filetype(File))):compile(File,Inc,Bin,Opt) end.
 
@@ -72,3 +73,15 @@ is_compiled(BeamFile, File) -> mad_utils:last_modified(BeamFile) >= mad_utils:la
 
 'compile-deps'(Cwd, ConfigFile, Conf) ->
     mad_compile:deps(Cwd, Conf, ConfigFile, mad_utils:get_value(deps, Conf, [])).
+
+list(X) when is_atom(X) -> atom_to_list(X);
+list(X) -> X.
+
+erlc(DepPath) ->
+    ErlFiles = filelib:wildcard(DepPath++"/src/**/*.erl"),
+    io:format("Files: ~s~n\r",[[filename:basename(Erl)++" " ||Erl<-ErlFiles]]),
+    {Res,Status,X} = sh:run("erlc",["-o"++DepPath++"/ebin/","-I"++DepPath++"/include"]++
+        ErlFiles,binary,filename:absname("."),[{"ERL_LIBS","apps:deps"}]),
+    case Status == 0 of
+         true -> skip;
+         false -> io:format("Error: ~s~n\r",[binary_to_list(X)]) end.
