@@ -18,9 +18,6 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     DepPath = filename:join([Cwd, DepsDir, Name]),
     io:format("==> ~p~n\r",[Name]),
 
-    case filelib:wildcard(DepPath++"/ebin/"++list(Name)++".app") /= [] of
-         true -> skip; _ ->
-
     DepConfigFile = filename:join(DepPath, ConfigFile),
     Conf = mad_utils:consult(DepConfigFile),
     Conf1 = mad_script:script(DepConfigFile, Conf, Name),
@@ -52,7 +49,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
 
             put(Name, compiled),
             ok
-    end end.
+    end.
 
 compile_fun(Inc,Bin,Opt) -> fun(File) -> (module(filetype(File))):compile(File,Inc,Bin,Opt) end.
 
