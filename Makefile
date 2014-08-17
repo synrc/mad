@@ -1,2 +1,4 @@
 default: escript
-include otp.mk
+escript:
+	./mad dep com bun mad
+.PHONY: escript
