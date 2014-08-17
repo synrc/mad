@@ -12,6 +12,7 @@ fetch(Cwd, Config, ConfigFile, [H|T]) ->
                          {_Cmd, _Url, _Co, _} ->
                              {_Cmd, _Url, _Co}
                      end,
+    check_host_ip_addr(Uri),
     Cmd1 = atom_to_list(Cmd),
     Cache = mad_utils:get_value(cache, Config, deps_fetch),
     case get(Name) of
@@ -69,3 +70,18 @@ get_publisher(Uri) ->
         _ -> case string:tokens(Uri,":/") of
                 [_Server,Publisher,_Repo] -> Publisher;
                 _ -> exit(error) end end.
+
+check_host_ip_addr(Uri) ->
+    {_, {_, _, RepoHost, _, _, _}} = http_uri:parse(Uri, [{scheme_defaults, [{git, 9418}|http_uri:scheme_defaults()]}]),
+    {GetAddrResult, GetAddrData} = inet:getaddr(RepoHost, inet),
+    case GetAddrResult of
+        error -> 
+            {GetAddrResult6, GetAddrData6} = inet:getaddr(RepoHost, inet6),
+            case GetAddrResult6 of
+                error -> 
+                io:format("==> get dependency errors: ipv4 ~p, ipv6 ~p~n", [GetAddrData, GetAddrData6]),
+                exit(error);
+                _ -> true
+            end;
+        _ -> true
+    end.
