@@ -1,0 +1,146 @@
+\section{MAD: Erlang Build and Deploy Tool}
+
+\subsection{History}
+
+We realized no matter how perfect your libraries are,
+the comfort and easy come mostly from developing tools.
+Everything got started when Vladimir Kirillov decided to
+replace Rusty's SYNC beam reloader. As you know SYNC uses
+filesystem polling which is neither economic nor elegant. Also
+SYNC is able only to reload separate modules while
+common use-case in N2O is to recompile DTL templates
+and LESS/SCSS stylesheets. That is why we need to trigger
+the whole project recompilation. That's the story how ACTIVE
+has been emerged. Under the hood ACTIVE is a client subscriber
+of FS library, native async filesystem listener
+for Linux, Windows and Mac.
+
+De-facto standard in Erlang world is REBAR.
+We love REBAR interface despite its implementation.
+When we plugged REBAR to ACTIVE and then decided totally
+drop REBAR support and where switched to makefile
+based build tool OTP.MK. Becase the overall size
+of REBAR was bigger then whole our Web Stack.
+And of course it is slow, especially in cold recompilation.
+It was designed to be a stand-alone tool, so it has some
+glitches while using as embedded library.
+
+Our idea to build REBAR replacement was picked up by Sina Samavati,
+he implemented the first prototype called MAD. Initially MAD
+was able to compile DTL templated, YECC files, ESCRIPT (like
+bundled in GPROC), also it was support caching with side-effects.
+After month I continue the MAD fork with the same name.
+
+\vspace{1\baselineskip}
+\begin{lstlisting}[caption=Example of building N2O sample]
+                               Cold       Hot
+rebar get-deps compile         53.156s    4.714s
+mad deps compile               54.097s    0.899s
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+\vspace{1\baselineskip}
+\begin{lstlisting}[caption=Example of building Cowboy]
+                               Cold
+make (ERLANG.MK)               2.588s
+mad compile                    2.521s
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+\subsection{Introduction}
+
+We was trying to made something minimalistic that fits out Web Stack.
+Besides we wanted to use our knowledge of other build tools like lein, sbt etc.
+Also for sure we tried sinan, ebt, makefile based scripts.
+
+Synrc MAD has following commands DSL:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+BNF:
+    invoke := mad params
+    params := [] | run params
+       run := command [ options ]
+       cmd := app | lib | deps | compile | bundle
+              run | stop | attach | repl
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+It seems to us more natural, you can specify random
+commands set with different specifiers (options).
+
+\subsection{Single-File Bundling}
+
+The key feature of MAD is ability to create single-file bundled web sites.
+Thus making Joe's dream to boot like node.js come true.
+This target escript is ready to run on Windows, Linux and Mac.
+
+To make this possible we implemented zip filesytem inside escript.
+MAD packages priv directories along with ebin and configs.
+Also you can redefine each file in zip fs inside target
+escript by creation the copy with same path locally near escript.
+After launch all files copied to ETS.
+N2O also comes with custom COWBOY static handler that is able to
+read static files from this cached ETS filesystem.
+Also bundle are compatible with ACTIVE online realoading and recompilation.
+
+\subsection{Templates}
+
+MAD also come with N2O templates. So you can bootstrap N2O site
+just having a single copy of MAD.
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    \$ mad app sample
+    \$ cd sample
+    \$ mad deps compile plan bundle web_app
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+After that just can run ./web_app under Windows, Linux and
+Mac and open \footahref{http://localhost:8000}{http://localhost:8000}.
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+C:\> escript web_app
+Applications: [kernel,stdlib,crypto,cowlib,ranch,cowboy,compiler,syntax_tools,
+               erlydtl,gproc,xmerl,n2o,n2o_sample,fs,active,mad,sh]
+Configuration: [{n2o,[{port,8000},{route,routes}]},
+                {kvs,[{dba,store_mnesia},
+                      {schema,[kvs_user,kvs_acl,kvs_feed,kvs_subscription]}]}]
+Erlang/OTP 17 [erts-6.0] [source] [64-bit] [smp:4:4] [async-threads:10] [hipe] [kernel-poll:false]
+
+Eshell V6.0  (abort with ^G)
+1>
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+\subsection{Deploy}
+
+MAD is also supposed to be also a deploy tool with ability to
+deploy not only to our resources like EoX, Voxoz (LXC/Xen) but
+also to Heroky and others.
+
+\subsection{OTP Compliant}
+
+MAD is respectful to OTP directories. It supports two kinds of directory layouts:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}[caption=Solution]
+├── apps
+├── deps
+├── rebar.config
+└── sys.config
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+\vspace{1\baselineskip}
+\begin{lstlisting}[caption=OTP Application]
+├── deps
+├── ebin
+├── include
+├── priv
+├── src
+└── rebar.config
+\end{lstlisting}
+\vspace{1\baselineskip}
