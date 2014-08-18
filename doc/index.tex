@@ -4,7 +4,7 @@
 
 We realized no matter how perfect your libraries are,
 the comfort and easy come mostly from developing tools.
-Everything got started when Vladimir Kirillov decided to
+Everything got started when \footahref{https://github.com/proger}{Vladimir Kirillov} decided to
 replace Rusty's sync beam reloader. As you know sync uses
 filesystem polling which is neither energy-efficient nor elegant. Also
 sync is only able to recompile separate modules while
@@ -22,7 +22,8 @@ And of course it is slow, especially in cold recompilation.
 It was designed to be a stand-alone tool, so it has some
 glitches while using as embedded library.
 
-Our idea to build rebar replacement was picked up by Sina Samavati,
+The idea to build rebar replacement was shared in space for a long time.
+The best minimal approach was picked up by \footahref{https://github.com/s1n4}{Sina Samavati},
 he implemented the first prototype called mad. Initially mad
 was able to compile DTL templated, YECC files, escript (like
 bundled in gproc), also it was support caching with side-effects.
@@ -58,7 +59,7 @@ Synrc mad has a simple interface as follows:
       invoke := mad params
       params := [] | run params
          run := command [ options ]
-         cmd := app | lib | deps | compile | bundle
+     command := app | lib | deps | compile | bundle
                 run | stop | attach | repl
 \end{lstlisting}
 \vspace{1\baselineskip}
