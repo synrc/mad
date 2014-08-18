@@ -33,17 +33,17 @@ After month I continue the MAD fork with the same name.
 
 \vspace{1\baselineskip}
 \begin{lstlisting}[caption=Example of building N2O sample]
-                               Cold       Hot
-rebar get-deps compile         53.156s    4.714s
-mad deps compile               54.097s    0.899s
+                                   Cold       Hot
+    rebar get-deps compile         53.156s    4.714s
+    mad deps compile               54.097s    0.899s
 \end{lstlisting}
 \vspace{1\baselineskip}
 
 \vspace{1\baselineskip}
 \begin{lstlisting}[caption=Example of building Cowboy]
-                               Cold
-make (ERLANG.MK)               2.588s
-mad compile                    2.521s
+                                   Cold
+    make (ERLANG.MK)               2.588s
+    mad compile                    2.521s
 \end{lstlisting}
 \vspace{1\baselineskip}
 
@@ -57,12 +57,12 @@ Synrc MAD has following commands DSL:
 
 \vspace{1\baselineskip}
 \begin{lstlisting}
-BNF:
-    invoke := mad params
-    params := [] | run params
-       run := command [ options ]
-       cmd := app | lib | deps | compile | bundle
-              run | stop | attach | repl
+  BNF:
+      invoke := mad params
+      params := [] | run params
+         run := command [ options ]
+         cmd := app | lib | deps | compile | bundle
+                run | stop | attach | repl
 \end{lstlisting}
 \vspace{1\baselineskip}
 
@@ -102,16 +102,16 @@ Mac and open \footahref{http://localhost:8000}{http://localhost:8000}.
 
 \vspace{1\baselineskip}
 \begin{lstlisting}
-C:\> escript web_app
-Applications: [kernel,stdlib,crypto,cowlib,ranch,cowboy,compiler,syntax_tools,
-               erlydtl,gproc,xmerl,n2o,n2o_sample,fs,active,mad,sh]
-Configuration: [{n2o,[{port,8000},{route,routes}]},
-                {kvs,[{dba,store_mnesia},
-                      {schema,[kvs_user,kvs_acl,kvs_feed,kvs_subscription]}]}]
-Erlang/OTP 17 [erts-6.0] [source] [64-bit] [smp:4:4] [async-threads:10] [hipe] [kernel-poll:false]
+    C:\> escript web_app
+    Applications: [kernel,stdlib,crypto,cowlib,ranch,cowboy,compiler,syntax_tools,
+                   erlydtl,gproc,xmerl,n2o,n2o_sample,fs,active,mad,sh]
+    Configuration: [{n2o,[{port,8000},{route,routes}]},
+                    {kvs,[{dba,store_mnesia},
+                          {schema,[kvs_user,kvs_acl,kvs_feed,kvs_subscription]}]}]
+    Erlang/OTP 17 [erts-6.0] [64-bit] [smp:4:4] [async-threads:10] [kernel-poll:false]
 
-Eshell V6.0  (abort with ^G)
-1>
+    Eshell V6.0  (abort with ^G)
+    1>
 \end{lstlisting}
 \vspace{1\baselineskip}
 
@@ -127,20 +127,20 @@ MAD is respectful to OTP directories. It supports two kinds of directory layouts
 
 \vspace{1\baselineskip}
 \begin{lstlisting}[caption=Solution]
-├── apps
-├── deps
-├── rebar.config
-└── sys.config
+    ├── apps
+    ├── deps
+    ├── rebar.config
+    └── sys.config
 \end{lstlisting}
 \vspace{1\baselineskip}
 
 \vspace{1\baselineskip}
 \begin{lstlisting}[caption=OTP Application]
-├── deps
-├── ebin
-├── include
-├── priv
-├── src
-└── rebar.config
+    ├── deps
+    ├── ebin
+    ├── include
+    ├── priv
+    ├── src
+    └── rebar.config
 \end{lstlisting}
 \vspace{1\baselineskip}
