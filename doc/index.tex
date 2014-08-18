@@ -39,7 +39,7 @@ After a month I forked mad and took over the development under the same name.
 \vspace{1\baselineskip}
 \begin{lstlisting}[caption=Example of building Cowboy]
                                    Cold
-    make (ERLANG.MK)               2.588s
+    make (erlang.mk)               2.588s
     mad compile                    2.521s
 \end{lstlisting}
 \vspace{1\baselineskip}
@@ -74,16 +74,16 @@ This target escript is ready to run on Windows, Linux and Mac.
 
 To make this possible we implemented a zip filesytem inside escript.
 mad packages priv directories along with ebin and configs.
-Also you can redefine each file in zip fs inside target
+You can redefine each file in zip fs inside target
 escript by creation the copy with same path locally near escript.
-After launch all files copied to ETS.
+After launch all files are copied to ETS.
 N2O also comes with custom cowboy static handler that is able to
 read static files from this cached ETS filesystem.
 Also bundle are compatible with active online realoading and recompilation.
 
 \subsection{Templates}
 
-mad also come with N2O templates. So you can bootstrap a N2O-based site
+mad also comes with N2O templates. So you can bootstrap a N2O-based site
 just having a single copy of mad.
 
 \vspace{1\baselineskip}
