@@ -27,7 +27,7 @@ parse_applist(AppList) ->
    [ list_to_atom(R) || R <-Res ]  -- disabled().
 
 load_config() ->
-   Config = wildcards(["rels/*/files/sys.config","sys.config"]),
+   Config = wildcards(["sys.config"]),
    Apps = case Config of
       [] -> case mad_repl:load_file("sys.config") of
             <<>> -> [];

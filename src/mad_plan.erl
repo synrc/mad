@@ -6,8 +6,8 @@ main(AppList) ->
     Relconfig = {sys, [{lib_dirs,["apps","deps"]},
                        {rel,"node","1",AppList}, {boot_rel,"node"} ]},
     {ok, Server} = reltool:start_server([{config, Relconfig}]),
-    {ok, {release, _Node, _Erts, Apps}} = reltool_server:get_rel(Server, "node"),
+    {ok, {release, _Node, _Erts, Apps}} = Release = reltool_server:get_rel(Server, "node"),
     Ordered = [element(1, A) || A <- Apps] -- mad_repl:disabled(),
-    io:format("Ordered: ~p~n\r",[Ordered]),
+    io:format("Ordered: ~p~n\r",[Release]),
     file:write_file(".applist",io_lib:format("~w",[Ordered])),
     Ordered.
