@@ -5,10 +5,10 @@
 
 main([]) -> help();
 main(Params) ->
-    io:format("Bundle: ~p~n\r",[escript:script_name()]),
+%    io:format("Bundle: ~p~n\r",[escript:script_name()]),
 
     FP = mad_utils:fold_params(Params),
-    io:format("Params: ~p~n\r",[FP]),
+%    io:format("Params: ~p~n\r",[FP]),
 
     Cwd = mad_utils:cwd(),
     ConfigFile = "rebar.config",
@@ -68,7 +68,7 @@ start(Cwd,ConfigFileName,Config,Params) ->
     mad_run:start(Params).
 
 attach(Cwd,ConfigFileName,Config,Params) ->
-    io:format("Attach Params: ~p~n",[Params]),
+%    io:format("Attach Params: ~p~n",[Params]),
     mad_run:attach(Params).
 
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).

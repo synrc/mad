@@ -12,4 +12,5 @@ start(Params) ->
          false -> io:format("Shell Error: ~s~n\r",[binary_to_list(X)]) end.
 
 attach(Params) ->
+    io:format("to_erl .devbox/~n"),
     os:cmd("sh -c \"exec to_erl .devbox/\"").
