@@ -80,11 +80,7 @@ main(Params) ->
         _ ->  timer:sleep(infinity) end.
 
 load() ->
-
-    case ets:info(filesystem) of
-         undefined -> ets:new(filesystem,[set,named_table,{keypos,1},public]);
-         _ -> skip end,
-
+    ets_created(),
     {ok,Sections} = escript:extract(escript:script_name(),[]),
     [Bin] = [B||{archive,B}<-Sections],
     unfold_zips(Bin).
@@ -99,7 +95,13 @@ unfold_zips(Bin) ->
             _ -> skip end
       end || {U,FileBin} <- Unzip].
 
+ets_created() -> 
+    case ets:info(filesystem) of
+         undefined -> ets:new(filesystem,[set,named_table,{keypos,1},public]);
+         _ -> skip end.
+
 load_file(Name)  ->
+    ets_created(),
     case ets:lookup(filesystem,Name) of
         [{Name,Bin}] -> Bin;
         _ -> <<>> end.

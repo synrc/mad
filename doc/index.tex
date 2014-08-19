@@ -12,15 +12,15 @@ common use-case in N2O is to recompile DTL templates
 and LESS/SCSS stylesheets. That is why we need to recompile
 the whole project. That's the story how \footahref{https://github.com/synrc/active}{active} emerged.
 Under the hood active is a client subscriber
-of fs library, native filesystem listener for Linux, Windows and Mac.
+of \footahref{https://github.com/synrc/fs}{fs} library, native filesystem listener for Linux, Windows and Mac.
 
 De-facto standard in Erlang world is rebar.
 We love rebar interface despite its implementation.
-First we plugged rebar into active and then decided to drop its support.
-Later switched to Makefile-based build tool otp.mk.
-And of course it was slow, especially in cold recompilation.
+First we plugged rebar into active and then decided to drop its support,
+it was slow, especially in cold recompilation.
 It was designed to be a stand-alone tool, so it has some
 glitches while using as embedded library.
+Later we switched to Makefile-based build tool \footahref{https://github.com/synrc/otp.mk}{otp.mk}.
 
 The idea to build rebar replacement was up in the air for a long time.
 The best minimal approach was picked up by \footahref{https://github.com/s1n4}{Sina~Samavati},
