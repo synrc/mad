@@ -63,6 +63,14 @@ lib(Cwd,ConfigFileName,Config,Params) ->
     io:format("Create Lib Params: ~p~n",[Params]),
     mad_create:lib(Params).
 
+start(Cwd,ConfigFileName,Config,Params) ->
+    io:format("Start Params: ~p~n",[Params]),
+    mad_run:start(Params).
+
+attach(Cwd,ConfigFileName,Config,Params) ->
+    io:format("Attach Params: ~p~n",[Params]),
+    mad_run:attach(Params).
+
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).
 help(Msg) -> io:format("Error: ~s~n~n", [Msg]), help().
 help() ->

@@ -72,6 +72,8 @@ atomize("dep"++_) -> deps;
 atomize("pla"++_) -> plan;
 atomize("app"++_) -> app;
 atomize("lib"++_) -> lib;
+atomize("sta"++_) -> start;
+atomize("att"++_) -> attach;
 atomize(Else) -> Else.
 
 atomize_params_commands(Params) -> atomize_params_commands(Params,[]).
