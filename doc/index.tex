@@ -2,15 +2,15 @@
 
 \subsection{History}
 
-We realized no matter how perfect your libraries are,
-the comfort and easy come mostly from developing tools.
+We came to conclusion that no matter how perfect your libraries are,
+the comfort and ease come mostly from developing tools.
 Everything got started when \footahref{https://github.com/proger}{Vladimir~Kirillov} decided to
 replace Rusty's sync beam reloader. As you know sync uses
 filesystem polling which is neither energy-efficient nor elegant. Also
 sync is only able to recompile separate modules while
 common use-case in N2O is to recompile DTL templates
 and LESS/SCSS stylesheets. That is why we need to recompile
-the whole project. That's the story how active emerged.
+the whole project. That's the story how \footahref{https://github.com/synrc/active}{active} emerged.
 Under the hood active is a client subscriber
 of fs library, native filesystem listener for Linux, Windows and Mac.
 
@@ -18,16 +18,16 @@ De-facto standard in Erlang world is rebar.
 We love rebar interface despite its implementation.
 First we plugged rebar into active and then decided to drop its support.
 Later switched to Makefile-based build tool otp.mk.
-And of course it is slow, especially in cold recompilation.
+And of course it was slow, especially in cold recompilation.
 It was designed to be a stand-alone tool, so it has some
 glitches while using as embedded library.
 
-The idea to build rebar replacement was shared in space for a long time.
+The idea to build rebar replacement was up in the air for a long time.
 The best minimal approach was picked up by \footahref{https://github.com/s1n4}{Sina~Samavati},
-he implemented the first prototype called mad. Initially mad
+who implemented the first prototype called 'mad'. Initially mad
 was able to compile DTL templated, YECC files, escript (like
-bundled in gproc), also it was support caching with side-effects.
-After a month I forked mad and took over the development under the same name.
+bundled in gproc), also it had support for caching with side-effects.
+In a month I forked mad and took over the development under the same name.
 
 \vspace{1\baselineskip}
 \begin{lstlisting}[caption=Example of building N2O sample]
@@ -115,7 +115,7 @@ Mac and open \footahref{http://localhost:8000}{http://localhost:8000}.
 
 \subsection{Deploy}
 
-mad is also supposed to be also a deploy tool with ability to
+mad is also supposed to be a deploy tool with ability to
 deploy not only to our resources like Erlang on Xen, Voxoz (LXC/Xen) but
 also to Heroku and others.
 
