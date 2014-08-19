@@ -80,5 +80,5 @@ help() ->
     io:format("    params := [] | run params ~n"),
     io:format("       run := command [ help | options ]~n"),
     io:format("       cmd := app | lib | deps | compile | bundle~n"),
-    io:format("              run | stop | attach | repl ~n"),
+    io:format("              start | stop | repl ~n"),
     halt().
