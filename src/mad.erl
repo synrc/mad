@@ -71,6 +71,14 @@ attach(Cwd,ConfigFileName,Config,Params) ->
 %    io:format("Attach Params: ~p~n",[Params]),
     mad_run:attach(Params).
 
+stop(Cwd,ConfigFileName,Config,Params) ->
+    io:format("Stop Params: ~p~n",[Params]),
+    mad_run:stop(Params).
+
+release(Cwd,ConfigFileName,Config,Params) ->
+    io:format("Release Params: ~p~n",[Params]),
+    mad_release:main(Params).
+
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).
 help(Msg) -> io:format("Error: ~s~n~n", [Msg]), help().
 help() ->

@@ -74,6 +74,8 @@ atomize("app"++_) -> app;
 atomize("lib"++_) -> lib;
 atomize("sta"++_) -> start;
 atomize("att"++_) -> attach;
+atomize("sto"++_) -> stop;
+atomize("rel"++_) -> release;
 atomize(Else) -> Else.
 
 atomize_params_commands(Params) -> atomize_params_commands(Params,[]).

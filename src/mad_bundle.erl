@@ -18,4 +18,4 @@ static() -> Name = "static.gz",
 beams() ->
     [ { filename:basename(F), read_file(F) } || F <-
         lists:concat([filelib:wildcard(X)||X <- 
-        [ "ebin/*","deps/*/ebin/*","apps/*/ebin/*","sys.config",".applist"]])].
+        [ "ebin/*","{apps,deps}/*/ebin/*","sys.config",".applist"]])].
