@@ -144,8 +144,12 @@ Specifically two kinds of directory layouts:
 \end{lstlisting}
 \vspace{1\baselineskip}
 
-Also you can create OTP releases with reltool, rebar configure or relx.
-Internally mad uses reltool to order your dependencies and generation of reltool.config.
+\subsection{Apps Ordering}
+
+As you may know you can create OTP releases with
+reltool (rebar generate) or systools (relx). mad currently
+creates releases with relx but is going to do it independently soon.
+Now it can only order applications.
 
 \vspace{1\baselineskip}
 \begin{lstlisting}
