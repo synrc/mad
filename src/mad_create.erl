@@ -15,4 +15,4 @@ app(Params) ->
        _ -> skip
        end || {File,Bin} <-Apps].
 
-lib(Params) -> ok.
+lib(_) -> ok.

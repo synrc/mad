@@ -15,7 +15,7 @@ main(Params) ->
     [N|_] = Params,
     Apps = [ filename:basename(F) || F <- filelib:wildcard("{apps,deps}/*"),  filelib:is_dir(F)],
     release(N,Apps),
-    {Res,Status,X} = sh:run("relx",[],binary,".",[]),
+    {_,Status,X} = sh:run("relx",[],binary,".",[]),
     case Status == 0 of
          true -> skip;
          false -> io:format("Shell Error: ~s~n\r",[binary_to_list(X)]) end.

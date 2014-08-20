@@ -20,7 +20,7 @@ compile_port(Dir,Specs,Config) ->
            Template = string:join(filelib:wildcard(Dir ++ "/" ++ Files)," ") 
               ++ " CFLAGS LDFLAGS -o " ++ Dir ++ "/" ++ Out,
        Args = string:strip(replace_env(Template,Env),both,32),
-       {Atom,Status,Report} = sh:run("cc",string:tokens(Args," "),binary,Dir,Env),
+       {_,Status,Report} = sh:run("cc",string:tokens(Args," "),binary,Dir,Env),
        case Status == 0 of
           true -> skip;
           false -> io:format("Port Compilation Error: ~p",[Report]) end

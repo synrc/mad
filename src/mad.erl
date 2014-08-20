@@ -16,7 +16,7 @@ main(Params) ->
     Conf = mad_utils:consult(ConfigFileAbs),
     Conf1 = mad_script:script(ConfigFileAbs, Conf, ""),
 
-    Fun = fun({Name,Params}) -> ?MODULE:Name(Cwd, ConfigFile, Conf1, Params) end,
+    Fun = fun({Name,Par}) -> ?MODULE:Name(Cwd, ConfigFile, Conf1, Par) end,
     lists:foreach(Fun, FP).
 
 %% fetch dependencies
@@ -41,41 +41,40 @@ compile(Cwd, ConfigFile, Conf, Params) ->
     mad_compile:'compile-apps'(Cwd, ConfigFile, Conf).
 
 %% reltool apps resolving
-plan(Cwd,ConfigFileName,Config,Params) ->
+plan(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Plan Params: ~p~n",[Params]),
-    mad_plan:main([ list_to_atom(filename:basename(App))
-        || App <- filelib:wildcard("{apps,deps}/*"), filelib:is_dir(App) ]).
+    mad_plan:main([]).
 
-repl(Cwd,ConfigFileName,Config,Params) ->
+repl(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Repl Params: ~p~n",[Params]),
     mad_repl:main(Params).
 
-bundle(Cwd,ConfigFileName,Config,Params) ->
+bundle(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Tool Params: ~p~n",[Params]),
     Name = case Params of [] -> mad_utils:cwd(); E -> E end,
     mad_bundle:main(filename:basename(Name)).
 
-app(Cwd,ConfigFileName,Config,Params) ->
+app(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Create App Params: ~p~n",[Params]),
     mad_create:app(Params).
 
-lib(Cwd,ConfigFileName,Config,Params) ->
+lib(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Create Lib Params: ~p~n",[Params]),
     mad_create:lib(Params).
 
-start(Cwd,ConfigFileName,Config,Params) ->
+start(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Start Params: ~p~n",[Params]),
     mad_run:start(Params).
 
-attach(Cwd,ConfigFileName,Config,Params) ->
+attach(_Cwd,_ConfigFileName,_Config,Params) ->
 %    io:format("Attach Params: ~p~n",[Params]),
     mad_run:attach(Params).
 
-stop(Cwd,ConfigFileName,Config,Params) ->
+stop(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Stop Params: ~p~n",[Params]),
     mad_run:stop(Params).
 
-release(Cwd,ConfigFileName,Config,Params) ->
+release(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Release Params: ~p~n",[Params]),
     mad_release:main(Params).
 

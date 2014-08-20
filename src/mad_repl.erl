@@ -14,10 +14,9 @@ applist() ->
     Name = ".applist",
     case file:read_file(Name) of
          {ok,Binary} -> parse_applist(Binary); 
-         {error,Reason} ->
+         {error,_} ->
            case mad_repl:load_file(Name) of
-              <<>> -> mad_plan:main([ list_to_atom(filename:basename(App))
-                || App <- wildcards(["{apps,deps}/*"]), filelib:is_dir(App) ]);
+              <<>> -> mad_plan:main([]);
               Plan -> parse_applist(Plan) end end.
 
 wildcards(List) -> lists:concat([filelib:wildcard(X)||X<-List]).
@@ -44,7 +43,7 @@ load_config() ->
         {App,Cfg}
     end || {App,Cfg} <- Apps ].
 
-load_apps([],Config) -> [ begin
+load_apps([],_) -> [ begin
     case lists:member(A,system()) of
          true -> application:start(A);
             _ ->
@@ -56,7 +55,7 @@ load_apps([],Config) -> [ begin
 
     end || A <- applist()];
 load_apps(["applist"],Config) -> load_apps([],Config);
-load_apps(Params,Config) -> [ application:ensure_all_started(list_to_atom(A))||A<-Params].
+load_apps(Params,_) -> [ application:ensure_all_started(list_to_atom(A))||A<-Params].
 
 cwd() -> {ok, Cwd} = file:get_cwd(), Cwd.
 

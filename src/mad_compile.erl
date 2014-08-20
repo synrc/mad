@@ -77,7 +77,7 @@ list(X) -> X.
 erlc(DepPath) ->
     ErlFiles = filelib:wildcard(DepPath++"/src/**/*.erl"),
     io:format("Files: ~s~n\r",[[filename:basename(Erl)++" " ||Erl<-ErlFiles]]),
-    {Res,Status,X} = sh:run("erlc",["-o"++DepPath++"/ebin/","-I"++DepPath++"/include"]++
+    {_,Status,X} = sh:run("erlc",["-o"++DepPath++"/ebin/","-I"++DepPath++"/include"]++
         ErlFiles,binary,filename:absname("."),[{"ERL_LIBS","apps:deps"}]),
     case Status == 0 of
          true -> skip;

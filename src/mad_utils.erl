@@ -26,9 +26,8 @@ get_value(Key, Opts, Default) ->
             Value;
         _ -> Default end.
 
-script(ConfigFile, Conf, Name) ->
+script(ConfigFile, Conf, _Name) ->
     File = ConfigFile ++ ".script",
-    Filename = filename:basename(File),
     case file:script(File, [{'CONFIG', Conf}, {'SCRIPT', File}]) of
         {ok, {error,_}} -> Conf;
         {ok, Out} -> Out;
@@ -91,5 +90,5 @@ fold_params(Params) ->
       end, {[],[]}, Atomized),
    Fold.
 
-compile(File,Inc,Bin,Opt) -> ok.
+compile(_,_,_,_) -> ok.
 

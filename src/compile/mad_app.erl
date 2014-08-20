@@ -4,7 +4,11 @@
 
 app_src_to_app(Filename) -> filename:basename(Filename, ".app.src") ++ ".app".
 
+to_list(X) when is_atom(X) -> atom_to_list(X);
+to_list(X) -> X.
+
 validate_property({modules, _}, Modules) -> {modules, Modules};
+validate_property({vsn, Value}, _) -> {vsn, to_list(Value)};
 validate_property(Else, _) -> Else.
 
 compile(File,_Inc,Bin,_Opt) ->
@@ -27,3 +31,4 @@ add_modules_property(Properties) ->
     case lists:keyfind(modules, 1, Properties) of
         {modules, _} -> Properties;
         _ -> Properties ++ [{modules, []}] end.
+

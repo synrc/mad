@@ -11,7 +11,7 @@ main(App) ->
 read_file(File) -> {ok, Bin} = file:read_file(filename:absname(File)), Bin.
 
 static() -> Name = "static.gz",
-    {ok,{File,Bin}} = zip:create(Name,
+    {ok,{_,Bin}} = zip:create(Name,
         [F || F <- mad_repl:wildcards(["{apps,deps}/*/priv/**","priv/**"]), not filelib:is_dir(F) ],
         [{compress,all},memory]), [ { Name, Bin } ].
 
