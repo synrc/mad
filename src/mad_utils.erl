@@ -83,12 +83,11 @@ atomize_params_commands([H|T], New) -> atomize_params_commands(T,[atomize(H)|New
 
 fold_params(Params) -> 
    Atomized = atomize_params_commands(Params),
-   {[],Fold} = lists:foldl(fun(X,{Current,Result}) -> 
+   lists:foldl(fun(X,{Current,Result}) -> 
       case atomize(X) of
            X when is_atom(X) -> {[],[{X,Current}|Result]};
            E -> {[E|Current],Result} end
-      end, {[],[]}, Atomized),
-   Fold.
+      end, {[],[]}, Atomized).
 
 compile(_,_,_,_) -> ok.
 

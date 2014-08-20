@@ -7,8 +7,11 @@ main([]) -> help();
 main(Params) ->
 %    io:format("Bundle: ~p~n\r",[escript:script_name()]),
 
-    FP = mad_utils:fold_params(Params),
+    {Other,FP} = mad_utils:fold_params(Params),
 %    io:format("Params: ~p~n\r",[FP]),
+    case Other == [] of
+         true -> skip;
+         false -> io:format("Unknown Command or Parameter ~p~n\r",[Other]), help() end,
 
     Cwd = mad_utils:cwd(),
     ConfigFile = "rebar.config",

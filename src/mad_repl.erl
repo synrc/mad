@@ -87,7 +87,7 @@ load() ->
 unfold_zips(Bin) ->
     {ok,Unzip} = zip:unzip(Bin,[memory]),
     [ begin
-        io:format("Unzip: ~p~n\r",[U]),
+%        io:format("Unzip: ~p~n\r",[U]),
         ets:insert(filesystem,{U,FileBin}),
         case U of
             "static.gz" -> unfold_zips(FileBin);
