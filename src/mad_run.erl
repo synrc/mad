@@ -12,6 +12,6 @@ start(Params) ->
          false -> io:format("Shell Error: ~s~n\r",[binary_to_list(X)]) end.
 
 attach(Params) ->
-    io:format("to_erl .devbox/~n").
+    io:format("to_erl .devbox/~n"). % use like $(mad attach)
 
-stop(_) -> ok.
+stop(_) -> ok. % TODO: stop box
