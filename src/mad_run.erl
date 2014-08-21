@@ -15,3 +15,5 @@ attach(_) ->
     io:format("to_erl .devbox/~n"). % use like $(mad attach)
 
 stop(_) -> ok. % TODO: stop box
+
+clean(_) -> [ file:delete(X) || X <- filelib:wildcard("{apps,deps}/*/ebin/**") ].

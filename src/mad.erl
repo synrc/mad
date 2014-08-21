@@ -73,6 +73,10 @@ attach(_Cwd,_ConfigFileName,_Config,Params) ->
 %    io:format("Attach Params: ~p~n",[Params]),
     mad_run:attach(Params).
 
+clean(_Cwd,_ConfigFileName,_Config,Params) ->
+    io:format("Clean Params: ~p~n",[Params]),
+    mad_run:clean(Params).
+
 stop(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Stop Params: ~p~n",[Params]),
     mad_run:stop(Params).
@@ -90,5 +94,5 @@ help() ->
     io:format("    params := [] | run params ~n"),
     io:format("       run := command [ help | options ]~n"),
     io:format("       cmd := app | lib | deps | compile | release | bundle~n"),
-    io:format("              start | stop | attach | repl ~n"),
+    io:format("              clean | start | stop | attach | repl ~n"),
     halt().

@@ -74,6 +74,7 @@ atomize("lib"++_) -> lib;
 atomize("sta"++_) -> start;
 atomize("att"++_) -> attach;
 atomize("sto"++_) -> stop;
+atomize("cle"++_) -> clean;
 atomize("rel"++_) -> release;
 atomize(Else) -> Else.
 
