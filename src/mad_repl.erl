@@ -16,8 +16,8 @@ applist() ->
          {ok,Binary} -> parse_applist(Binary); 
          {error,_} ->
            case mad_repl:load_file(Name) of
-              <<>> -> mad_plan:main([]);
-              Plan -> parse_applist(Plan) end end.
+              {error,_} -> mad_plan:main([]);
+              {ok,Plan} -> parse_applist(Plan) end end.
 
 wildcards(List) -> lists:concat([filelib:wildcard(X)||X<-List]).
 
@@ -29,8 +29,8 @@ load_config() ->
    Config = wildcards(["sys.config"]),
    Apps = case Config of
       [] -> case mad_repl:load_file("sys.config") of
-            <<>> -> [];
-            Bin -> parse(binary_to_list(Bin)) end;
+            {error,_} -> [];
+            {ok,Bin} -> parse(binary_to_list(Bin)) end;
       File ->
             case file:consult(File) of
             {error,_} -> [];
@@ -102,8 +102,8 @@ ets_created() ->
 load_file(Name)  ->
     ets_created(),
     case ets:lookup(filesystem,Name) of
-        [{Name,Bin}] -> Bin;
-        _ -> <<>> end.
+        [{Name,Bin}] -> {ok,Bin};
+        _ -> {error,etsfs} end.
 
 load_config(A) when is_atom(A) -> load_config(atom_to_list(A));
 load_config(A) when is_list(A) ->
