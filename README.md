@@ -18,12 +18,32 @@ Build
 
 And put 'mad' to PATH.
 
-Usage
------
+Unikernel Bundle
+----------------
 
-    $ mad deps compile repl
+Bundle is a gzipped archive of erlang beams of all dependecies
+along with directory structure of OTP-applications with priv directories.
+This allows you to pack all site inside single portable escript package able
+to run under Windows, Linux and Mac. Releases includes all current
+directory exept sources both code and data with all dependencies.
+
     $ mad app "sample"
-    $ mad deps compile bundle "web_app"
+    $ cd sample
+    $ mad deps compile plan bundle "web_app"
+    $ ./web_app
+
+Building OTP Release
+--------------------
+
+Releases are bundles made by release_handler module of sasl applications.
+It has it own fat bootstripts along with erlang runtime included.
+This allows you to distribute you applications with copy deploy
+without Erlang prerequisite.
+
+    $ mad app sample
+    $ cd sample
+    $ mad dep com pla release
+    $ _rel/bin/sample console
 
 Credits
 -------

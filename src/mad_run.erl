@@ -9,7 +9,7 @@ start(_) ->
          {"ERL_LIBS","apps:deps"}]),
     case Status == 0 of
          true -> skip;
-         false -> io:format("Shell Error: ~s~n\r",[binary_to_list(X)]) end.
+         false -> io:format("Shell Error: ~s~n\r",[binary_to_list(X)]), exit({error,X}) end.
 
 attach(_) ->
     io:format("to_erl .devbox/~n"). % use like $(mad attach)
