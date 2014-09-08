@@ -85,6 +85,10 @@ release(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Release Params: ~p~n",[Params]),
     mad_release:main(Params).
 
+static(_Cwd,_ConfigFileName,Config,Params) ->
+    io:format("Compile Static Params: ~p~n",[Params]),
+    mad_static:main(Config, Params).
+
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).
 help(Msg) -> io:format("Error: ~s~n~n", [Msg]), help().
 help() ->
