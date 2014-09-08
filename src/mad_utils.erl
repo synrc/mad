@@ -64,6 +64,7 @@ to_atom(X) when is_list(X) -> list_to_atom(X);
 to_atom(X) when is_binary(X) -> to_atom(binary_to_list(X));
 to_atom(X) -> X.
 
+atomize("static") -> static;
 atomize("com"++_) -> compile;
 atomize("rep"++_) -> repl;
 atomize("bun"++_) -> bundle;
