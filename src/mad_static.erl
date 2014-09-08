@@ -1,7 +1,6 @@
 -module(mad_static).
 -copyright('Yuri Artemev').
 -compile(export_all).
--define(dbg(P), io:format("~10s: ~p~n", [??P, P])).
 -define(NODE(Bin), "node_modules/.bin/"++Bin).
 
 main(Config, ["watch"]) ->
