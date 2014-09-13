@@ -26,6 +26,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     SrcDir = filename:join([mad_utils:src(DepPath)]),
 
     Files = files(SrcDir,".yrl") ++ 
+            files(SrcDir,".xrl") ++ 
             files(SrcDir,".erl") ++ % comment this to build with erlc/1
             files(SrcDir,".app.src"),
 
@@ -56,6 +57,7 @@ compile_fun(Inc,Bin,Opt) -> fun(File) -> (module(filetype(File))):compile(File,I
 module("erl") -> mad_erl;
 module("erl.src") -> mad_utils;
 module("yrl") -> mad_yecc;
+module("xrl") -> mad_leex;
 module("app.src") -> mad_app.
 
 filetype(Path) -> string:join(tl(string:tokens(filename:basename(Path), ".")), ".").
