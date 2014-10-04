@@ -56,6 +56,7 @@ compile_fun(Inc,Bin,Opt) -> fun(File) -> (module(filetype(File))):compile(File,I
 
 module("erl") -> mad_erl;
 module("erl.src") -> mad_utils;
+module("erl#") -> mad_none;
 module("yrl") -> mad_yecc;
 module("xrl") -> mad_leex;
 module("app.src") -> mad_app.
