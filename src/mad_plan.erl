@@ -26,7 +26,8 @@ orderapps() ->
               Apps = proplists:get_value(applications,Opt,[]),
               [ { A,Name} || A <- Apps ];
          {error,_} -> skip
-    end || F <- filelib:wildcard("{apps,deps}/*/ebin/*.app"), not filelib:is_dir(F) ]),
+    end || F <- filelib:wildcard("{apps,deps}/*/ebin/*.app")  ++ 
+                filelib:wildcard("ebin/*.app"), not filelib:is_dir(F) ]),
     {ok,Sorted} = sort(Pairs),
     Sorted.
 

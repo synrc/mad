@@ -24,6 +24,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     deps(Cwd, Conf, ConfigFile, mad_utils:get_value(deps, Conf1, [])),
 
     SrcDir = filename:join([mad_utils:src(DepPath)]),
+%    io:format("DepPath ==> ~p~n\r",[DepPath]),
 
     Files = files(SrcDir,".yrl") ++ 
             files(SrcDir,".xrl") ++ 
