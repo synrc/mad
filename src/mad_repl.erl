@@ -69,6 +69,9 @@ main(Params) ->
     io:format("Applications: ~p\n\r",[applist()]),
     Config = load_config(),
 
+    % trick user_drv into starting group.erl's output handler
+    unregister(user),
+
     case os:type() of
          {win32,nt} -> shell:start();
                   _ -> user_drv:start() end,
