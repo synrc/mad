@@ -2,8 +2,9 @@
 -copyright('Maxim Sokhatsky').
 -compile(export_all).
 
-disabled() -> [wx,webtool,ssl,runtime_tools,public_key,observer,inets,asn1,et,eunit,hipe].
-system() -> [compiler,syntax_tools,sasl,tools,mnesia,reltool,xmerl,crypto,kernel,stdlib].
+disabled() -> []. %wx,webtool,ssl,runtime_tools,public_key,observer,inets,asn1,et,eunit,hipe].
+system() -> [compiler,syntax_tools,sasl,tools,mnesia,reltool,xmerl,crypto,kernel,stdlib,
+             wx,webtool,ssl,runtime_tools,public_key,observer,inets,asn1,et,eunit,hipe].
 
 local_app() -> 
     case filename:basename(filelib:wildcard("ebin/*.app"),".app") of

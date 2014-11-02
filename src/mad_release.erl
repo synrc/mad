@@ -13,7 +13,7 @@ release(Name,Apps) ->
 main([]) -> main(["sample"]);
 main(Params) ->
     [N|_] = Params,
-    Apps = [ filename:basename(F) || F <- filelib:wildcard("{apps,deps}/*"),  filelib:is_dir(F)],
+    Apps = mad_plan:orderapps(), %[ filename:basename(F) || F <- filelib:wildcard("{apps,deps}/*"),  filelib:is_dir(F)],
     release(N,Apps),
     {_,Status,X} = sh:run("relx",[],binary,".",[]),
     case Status == 0 of
