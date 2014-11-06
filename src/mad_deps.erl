@@ -2,11 +2,15 @@
 -copyright('Sina Samavati').
 -compile(export_all).
 
-up(_) ->
+up(Params) ->
+    List = case Params of
+                [] -> [ F || F<- mad_repl:wildcards(["deps/*"]), filelib:is_dir(F) ];
+                Apps -> [ "deps/"++A || A <- Apps ] end,
+    os:cmd("git pull"),
   [ begin
     io:format("==> up: ~p~n", [F]),
     os:cmd(io_lib:format("cd ~s && git pull",[F]))
-    end || F<- mad_repl:wildcards(["deps/*"]), filelib:is_dir(F)].
+    end || F <- List ].
 
 fetch(_, _Config, _, []) -> ok;
 fetch(Cwd, Config, ConfigFile, [H|T]) when is_tuple(H) =:= false -> fetch(Cwd, Config, ConfigFile, T);
