@@ -67,6 +67,7 @@ to_atom(X) -> X.
 atomize("static") -> static;
 atomize("com"++_) -> compile;
 atomize("rep"++_) -> repl;
+atomize("up")     -> up;
 atomize("bun"++_) -> bundle;
 atomize("dep"++_) -> deps;
 atomize("pla"++_) -> plan;

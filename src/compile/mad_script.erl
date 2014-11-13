@@ -9,5 +9,3 @@ script(ConfigFile, Conf, _) ->
         {ok, Out} -> Out;
         {error, _} -> Conf
     end.
-
-compile(_,_,_,_) -> ok.

@@ -57,6 +57,10 @@ bundle(_Cwd,_ConfigFileName,_Config,Params) ->
     Name = case Params of [] -> mad_utils:cwd(); E -> E end,
     mad_bundle:main(filename:basename(Name)).
 
+up(_Cwd,_ConfigFileName,_Config,Params) ->
+    io:format("Up Params: ~p~n",[Params]),
+    mad_deps:up(Params).
+
 app(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Create App Params: ~p~n",[Params]),
     mad_create:app(Params).
