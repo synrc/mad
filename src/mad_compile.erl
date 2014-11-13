@@ -56,7 +56,8 @@ compile_fun(Inc,Bin,Opt) -> fun(File) -> (module(filetype(File))):compile(File,I
 module("erl") -> mad_erl;
 module("erl.src") -> mad_utils;
 module("yrl") -> mad_yecc;
-module("app.src") -> mad_app.
+module("app.src") -> mad_app;
+module(_) -> mad_script.
 
 filetype(Path) -> string:join(tl(string:tokens(filename:basename(Path), ".")), ".").
 files(Dir,Ext) -> filelib:fold_files(Dir, Ext, true, fun(F, Acc) -> [F|Acc] end, []).
