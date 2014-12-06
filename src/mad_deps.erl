@@ -38,11 +38,17 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
 
     io:format("==> dependency: ~p tag: ~p~n\r", [Uri,Co]),
 
+    % TODO: add "git clone --depth=1" option by @rillian
+
+    Fast = case mad_utils:get_value(fetch_speed,Config,[]) of
+                "fast_master" -> " --depth=1 ";
+                    _  -> "" end,
+
     {R,Co1} = case Co of
         {_,Rev} ->
-            {["git clone --depth=1 ",Uri," ",TrunkPath," && cd ",TrunkPath,
+            {["git clone ",Fast,Uri," ",TrunkPath," && cd ",TrunkPath,
              " && git checkout \"",Rev,"\"" ],Rev};
-        Master -> {["git clone --depth=1 ",Uri," ",TrunkPath],lists:concat([Master])} end,
+        Master -> {["git clone ",Fast,Uri," ",TrunkPath],lists:concat([Master])} end,
 
     os:cmd(R),
 
