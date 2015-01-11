@@ -20,7 +20,9 @@ fetch(Cwd, Config, ConfigFile, [H|T]) ->
                          V={_, _, _} ->
                              V;
                          {_Cmd, _Url, _Co, _} ->
-                             {_Cmd, _Url, _Co}
+                             {_Cmd, _Url, _Co};
+                         {_Cmd, _Url} ->
+                             {_Cmd, _Url, "master"}
                      end,
     Cmd1 = atom_to_list(Cmd),
     Cache = mad_utils:get_value(cache, Config, deps_fetch),
