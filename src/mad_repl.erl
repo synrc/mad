@@ -29,54 +29,39 @@ parse_applist(AppList) ->
 load_config() ->
    Config = wildcards(["sys.config"]),
    Apps = case Config of
-      [] -> case mad_repl:load_file("sys.config") of
-            {error,_} -> [];
-            {ok,Bin} -> parse(binary_to_list(Bin)) end;
-      File ->
-            case file:consult(File) of
-            {error,_} -> [];
-            {ok,[A]} -> A end
-    end,
-    io:format("Configuration: ~p\n\r",[Apps]),
-    [ begin 
-%        io:format("\t~p: ~p\n\r",[App,Cfg]),
-        [ application:set_env(App,K,V) || {K,V} <- Cfg ],
-        {App,Cfg}
-    end || {App,Cfg} <- Apps ].
+        [] -> case mad_repl:load_file("sys.config") of
+              {error,_} -> [];
+              {ok,Bin} -> parse(binary_to_list(Bin)) end;
+      File -> case file:consult(File) of
+              {error,_} -> [];
+              {ok,[A]} -> A end end,
+ [ begin [ application:set_env(App,K,V) || {K,V} <- Cfg ], {App,Cfg} end || {App,Cfg} <- Apps ].
 
-load_apps([],_) -> [ begin
-    case lists:member(A,system()) of
-         true -> application:start(A);
-            _ ->
-                 Cfg = load_config(A),
-                 case Cfg of [] -> application:start(A);
-                              E -> 
-%                 io:format("User Application Start: ~p~n\r",[A]),
-                              application:start(E) end end
-
-    end || A <- applist()];
+load_apps([],_) ->
+  [ begin case lists:member(A,system()) of
+       true -> application:start(A);
+          _ -> case load_config(A) of [] -> application:start(A);
+                                      _E -> application:start(_E) end
+      end end || A <- applist()];
 load_apps(["applist"],Config) -> load_apps([],Config);
 load_apps(Params,_) -> [ application:ensure_all_started(list_to_atom(A))||A<-Params].
 
 cwd() -> {ok, Cwd} = file:get_cwd(), Cwd.
 
-main(Params) -> 
+main(Params,RebarConfig) -> 
     SystemPath = filelib:wildcard(code:root_dir() ++ 
       "/lib/{"++ string:join([atom_to_list(X)||X<-mad_repl:system()],",") ++ "}-*/ebin"),
     UserPath = wildcards(["{apps,deps}/*/ebin","ebin"]),
     code:set_path(SystemPath++UserPath),
     code:add_path(filename:join([cwd(),filename:basename(escript:script_name())])),
     load(),
-    io:format("Applications: ~p\n\r",[applist()]),
     Config = load_config(),
-
-    % trick user_drv into starting group.erl's output handler
-    unregister(user),
-
+    Driver = mad_utils:get_value(shell_driver,RebarConfig,user_drv),
+    pre(Driver),
     case os:type() of
          {win32,nt} -> shell:start();
-                  _ -> user_drv:start() end,
-
+                  _ -> Driver:start() end,
+    post(Driver),
     load_apps(Params,Config),
     case Params of
         ["applist"] -> skip;
@@ -91,14 +76,13 @@ load() ->
 unfold_zips(Bin) ->
     {ok,Unzip} = zip:unzip(Bin,[memory]),
     [ begin
-%        io:format("Unzip: ~p~n\r",[U]),
         ets:insert(filesystem,{U,FileBin}),
         case U of
             "static.gz" -> unfold_zips(FileBin);
             _ -> skip end
       end || {U,FileBin} <- Unzip].
 
-ets_created() -> 
+ets_created() ->
     case ets:info(filesystem) of
          undefined -> ets:new(filesystem,[set,named_table,{keypos,1},public]);
          _ -> skip end.
@@ -124,3 +108,19 @@ parse(String) ->
     {ok,AbsForm} = erl_parse:parse_exprs(Tokens),
     {value,Value,_Bs} = erl_eval:exprs(AbsForm, erl_eval:new_bindings()),
     Value.
+
+% we need to call printing before starting driver for user_drv
+% but for start_kjell we should call after, that's why we have pre and post here.
+
+pre(start_kjell) -> [];
+pre(user_drv) -> unregister(user), appconfig(user_drv);
+pre(Driver) -> appconfig(Driver).
+post(start_kjell) -> appconfig(start_kjell);
+post(_) -> [].
+print(Label,Value,start_kjell) -> io:requests([{put_chars,Label ++ normalize(length(Label)+1,Value) ++ "\n\r"}]);
+print(Label,Value,_) -> io:format("~s~p~n",[Label,Value]).
+normalize(Padding,V) -> [ case X of 10 -> [13,10]; E -> E end || X <- lists:flatten(pp(Padding,V) )].
+pp(Padding,V) -> k_io_lib_pretty:print(V, Padding, 80, 30, 60, fun(_,_)-> no end).
+appconfig(Driver) ->
+    print("Configuration: ", load_config(), Driver),
+    print("Applications: ",  applist(),     Driver).
