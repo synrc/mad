@@ -3,7 +3,7 @@ MAD
 
 A simple rebar-compatible dependency manager.
 
-![MAD](https://github.com/karlll/kjell)
+![MAD](http://synrc.com/lj/mad.png)
 
 Goals
 -----
