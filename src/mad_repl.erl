@@ -37,14 +37,23 @@ load_config() ->
               {ok,[A]} -> A end end,
  [ begin [ application:set_env(App,K,V) || {K,V} <- Cfg ], {App,Cfg} end || {App,Cfg} <- Apps ].
 
-load_apps([],_) ->
-  [ begin case lists:member(A,system()) of
-       true -> application:start(A);
-          _ -> case load_config(A) of [] -> application:start(A);
-                                      _E -> application:start(_E) end
-      end end || A <- applist()];
-load_apps(["applist"],Config) -> load_apps([],Config);
-load_apps(Params,_) -> [ application:ensure_all_started(list_to_atom(A))||A<-Params].
+acc_start(A,Acc) ->
+   case application:start(A) of
+        ok -> Acc;
+        {error,{already_started,_}} -> Acc;
+         {error,{_Readon,Name}} -> [Name|Acc] end.
+
+load_apps([],_,Acc) ->
+  Res = lists:foldl(fun(A,Acc) -> case lists:member(A,system()) of
+       true -> acc_start(A,Acc);
+          _ -> case load_config(A) of
+                    [] -> acc_start(A,Acc);
+                    _E -> acc_start(_E,Acc) end end end,[], applist()),
+  case Res of
+       [] -> ok;
+       _ -> io:format("\r\nApps couldn't be loaded: ~p~n\n\r",[Res]) end;
+load_apps(["applist"],Config,Acc) -> load_apps([],Config,Acc);
+load_apps(Params,_,Acc) -> [ application:ensure_all_started(list_to_atom(A))||A<-Params].
 
 cwd() -> {ok, Cwd} = file:get_cwd(), Cwd.
 
@@ -62,7 +71,7 @@ main(Params,RebarConfig) ->
          {win32,nt} -> shell:start();
                   _ -> Driver:start() end,
     post(Driver),
-    load_apps(Params,Config),
+    load_apps(Params,Config,[]),
     case Params of
         ["applist"] -> skip;
         _ ->  timer:sleep(infinity) end.
