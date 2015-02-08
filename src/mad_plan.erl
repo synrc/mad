@@ -24,12 +24,20 @@ orderapps() ->
        file:consult(F) of
          {ok,[{application,Name,Opt}]} -> 
               Apps = proplists:get_value(applications,Opt,[]),
-              [ { A,Name} || A <- Apps ];
-         {error,_} -> io:format("AppName: ~p~n",[F]), skip
+              [ case lists:member(A,mad_repl:system()) of
+                     false -> {A,Name};
+                     true -> [{A,Name}]++ system_deps(A) end || A <- Apps ];
+         {error,_} ->
+            io:format("AppName: ~p~n",[F]), skip
     end || F <- filelib:wildcard("{apps,deps}/*/ebin/*.app")  ++ 
                 filelib:wildcard("ebin/*.app"), not filelib:is_dir(F) ]),
-    {ok,Sorted} = sort(Pairs),
+    {ok,Sorted} = sort(lists:flatten(Pairs)),
     Sorted.
+
+system_deps(A) ->
+   case file:consult(code:where_is_file(lists:concat([A,".app"]))) of
+        {ok,[{application,Name,Opt}]} -> [ {A,Name} || A <- proplists:get_value(applications,Opt,[]) ];
+        {error,_} -> [] end.
 
 main(_) ->
     Ordered = orderapps(),
