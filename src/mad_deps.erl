@@ -17,12 +17,9 @@ fetch(Cwd, Config, ConfigFile, [H|T]) when is_tuple(H) =:= false -> fetch(Cwd, C
 fetch(Cwd, Config, ConfigFile, [H|T]) ->
     {Name, Repo} = name_and_repo(H),
     {Cmd, Uri, Co} = case Repo of
-                         V={_, _, _} ->
-                             V;
-                         {_Cmd, _Url, _Co, _} ->
-                             {_Cmd, _Url, _Co};
-                         {_Cmd, _Url} ->
-                             {_Cmd, _Url, "master"}
+                         V={_, _, _}          -> V;
+                         {_Cmd, _Url, _Co, _} -> {_Cmd, _Url, _Co};
+                         {_Cmd, _Url}         -> {_Cmd, _Url, "master"}
                      end,
     Cmd1 = atom_to_list(Cmd),
     Cache = mad_utils:get_value(cache, Config, deps_fetch),
@@ -31,6 +28,9 @@ fetch(Cwd, Config, ConfigFile, [H|T]) ->
         _ -> fetch_dep(Cwd, Config, ConfigFile, Name, Cmd1, Uri, Co, Cache)
     end,
     fetch(Cwd, Config, ConfigFile, T).
+
+git_clone(Uri,Fast,TrunkPath,Rev) ->
+    {["git clone ",Fast,Uri," ",TrunkPath," && cd ",TrunkPath," && git checkout \"",Rev,"\"" ],Rev}.
 
 fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
 
@@ -47,9 +47,8 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
                     _  -> "" end,
 
     {R,Co1} = case Co of
-        {_,Rev} ->
-            {["git clone ",Fast,Uri," ",TrunkPath," && cd ",TrunkPath,
-             " && git checkout \"",Rev,"\"" ],Rev};
+        X when is_list(X) -> git_clone(Uri,Fast,TrunkPath,X);
+        {_,Rev} -> git_clone(Uri,Fast,TrunkPath,Rev);
         Master -> {["git clone ",Fast,Uri," ",TrunkPath],lists:concat([Master])} end,
 
     os:cmd(R),
