@@ -39,9 +39,11 @@ load_config() ->
 
 acc_start(A,Acc) ->
    case application:start(A) of
-        ok -> Acc;
-        {error,{already_started,_}} -> Acc;
-         {error,{_Readon,Name}} -> [Name|Acc] end.
+         {error,{already_started,_}} -> Acc;
+         {error,{_Reason,Name}} when is_atom(_Reason) -> [Name|Acc];
+         {error,{bad_return,{{M,F,_},Ret}}} -> [M|Acc];
+         ok -> Acc;
+         _  -> Acc end.
 
 load_apps([],_,Acc) ->
   Res = lists:foldl(fun(A,Acc) -> case lists:member(A,system()) of
