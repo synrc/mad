@@ -96,15 +96,15 @@ static(_Cwd,_ConfigFileName,Config,Params) ->
     io:format("Compile Static Params: ~p~n",[Params]),
     mad_static:main(Config, Params).
 
-version() -> "1.1".
+version() -> "2.2".
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).
 help(Msg) -> io:format("Error: ~s~n~n", [Msg]), help().
 help() ->
-    io:format("VXZ MAD Build Tool version ~s~n",[version()]),
+    io:format("MAD Build Tool version ~s~n",[version()]),
     io:format("BNF: ~n"),
     io:format("    invoke := mad params~n"),
     io:format("    params := [] | run params ~n"),
-    io:format("       run := command [ help | options ]~n"),
-    io:format("       cmd := app | lib | deps | compile | release | bundle~n"),
+    io:format("       run := command [ options ]~n"),
+    io:format("    commad := app | lib | deps | compile | release | bundle~n"),
     io:format("              clean | start | stop | attach | repl ~n"),
     halt().
