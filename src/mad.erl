@@ -40,8 +40,11 @@ deps(Cwd, ConfigFile, Conf, Params) ->
 %% compile dependencies and the app
 compile(Cwd, ConfigFile, Conf, Params) ->
     io:format("Compile Params: ~p~n\r",[Params]),
-    mad_compile:'compile-deps'(Cwd, ConfigFile, Conf),
-    mad_compile:'compile-apps'(Cwd, ConfigFile, Conf).
+    mad_compile:'compile-apps'(Cwd, ConfigFile, Conf),
+    case Params of
+         [] -> mad_compile:'compile-deps'(Cwd, ConfigFile, Conf);
+         __ -> [ mad_compile:dep(Cwd, Conf, ConfigFile, Name) || Name <- Params ]
+    end.
 
 %% reltool apps resolving
 plan(_Cwd,_ConfigFileName,_Config,Params) ->
