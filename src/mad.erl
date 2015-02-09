@@ -5,19 +5,18 @@
 
 main([]) -> help();
 main(Params) ->
-%    io:format("Bundle: ~p~n\r",[escript:script_name()]),
 
     {Other,FP} = mad_utils:fold_params(Params),
-%    io:format("Params: ~p~n\r",[FP]),
+    io:format("Params: ~p~n\r",[FP]),
     case Other == [] of
          true -> skip;
          false -> io:format("Unknown Command or Parameter ~p~n\r",[Other]), help() end,
 
-    Cwd = mad_utils:cwd(),
-    ConfigFile = "rebar.config",
+    Cwd           = mad_utils:cwd(),
+    ConfigFile    = "rebar.config",
     ConfigFileAbs = filename:join(Cwd, ConfigFile),
-    Conf = mad_utils:consult(ConfigFileAbs),
-    Conf1 = mad_script:script(ConfigFileAbs, Conf, ""),
+    Conf          = mad_utils:consult(ConfigFileAbs),
+    Conf1         = mad_script:script(ConfigFileAbs, Conf, ""),
 
     return(bool(lists:foldl(fun (_,true) -> true;
           ({Name,Par},false) -> ?MODULE:Name(Cwd, ConfigFile, Conf1, Par) end, false, FP))).
@@ -52,7 +51,7 @@ compile(Cwd, ConfigFile, Conf, Params) ->
 %% reltool apps resolving
 plan(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Plan Params: ~p~n",[Params]),
-    mad_plan:main([]), false.
+    mad_plan:main([]).
 
 repl(_Cwd,_ConfigFileName,_Config,Params) ->
 %    io:format("Repl Params: ~p~n",[Params]),
