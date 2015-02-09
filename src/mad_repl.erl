@@ -40,8 +40,8 @@ load_config() ->
 acc_start(A,Acc) ->
    case application:start(A) of
          {error,{already_started,_}} -> Acc;
+         {error,{_,{{M,F,_},Ret}}} -> [M|Acc];
          {error,{_Reason,Name}} when is_atom(_Reason) -> [Name|Acc];
-         {error,{bad_return,{{M,F,_},Ret}}} -> [M|Acc];
          ok -> Acc;
          _  -> Acc end.
 
