@@ -3,19 +3,19 @@
 -compile(export_all).
 
 pull(F) ->
+    io:format("==> up: ~p~n", [F]),
     {_,Status,Message} = sh:run(io_lib:format("git -C ~p pull",[F])),
     case Status of
          _ -> case binary:match(Message,[<<"Aborting">>,<<"timed out">>]) of
-                   nomatch -> ok;
-                   _ -> io:format("~s",[binary_to_list(Message)]), error end;
-         0 -> ok end.
+                   nomatch -> false;
+                   _ -> io:format("~s",[binary_to_list(Message)]), true end;
+         0 -> false end.
 
 up(Params) ->
     List = case Params of
-                [] -> [ F || F<- mad_repl:wildcards(["deps/*"]), filelib:is_dir(F) ];
-                Apps -> [ "deps/"++A || A <- Apps ] end,
-    lists:any(fun(X) -> X == error end,
-      [pull(".")] ++ [ begin io:format("==> up: ~p~n", [F]), pull(F) end || F <- List ]).
+                [] -> [ F || F <- mad_repl:wildcards(["deps/*"]), filelib:is_dir(F) ];
+                Apps -> [ "deps/" ++ A || A <- Apps ] end ++ ["."],
+    lists:any(fun(X) -> X end, [ pull(F) || F <- List ]).
 
 fetch(_, _Config, _, []) -> ok;
 fetch(Cwd, Config, ConfigFile, [H|T]) when is_tuple(H) =:= false -> fetch(Cwd, Config, ConfigFile, T);
