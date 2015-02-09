@@ -2,15 +2,20 @@
 -copyright('Sina Samavati').
 -compile(export_all).
 
+pull(F) ->
+    {_,Status,Message} = sh:run(io_lib:format("git -C ~p pull",[F])),
+    case Status of
+         _ -> case binary:match(Message,[<<"Aborting">>,<<"timed out">>]) of
+                   nomatch -> ok;
+                   _ -> io:format("~s",[binary_to_list(Message)]), error end;
+         0 -> ok end.
+
 up(Params) ->
     List = case Params of
                 [] -> [ F || F<- mad_repl:wildcards(["deps/*"]), filelib:is_dir(F) ];
                 Apps -> [ "deps/"++A || A <- Apps ] end,
-    os:cmd("git pull"),
-  [ begin
-    io:format("==> up: ~p~n", [F]),
-    os:cmd(io_lib:format("cd ~s && git pull",[F]))
-    end || F <- List ].
+    lists:any(fun(X) -> X == error end,
+      [pull(".")] ++ [ begin io:format("==> up: ~p~n", [F]), pull(F) end || F <- List ]).
 
 fetch(_, _Config, _, []) -> ok;
 fetch(Cwd, Config, ConfigFile, [H|T]) when is_tuple(H) =:= false -> fetch(Cwd, Config, ConfigFile, T);

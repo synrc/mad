@@ -19,8 +19,11 @@ main(Params) ->
     Conf = mad_utils:consult(ConfigFileAbs),
     Conf1 = mad_script:script(ConfigFileAbs, Conf, ""),
 
-    Fun = fun({Name,Par}) -> ?MODULE:Name(Cwd, ConfigFile, Conf1, Par) end,
-    lists:foreach(Fun, FP).
+    return(bool(lists:foldl(fun (_,true) -> true;
+          ({Name,Par},false) -> ?MODULE:Name(Cwd, ConfigFile, Conf1, Par) end, false, FP))).
+
+bool(false) -> 0;
+bool(_) -> 1.
 
 %% fetch dependencies
 deps(Cwd, ConfigFile, Conf, Params) ->
@@ -35,7 +38,7 @@ deps(Cwd, ConfigFile, Conf, Params) ->
             FetchDir = mad_utils:get_value(deps_dir, Conf, ["deps"]),
             file:make_dir(FetchDir),
             mad_deps:fetch(Cwd, Conf, ConfigFile, Deps)
-    end.
+    end, false.
 
 %% compile dependencies and the app
 compile(Cwd, ConfigFile, Conf, Params) ->
@@ -44,12 +47,12 @@ compile(Cwd, ConfigFile, Conf, Params) ->
          [] -> mad_compile:'compile-deps'(Cwd, ConfigFile, Conf);
          __ -> [ mad_compile:dep(Cwd, Conf, ConfigFile, Name) || Name <- Params ]
     end,
-    mad_compile:'compile-apps'(Cwd, ConfigFile, Conf).
+    mad_compile:'compile-apps'(Cwd, ConfigFile, Conf), false.
 
 %% reltool apps resolving
 plan(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Plan Params: ~p~n",[Params]),
-    mad_plan:main([]).
+    mad_plan:main([]), false.
 
 repl(_Cwd,_ConfigFileName,_Config,Params) ->
 %    io:format("Repl Params: ~p~n",[Params]),
@@ -58,7 +61,7 @@ repl(_Cwd,_ConfigFileName,_Config,Params) ->
 bundle(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Tool Params: ~p~n",[Params]),
     Name = case Params of [] -> mad_utils:cwd(); E -> E end,
-    mad_bundle:main(filename:basename(Name)).
+    mad_bundle:main(filename:basename(Name)), false.
 
 up(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Up Params: ~p~n",[Params]),
@@ -66,35 +69,35 @@ up(_Cwd,_ConfigFileName,_Config,Params) ->
 
 app(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Create App Params: ~p~n",[Params]),
-    mad_create:app(Params).
+    mad_create:app(Params), false.
 
 lib(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Create Lib Params: ~p~n",[Params]),
-    mad_create:lib(Params).
+    mad_create:lib(Params), false.
 
 start(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Start Params: ~p~n",[Params]),
-    mad_run:start(Params).
+    mad_run:start(Params), false.
 
 attach(_Cwd,_ConfigFileName,_Config,Params) ->
 %    io:format("Attach Params: ~p~n",[Params]),
-    mad_run:attach(Params).
+    mad_run:attach(Params), false.
 
 clean(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Clean Params: ~p~n",[Params]),
-    mad_run:clean(Params).
+    mad_run:clean(Params), false.
 
 stop(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Stop Params: ~p~n",[Params]),
-    mad_run:stop(Params).
+    mad_run:stop(Params), false.
 
 release(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Release Params: ~p~n",[Params]),
-    mad_release:main(Params).
+    mad_release:main(Params), false.
 
 static(_Cwd,_ConfigFileName,Config,Params) ->
     io:format("Compile Static Params: ~p~n",[Params]),
-    mad_static:main(Config, Params).
+    mad_static:main(Config, Params), false.
 
 version() -> "2.2".
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).
@@ -107,4 +110,6 @@ help() ->
     io:format("       run := command [ options ]~n"),
     io:format("    commad := app | lib | deps | compile | release | bundle~n"),
     io:format("              clean | start | stop | attach | repl ~n"),
-    halt().
+    return(0).
+
+return(X) -> case is_tuple(catch escript:script_name()) of true -> X; _ -> halt(X) end.
