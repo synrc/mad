@@ -111,4 +111,4 @@ help() ->
     io:format("              clean | start | stop | attach | repl ~n"),
     return(0).
 
-return(X) -> case is_tuple(catch escript:script_name()) of true -> X; _ -> halt(X) end.
+return(X) -> X.
