@@ -82,6 +82,8 @@ name_and_repo({Name, _, Repo}) when is_list(Name) -> {Name, Repo};
 name_and_repo({Name, _, Repo, _}) when is_list(Name) -> {Name, Repo};
 name_and_repo({Name, _, Repo}) -> {atom_to_list(Name), Repo};
 name_and_repo({Name, _, Repo, _}) -> {atom_to_list(Name), Repo};
+name_and_repo({Name, Version}) when is_list(Name) -> {Name, Version};
+name_and_repo({Name, Version}) -> {atom_to_list(Name), Version};
 name_and_repo(Name) -> {Name,Name}.
 
 get_publisher(Uri) ->
