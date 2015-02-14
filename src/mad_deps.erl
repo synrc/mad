@@ -6,10 +6,10 @@ pull(F) ->
     io:format("==> up: ~p~n", [F]),
     {_,Status,Message} = sh:run(io_lib:format("git -C ~p pull",[F])),
     case Status of
+         0 -> false;
          _ -> case binary:match(Message,[<<"Aborting">>,<<"timed out">>]) of
                    nomatch -> false;
-                   _ -> io:format("~s",[binary_to_list(Message)]), true end;
-         0 -> false end.
+                   _ -> io:format("~s",[binary_to_list(Message)]), true end end.
 
 up(Params) ->
     List = case Params of
