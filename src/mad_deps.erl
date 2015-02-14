@@ -21,16 +21,17 @@ fetch(_, _Config, _, []) -> ok;
 fetch(Cwd, Config, ConfigFile, [H|T]) when is_tuple(H) =:= false -> fetch(Cwd, Config, ConfigFile, T);
 fetch(Cwd, Config, ConfigFile, [H|T]) ->
     {Name, Repo} = name_and_repo(H),
-    {Cmd, Uri, Co} = case Repo of
-                         V={_, _, _}          -> V;
-                         {_Cmd, _Url, _Co, _} -> {_Cmd, _Url, _Co};
-                         {_Cmd, _Url}         -> {_Cmd, _Url, "master"}
-                     end,
-    Cmd1 = atom_to_list(Cmd),
-    Cache = mad_utils:get_value(cache, Config, deps_fetch),
     case get(Name) of
         fetched -> ok;
-        _ -> fetch_dep(Cwd, Config, ConfigFile, Name, Cmd1, Uri, Co, Cache)
+        _ ->
+            {Cmd, Uri, Co} = case Repo of
+                                 V={_, _, _}          -> V;
+                                 {_Cmd, _Url, _Co, _} -> {_Cmd, _Url, _Co};
+                                 {_Cmd, _Url}         -> {_Cmd, _Url, "master"}
+                             end,
+            Cmd1 = atom_to_list(Cmd),
+            Cache = mad_utils:get_value(cache, Config, deps_fetch),
+            fetch_dep(Cwd, Config, ConfigFile, Name, Cmd1, Uri, Co, Cache)
     end,
     fetch(Cwd, Config, ConfigFile, T).
 
@@ -82,6 +83,8 @@ name_and_repo({Name, _, Repo}) when is_list(Name) -> {Name, Repo};
 name_and_repo({Name, _, Repo, _}) when is_list(Name) -> {Name, Repo};
 name_and_repo({Name, _, Repo}) -> {atom_to_list(Name), Repo};
 name_and_repo({Name, _, Repo, _}) -> {atom_to_list(Name), Repo};
+name_and_repo({Name, Version}) when is_list(Name) -> {Name, Version};
+name_and_repo({Name, Version}) -> {atom_to_list(Name), Version};
 name_and_repo(Name) -> {Name,Name}.
 
 get_publisher(Uri) ->
