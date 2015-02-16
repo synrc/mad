@@ -1,4 +1,4 @@
-{application, n2o_sample,
+{application, sample,
  [
   {description, "N2O VXZ Sample App"},
   {vsn, "1"},
