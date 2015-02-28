@@ -107,7 +107,7 @@ help() ->
     io:format("    invoke := mad params~n"),
     io:format("    params := [] | run params ~n"),
     io:format("       run := command [ options ]~n"),
-    io:format("    commad := app | lib | deps | compile | release | bundle~n"),
+    io:format("    commad := app | lib | deps | up | compile | release | bundle~n"),
     io:format("              clean | start | stop | attach | repl ~n"),
     return(0).
 
