@@ -6,7 +6,7 @@ start_link() -> supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 mime() -> [{mimetypes,cow_mimetypes,all}].
 rules() -> cowboy_router:compile(
     [{'_', [
-        {"/static/[...]", n2o_dynalo, {dir, "apps/n2o_sample/priv/static", mime()}},
+        {"/static/[...]", n2o_dynalo, {dir, "apps/sample/priv/static", mime()}},
         {"/n2o/[...]", n2o_dynalo, {dir, "deps/n2o/priv", mime()}},
         {"/rest/:resource", rest_cowboy, []},
         {"/rest/:resource/:id", rest_cowboy, []},
