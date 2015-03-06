@@ -40,12 +40,12 @@ load_config() ->
 acc_start(A,Acc) ->
    case application:start(A) of
          {error,{already_started,_}} -> Acc;
-         {error,{_,{{M,F,_},Ret}}} -> [M|Acc];
+         {error,{_,{{M,_F,_},_Ret}}} -> [M|Acc];
          {error,{_Reason,Name}} when is_atom(_Reason) -> [Name|Acc];
          ok -> Acc;
          _  -> Acc end.
 
-load_apps([],_,Acc) ->
+load_apps([],_,_Acc) ->
   Res = lists:foldl(fun(A,Acc) -> case lists:member(A,system()) of
        true -> acc_start(A,Acc);
           _ -> case load_config(A) of
@@ -55,7 +55,7 @@ load_apps([],_,Acc) ->
        [] -> ok;
        _ -> io:format("\r\nApps couldn't be loaded: ~p~n\n\r",[Res]) end;
 load_apps(["applist"],Config,Acc) -> load_apps([],Config,Acc);
-load_apps(Params,_,Acc) -> [ application:ensure_all_started(list_to_atom(A))||A<-Params].
+load_apps(Params,_,_Acc) -> [ application:ensure_all_started(list_to_atom(A))||A<-Params].
 
 cwd() -> {ok, Cwd} = file:get_cwd(), Cwd.
 
