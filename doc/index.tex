@@ -82,37 +82,6 @@ N2O also comes with custom cowboy static handler that is able to
 read static files from this cached ETS filesystem.
 Also bundle are compatible with active online realoading and recompilation.
 
-\subsection{Templates}
-
-mad also comes with N2O templates. So you can bootstrap a N2O-based site
-just having a single copy of mad binary.
-
-\vspace{1\baselineskip}
-\begin{lstlisting}
-    # mad app sample
-    # cd sample
-    # mad deps compile plan bundle web_app
-\end{lstlisting}
-\vspace{1\baselineskip}
-
-After that you can just run escript web_app under Windows, Linux and
-Mac and open \footahref{http://localhost:8000}{http://localhost:8000}.
-
-\vspace{1\baselineskip}
-\begin{lstlisting}
-    C:\> escript web_app
-    Applications: [kernel,stdlib,crypto,cowlib,ranch,cowboy,compiler,syntax_tools,
-                   erlydtl,gproc,xmerl,n2o,n2o_sample,fs,active,mad,sh]
-    Configuration: [{n2o,[{port,8000},{route,routes}]},
-                    {kvs,[{dba,store_mnesia},
-                          {schema,[kvs_user,kvs_acl,kvs_feed,kvs_subscription]}]}]
-    Erlang/OTP 17 [erts-6.0] [64-bit] [smp:4:4] [async-threads:10] [kernel-poll:false]
-
-    Eshell V6.0  (abort with ^G)
-    1>
-\end{lstlisting}
-\vspace{1\baselineskip}
-
 \subsection{Deploy}
 
 mad is also supposed to be a deploy tool with ability to
@@ -124,26 +93,6 @@ also to Heroku and others.
 mad supports rebar umbrella project structure.
 Specifically two kinds of directory layouts:
 
-\vspace{1\baselineskip}
-\begin{lstlisting}[caption=Solution]
-    ├── apps
-    ├── deps
-    ├── rebar.config
-    └── sys.config
-\end{lstlisting}
-\vspace{1\baselineskip}
-
-\vspace{1\baselineskip}
-\begin{lstlisting}[caption=OTP Application]
-    ├── deps
-    ├── ebin
-    ├── include
-    ├── priv
-    ├── src
-    └── rebar.config
-\end{lstlisting}
-\vspace{1\baselineskip}
-
 \subsection{Apps Ordering}
 
 As you may know you can create OTP releases with
@@ -151,14 +100,7 @@ reltool (rebar generate) or systools (relx). mad currently
 creates releases with relx but is going to do it independently soon.
 Now it can only order applications.
 
-\vspace{1\baselineskip}
-\begin{lstlisting}
-    # mad plan
-    Ordered: [kernel,stdlib,mnesia,kvs,crypto,cowlib,ranch,
-              cowboy,compiler,syntax_tools,erlydtl,gproc,
-              xmerl,n2o,n2o_sample,fs,active,mad,rest,sh]
-\end{lstlisting}
-\vspace{1\baselineskip}
+\subsection{Size}
 
 And the good part:
 

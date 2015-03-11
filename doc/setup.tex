@@ -20,8 +20,9 @@ If you want you can compile mad by yourself:
 
 \vspace{1\baselineskip}
 \begin{lstlisting}
-    # git clone http://github.com/synrc/mad && cd mad
-    # make
+    # git clone http://github.com/synrc/mad \
+             && cd mad \
+             && make
 \end{lstlisting}
 \vspace{1\baselineskip}
 
@@ -40,18 +41,25 @@ just having a single copy of mad binary.
 \end{lstlisting}
 \vspace{1\baselineskip}
 
-After that you can just run escript web_app under Windows, Linux and
+After that you can just run escript web\_app under Windows, Linux and
 Mac and open \footahref{http://localhost:8000}{http://localhost:8000}.
 
 \vspace{1\baselineskip}
 \begin{lstlisting}
     C:\> escript web_app
-    Applications: [kernel,stdlib,crypto,cowlib,ranch,cowboy,compiler,syntax_tools,
-                   erlydtl,gproc,xmerl,n2o,n2o_sample,fs,active,mad,sh]
-    Configuration: [{n2o,[{port,8000},{route,routes}]},
+    Applications: [kernel,stdlib,crypto,cowlib,ranch,
+                   cowboy,compiler,syntax_tools,
+                   erlydtl,gproc,xmerl,n2o,sample,
+                   fs,active,mad,sh]
+    Configuration: [{n2o,[{port,8000},
+                          {route,routes}]},
                     {kvs,[{dba,store_mnesia},
-                          {schema,[kvs_user,kvs_acl,kvs_feed,kvs_subscription]}]}]
-    Erlang/OTP 17 [erts-6.0] [64-bit] [smp:4:4] [async-threads:10] [kernel-poll:false]
+                          {schema,[kvs_user,
+                                   kvs_acl,
+                                   kvs_feed,
+                                   kvs_subscription]}]}]
+    Erlang/OTP 17 [erts-6.0] [64-bit] [smp:4:4]
+                  [async-threads:10] [kernel-poll:false]
 
     Eshell V6.0  (abort with ^G)
     1>
