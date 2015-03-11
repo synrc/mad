@@ -6,10 +6,7 @@ pull(Config,F) ->
     io:format("==> up: ~p~n", [F]),
     {_,Status,Message} = sh:run(io_lib:format("git -C ~p pull",[F])),
     case Status of
-         0 -> case mad_utils:get_value(verbose, Config, 0) of
-                   0 -> skip;
-                   _ -> io:format("~s",[binary_to_list(Message)])
-              end, false;
+         0 -> mad_utils:verbose(Config,Message), false;
          _ -> case binary:match(Message,[<<"Aborting">>,<<"timed out">>]) of
                    nomatch -> false;
                    _ -> io:format("~s",[binary_to_list(Message)]), true end end.
@@ -42,7 +39,7 @@ fetch(Cwd, Config, ConfigFile, [H|T]) ->
 
 git_clone(Uri,Fast,TrunkPath,Rev) when Rev == "head" orelse Rev == "HEAD" orelse Rev == "master" ->
     {["git clone ",Fast,Uri," ",TrunkPath],Rev};
-git_clone(Uri,Fast,TrunkPath,Rev) ->
+git_clone(Uri,_Fast,TrunkPath,Rev) ->
     {["git clone ",Uri," ",TrunkPath," && cd ",TrunkPath," && git checkout \"",Rev,"\"" ],Rev}.
 
 fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
@@ -62,7 +59,7 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
         {_,Rev} -> git_clone(Uri,Fast,TrunkPath,Rev);
         Master  -> git_clone(Uri,Fast,TrunkPath,Master) end,
 
-    %io:format("Fetch: ~s~n",[R]),
+    io:format("Fetch: ~s~n",[R]),
 
     FetchStatus = case filelib:is_dir(TrunkPath) of
                        true -> {skip,0,list_to_binary("Directory "++TrunkPath++" exists.")};

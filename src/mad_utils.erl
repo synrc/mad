@@ -99,5 +99,10 @@ fold_params(Params) ->
            E -> {[E|Current],Result} end
       end, {[],[]}, Atomized).
 
+verbose(Config,Message) ->
+    case mad_utils:get_value(verbose, Config, 0) of
+         0 -> skip;
+         _ -> io:format("~s",[binary_to_list(Message)]) end.
+
 compile(_,_,_,_,_) -> false.
 
