@@ -69,7 +69,8 @@ compile_files([],Inc,Bin,Opt,Deps) -> false;
 compile_files([File|Files],Inc,Bin,Opt,Deps) ->
     case (module(filetype(File))):compile(File,Inc,Bin,Opt,Deps) of
          true -> true;
-         false -> compile_files(Files,Inc,Bin,Opt,Deps) end.
+         false -> compile_files(Files,Inc,Bin,Opt,Deps);
+         _ -> io:format("Error: ~p~n",[{File}]) end.
 
 module("erl") -> mad_erl;
 module("erl.src") -> mad_utils;

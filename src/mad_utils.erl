@@ -99,5 +99,5 @@ fold_params(Params) ->
            E -> {[E|Current],Result} end
       end, {[],[]}, Atomized).
 
-compile(_,_,_,_,_) -> ok.
+compile(_,_,_,_,_) -> false.
 
