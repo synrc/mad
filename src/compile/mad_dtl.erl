@@ -47,7 +47,7 @@ compile_erlydtl_files(Opts) ->
         BeamFile = file_to_beam(OutDir, atom_to_list(ModuleName)),
         Compiled = mad_compile:is_compiled(BeamFile, F),
         if  Compiled =:= false ->
-            io:format("DTL Compiling ~s~n\r", [F]),
+            io:format("DTL Compiling ~s~n\r", [F -- mad_utils:cwd()]),
             erlydtl:compile(F, ModuleName, Opts3);
         true -> ok end
     end,

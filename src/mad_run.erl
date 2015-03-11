@@ -16,4 +16,4 @@ attach(_) ->
 
 stop(_) -> ok. % TODO: stop box
 
-clean(_) -> [ file:delete(X) || X <- filelib:wildcard("{apps,deps}/*/ebin/**") ].
+clean(_) -> [ file:delete(X) || X <- filelib:wildcard("{apps,deps}/*/ebin/**") ], false.

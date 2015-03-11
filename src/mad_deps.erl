@@ -2,27 +2,30 @@
 -copyright('Sina Samavati').
 -compile(export_all).
 
-pull(F) ->
+pull(Config,F) ->
     io:format("==> up: ~p~n", [F]),
     {_,Status,Message} = sh:run(io_lib:format("git -C ~p pull",[F])),
     case Status of
-         0 -> false;
+         0 -> case mad_utils:get_value(verbose, Config, 0) of
+                   0 -> skip;
+                   _ -> io:format("~s",[binary_to_list(Message)])
+              end, false;
          _ -> case binary:match(Message,[<<"Aborting">>,<<"timed out">>]) of
                    nomatch -> false;
                    _ -> io:format("~s",[binary_to_list(Message)]), true end end.
 
-up(Params) ->
+up(Config,Params) ->
     List = case Params of
                 [] -> [ F || F <- mad_repl:wildcards(["deps/*"]), filelib:is_dir(F) ];
                 Apps -> [ "deps/" ++ A || A <- Apps ] end ++ ["."],
-    lists:any(fun(X) -> X end, [ pull(F) || F <- List ]).
+    lists:any(fun(X) -> X end, [ pull(Config,F) || F <- List ]).
 
-fetch(_, _Config, _, []) -> ok;
+fetch(_, _Config, _, []) -> false;
 fetch(Cwd, Config, ConfigFile, [H|T]) when is_tuple(H) =:= false -> fetch(Cwd, Config, ConfigFile, T);
 fetch(Cwd, Config, ConfigFile, [H|T]) ->
     {Name, Repo} = name_and_repo(H),
-    case get(Name) of
-        fetched -> ok;
+    Res = case get(Name) of
+        fetched -> false;
         _ ->
             {Cmd, Uri, Co} = case Repo of
                                  V={_, _, _}          -> V;
@@ -33,10 +36,14 @@ fetch(Cwd, Config, ConfigFile, [H|T]) ->
             Cache = mad_utils:get_value(cache, Config, deps_fetch),
             fetch_dep(Cwd, Config, ConfigFile, Name, Cmd1, Uri, Co, Cache)
     end,
-    fetch(Cwd, Config, ConfigFile, T).
+    case Res of
+         true -> true;
+         false -> fetch(Cwd, Config, ConfigFile, T) end.
 
+git_clone(Uri,Fast,TrunkPath,Rev) when Rev == "head" orelse Rev == "HEAD" orelse Rev == "master" ->
+    {["git clone ",Fast,Uri," ",TrunkPath],Rev};
 git_clone(Uri,Fast,TrunkPath,Rev) ->
-    {["git clone ",Fast,Uri," ",TrunkPath," && cd ",TrunkPath," && git checkout \"",Rev,"\"" ],Rev}.
+    {["git clone ",Uri," ",TrunkPath," && cd ",TrunkPath," && git checkout \"",Rev,"\"" ],Rev}.
 
 fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
 
@@ -46,29 +53,35 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
 
     io:format("==> dependency: ~p tag: ~p~n\r", [Uri,Co]),
 
-    % TODO: add "git clone --depth=1" option by @rillian
-
     Fast = case mad_utils:get_value(fetch_speed,Config,[]) of
-                "fast_master" -> " --depth=1 ";
+                fast_master -> " --depth=1 ";
                     _  -> "" end,
 
     {R,Co1} = case Co of
         X when is_list(X) -> git_clone(Uri,Fast,TrunkPath,X);
         {_,Rev} -> git_clone(Uri,Fast,TrunkPath,Rev);
-        Master -> {["git clone ",Fast,Uri," ",TrunkPath],lists:concat([Master])} end,
+        Master  -> git_clone(Uri,Fast,TrunkPath,Master) end,
 
-    os:cmd(R),
+    %io:format("Fetch: ~s~n",[R]),
 
-    put(Name, fetched),
+    FetchStatus = case filelib:is_dir(TrunkPath) of
+                       true -> {skip,0,list_to_binary("Directory "++TrunkPath++" exists.")};
+                       false -> sh:run(lists:concat(R)) end,
 
-    %% check dependencies of the dependency
-    TrunkConfigFile = filename:join(TrunkPath, ConfigFile),
-    Conf = mad_utils:consult(TrunkConfigFile),
-    Conf1 = mad_utils:script(TrunkConfigFile, Conf, Name),
-    fetch(Cwd, Config, ConfigFile, mad_utils:get_value(deps, Conf1, [])),
-    case Cache of
-       deps_fetch -> skip;
-       CacheDir -> build_dep(Cwd, Config, ConfigFile, get_publisher(Uri), Name, Cmd, Co1, CacheDir) end.
+    case FetchStatus of
+         {_,0,_} -> put(Name, fetched),
+
+                    %% check dependencies of the dependency
+                    TrunkConfigFile = filename:join(TrunkPath, ConfigFile),
+                    Conf = mad_utils:consult(TrunkConfigFile),
+                    Conf1 = mad_utils:script(TrunkConfigFile, Conf, Name),
+                    fetch(Cwd, Config, ConfigFile, mad_utils:get_value(deps, Conf1, [])),
+                    case Cache of
+                         deps_fetch -> false;
+                         CacheDir -> build_dep(Cwd, Config, ConfigFile,
+                                        get_publisher(Uri), Name, Cmd, Co1, CacheDir)
+                    end;
+    {_,_,FetchError} -> io:format("Fetch Error: ~s~n",[binary_to_list(FetchError)]), true end.
 
 %% build dependency based on branch/tag/commit
 build_dep(Cwd, Conf, _ConfFile, Publisher, Name, _Cmd, _Co, Dir) ->
@@ -76,7 +89,8 @@ build_dep(Cwd, Conf, _ConfFile, Publisher, Name, _Cmd, _Co, Dir) ->
     DepsDir = filename:join([mad_utils:get_value(deps_dir, Conf, ["deps"]),Name]),
     os:cmd(["cp -r ", TrunkPath, " ", DepsDir]),
     ok = file:set_cwd(DepsDir),
-    ok = file:set_cwd(Cwd).
+    ok = file:set_cwd(Cwd),
+    false.
 
 %% internal
 name_and_repo({Name, _, Repo}) when is_list(Name) -> {Name, Repo};

@@ -13,6 +13,6 @@ app(Params) ->
             filelib:ensure_dir(Relative),
             file:write_file(Relative,Bin);
        _ -> skip
-       end || {File,Bin} <-Apps].
+       end || {File,Bin} <-Apps], false.
 
-lib(_) -> ok.
+lib(_) -> false.

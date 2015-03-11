@@ -7,7 +7,7 @@ main([]) -> help();
 main(Params) ->
 
     {Other,FP} = mad_utils:fold_params(Params),
-    io:format("Params: ~p~n\r",[FP]),
+    %io:format("Params: ~p~n\r",[FP]),
     case Other == [] of
          true -> skip;
          false -> io:format("Unknown Command or Parameter ~p~n\r",[Other]), help() end,
@@ -28,7 +28,7 @@ bool(_) -> 1.
 deps(Cwd, ConfigFile, Conf, Params) ->
     io:format("Deps Params: ~p~n",[Params]),
     case mad_utils:get_value(deps, Conf, []) of
-        [] -> ok;
+        [] -> false;
         Deps ->
             Cache = mad_utils:get_value(deps_dir, Conf, deps_fetch),
             case Cache of
@@ -37,7 +37,7 @@ deps(Cwd, ConfigFile, Conf, Params) ->
             FetchDir = mad_utils:get_value(deps_dir, Conf, ["deps"]),
             file:make_dir(FetchDir),
             mad_deps:fetch(Cwd, Conf, ConfigFile, Deps)
-    end, false.
+    end.
 
 %% compile dependencies and the app
 compile(Cwd, ConfigFile, Conf, Params) ->
@@ -56,37 +56,37 @@ plan(_Cwd,_ConfigFileName,_Config,Params) ->
     mad_plan:main([]).
 
 repl(_Cwd,_ConfigFileName,_Config,Params) ->
-%    io:format("Repl Params: ~p~n",[Params]),
+    io:format("REPL Params: ~p~n",[Params]),
     mad_repl:main(Params,_Config).
 
 bundle(_Cwd,_ConfigFileName,_Config,Params) ->
-    io:format("Tool Params: ~p~n",[Params]),
+    io:format("Bundle Params: ~p~n",[Params]),
     Name = case Params of [] -> mad_utils:cwd(); E -> E end,
-    mad_bundle:main(filename:basename(Name)), false.
+    mad_bundle:main(filename:basename(Name)).
 
 up(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Up Params: ~p~n",[Params]),
-    mad_deps:up(Params).
+    mad_deps:up(_Config,Params).
 
 app(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Create App Params: ~p~n",[Params]),
-    mad_create:app(Params), false.
+    mad_create:app(Params).
 
 lib(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Create Lib Params: ~p~n",[Params]),
-    mad_create:lib(Params), false.
+    mad_create:lib(Params).
+
+clean(_Cwd,_ConfigFileName,_Config,Params) ->
+    io:format("Clean Params: ~p~n",[Params]),
+    mad_run:clean(Params).
 
 start(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Start Params: ~p~n",[Params]),
     mad_run:start(Params), false.
 
 attach(_Cwd,_ConfigFileName,_Config,Params) ->
-%    io:format("Attach Params: ~p~n",[Params]),
+    io:format("Attach Params: ~p~n",[Params]),
     mad_run:attach(Params), false.
-
-clean(_Cwd,_ConfigFileName,_Config,Params) ->
-    io:format("Clean Params: ~p~n",[Params]),
-    mad_run:clean(Params), false.
 
 stop(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Stop Params: ~p~n",[Params]),
@@ -98,9 +98,9 @@ release(_Cwd,_ConfigFileName,_Config,Params) ->
 
 static(_Cwd,_ConfigFileName,Config,Params) ->
     io:format("Compile Static Params: ~p~n",[Params]),
-    mad_static:main(Config, Params), false.
+    mad_static:main(Config, Params).
 
-version() -> "2.2".
+version() -> "master".
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).
 help(Msg) -> io:format("Error: ~s~n~n", [Msg]), help().
 help() ->

@@ -15,7 +15,7 @@ compile(File,_Inc,Bin,_Opt,_Deps) ->
     AppFile = filename:join(Bin, app_src_to_app(File)),
     Compiled = mad_compile:is_compiled(AppFile, File),
     if  Compiled =:= false ->
-        io:format("Writing ~s~n\r", [AppFile]),
+        io:format("Writing ~s~n\r", [AppFile -- mad_utils:cwd()]),
         BeamFiles = filelib:wildcard("*.beam", Bin),
         Modules = [list_to_atom(filename:basename(X, ".beam")) || X <- BeamFiles],
         [Struct|_] = mad_utils:consult(File),
