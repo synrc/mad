@@ -4,7 +4,7 @@
 
 yrl_to_erl(F) -> filename:join(filename:dirname(F),filename:basename(F, ".yrl")) ++ ".erl".
 
-compile(File,Inc,Bin,Opt) ->
+compile(File,Inc,Bin,Opt,Deps) ->
     ErlFile = yrl_to_erl(File),
     Compiled = mad_compile:is_compiled(ErlFile,File),
     if Compiled == false ->

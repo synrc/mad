@@ -49,9 +49,15 @@ sub_dirs(Cwd, ConfigFile, [Dir|T], Acc) ->
 
 lib_dirs(Cwd, Conf) -> lib_dirs(Cwd, get_value(lib_dirs, Conf, []), []).
 
+raw_deps(Deps) -> raw_deps(Deps,[]).
+raw_deps([],Res) -> Res;
+raw_deps([D|Deps],Res) when is_tuple(D) -> raw_deps([element(1,D)|Deps],Res);
+raw_deps([D|Deps],Res) -> raw_deps(Deps,[D|Res]).
+
 lib_dirs(_, [], Acc) -> Acc;
+lib_dirs(Cwd, [H|T], Acc) when is_tuple(H) -> lib_dirs(Cwd, [element(1,H)|T], Acc);
 lib_dirs(Cwd, [H|T], Acc) ->
-    Dirs = filelib:wildcard(filename:join([Cwd, H, "*", "ebin"])),
+    Dirs = filelib:wildcard(filename:join([Cwd, H, "*", "include"])),
     lib_dirs(Cwd, T, Acc ++ Dirs).
 
 last_modified(File) ->
@@ -93,5 +99,5 @@ fold_params(Params) ->
            E -> {[E|Current],Result} end
       end, {[],[]}, Atomized).
 
-compile(_,_,_,_) -> ok.
+compile(_,_,_,_,_) -> ok.
 

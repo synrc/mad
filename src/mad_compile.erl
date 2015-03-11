@@ -21,7 +21,8 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     DepConfigFile = filename:join(DepPath, ConfigFile),
     Conf = mad_utils:consult(DepConfigFile),
     Conf1 = mad_script:script(DepConfigFile, Conf, Name),
-    deps(Cwd, Conf, ConfigFile, mad_utils:get_value(deps, Conf1, [])),
+    Deps = mad_utils:get_value(deps, Conf1, []),
+    deps(Cwd, Conf, ConfigFile, Deps),
 
     SrcDir = filename:join([mad_utils:src(DepPath)]),
 %    io:format("DepPath ==> ~p~n\r",[DepPath]),
@@ -36,6 +37,11 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
         Files ->
             IncDir = mad_utils:include(DepPath),
             EbinDir = mad_utils:ebin(DepPath),
+            LibDirs = mad_utils:get_value(lib_dirs, Conf, []),
+            Includes = lists:flatten([
+                [{i,filename:join([DepPath,L,D,include])} || D<-mad_utils:raw_deps(Deps) ] % for -include
+             ++ [{i,filename:join([DepPath,L])}] || L <- LibDirs ]), % for -include_lib
+%            io:format("DepPath ~p~n Includes: ~p~nLibDirs: ~p~n",[DepPath,Includes,LibDirs]),
 
             %% create EbinDir and add it to code path
             file:make_dir(EbinDir),
@@ -44,7 +50,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             %erlc(DepPath), % comment this to build with files/2
 
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
-            lists:foreach(compile_fun(IncDir, EbinDir, Opts), Files),
+            lists:foreach(compile_fun(IncDir, EbinDir, Opts,Includes), Files),
 
             mad_dtl:compile(DepPath,Conf1),
             mad_port:compile(DepPath,Conf1),
@@ -53,7 +59,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             ok
     end.
 
-compile_fun(Inc,Bin,Opt) -> fun(File) -> (module(filetype(File))):compile(File,Inc,Bin,Opt) end.
+compile_fun(Inc,Bin,Opt,Deps) -> fun(File) -> (module(filetype(File))):compile(File,Inc,Bin,Opt,Deps) end.
 
 module("erl") -> mad_erl;
 module("erl.src") -> mad_utils;

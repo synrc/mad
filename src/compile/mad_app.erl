@@ -11,7 +11,7 @@ validate_property({modules, _}, Modules) -> {modules, Modules};
 validate_property({vsn, Value}, _) -> {vsn, to_list(Value)};
 validate_property(Else, _) -> Else.
 
-compile(File,_Inc,Bin,_Opt) ->
+compile(File,_Inc,Bin,_Opt,Deps) ->
     AppFile = filename:join(Bin, app_src_to_app(File)),
     Compiled = mad_compile:is_compiled(AppFile, File),
     if  Compiled =:= false ->
