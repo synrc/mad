@@ -1,5 +1,6 @@
 -module(mad).
 -copyright('Maxim Sokhatsky').
+-include("mad.hrl").
 -compile(export_all).
 -export([main/1]).
 
@@ -100,7 +101,7 @@ static(_Cwd,_ConfigFileName,Config,Params) ->
     io:format("Compile Static Params: ~p~n",[Params]),
     mad_static:main(Config, Params).
 
-version() -> "master".
+version() -> ?VERSION.
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).
 help(Msg) -> io:format("Error: ~s~n~n", [Msg]), help().
 help() ->
