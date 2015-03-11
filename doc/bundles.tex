@@ -1,5 +1,22 @@
 \section{Bundles}
 
+
+
+\subsection{Apps Ordering}
+
+Before starting an application which could be
+packed within three forms: Single-File Bundle, Release or OTP.MK Folder.
+
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    # mad plan
+    Ordered: [kernel,stdlib,mnesia,kvs,crypto,cowlib,ranch,
+              cowboy,compiler,syntax_tools,erlydtl,gproc,
+              xmerl,n2o,n2o_sample,fs,active,mad,rest,sh]
+\end{lstlisting}
+\vspace{1\baselineskip}
+
 \subsection{Single-File Bundles with MAD}
 
 The key feature of mad is ability to create single-file bundled web sites.
@@ -15,9 +32,54 @@ N2O also comes with custom cowboy static handler that is able to
 read static files from this cached ETS filesystem.
 Also bundle are compatible with active online realoading and recompilation.
 
-E.g. you main create
+E.g. you main create a single file site with:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    # mad bundle app_name
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+app\_name shoul be the same as a valid Erlang module, with app\_module:main/1
+function defined, which will boot up the bundle. This function could be like that:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+     -module(app_name).
+
+     main(Params) -> 
+          RebarConfig = [],
+          mad_repl:main(Params,RebarConfig).
+\end{lstlisting}
+\vspace{1\baselineskip}
 
 \subsection{Releases with RELX}
 
-\subsection{Re with OTP.MK}
+As you may know you can create OTP releases with
+reltool (rebar generate) or systools (relx). mad currently
+creates releases with relx but is going to do it independently soon.
+Now it can only order applications.
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    # mad release
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+\subsection{Folders with OTP.MK}
+
+OTP.MK is a tiny 50 lines Makefile that allows to start your set
+of application using run\_erl and to\_erl tools from OTP distribution.
+We use that way in poduction. This is the best option also in
+development mode because all directory structure is open and mutable,
+so you can reload modified files and perform recompilation on the fly.
+
+It uses the original code to fast resolve dependencies into the right
+boot sequence to start.
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    # make console
+\end{lstlisting}
+\vspace{1\baselineskip}
 
