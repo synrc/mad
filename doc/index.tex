@@ -67,22 +67,13 @@ Synrc mad has a simple interface as follows:
 It seems to us more natural, you can specify random
 commands set with different specifiers (options).
 
-\subsection{Single-File Bundling}
+\subsection{Several Types of Packaging}
 
 The key feature of mad is ability to create single-file bundled web sites.
 Thus making dream to boot simpler than node.js come true.
 This target escript is ready to run on Windows, Linux and Mac.
 
-To make this possible we implemented a zip filesytem inside escript.
-mad packages priv directories along with ebin and configs.
-You can redefine each file in zip fs inside target
-escript by creation the copy with same path locally near escript.
-After launch all files are copied to ETS.
-N2O also comes with custom cowboy static handler that is able to
-read static files from this cached ETS filesystem.
-Also bundle are compatible with active online realoading and recompilation.
-
-\subsection{Deploy}
+\subsection{Deployment Options}
 
 mad is also supposed to be a deploy tool with ability to
 deploy not only to our resources like Erlang on Xen, Voxoz (LXC/Xen) but
@@ -93,14 +84,14 @@ also to Heroku and others.
 mad supports rebar umbrella project structure.
 Specifically two kinds of directory layouts:
 
-\subsection{Apps Ordering}
+\subsection{Fast Apps Ordering}
 
 As you may know you can create OTP releases with
 reltool (rebar generate) or systools (relx). mad currently
 creates releases with relx but is going to do it independently soon.
 Now it can only order applications.
 
-\subsection{Size}
+\subsection{Tiny Size}
 
 And the good part:
 

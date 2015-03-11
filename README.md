@@ -49,6 +49,20 @@ without Erlang prerequisite.
 
 Note: [relx](https://github.com/erlware/relx) must be installed
 
+Support
+-------
+* [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/5HT/n2o?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+* IRC Channel #n2o on FreeNode 24/7
+
+Documentation
+-------
+
+If you are new or need to determine whether the MAD architecture and
+philosophy is a fit for your project
+
+* Official MAD brochure [HTML](http://synrc.com/apps/mad/) and
+                        [PDF](https://synrc.com/apps/mad/doc/book.pdf)
+
 Credits
 -------
 
