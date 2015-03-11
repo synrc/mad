@@ -4,7 +4,7 @@
 
 compile(Dir,Config) ->
     case mad_utils:get_value(erlydtl_opts, Config, []) of
-        [] -> skip;
+        [] -> false;
          X -> compile_erlydtl_files(validate_erlydtl_opts(Dir,X)) end.
 
 get_kv(K, Opts, Default) ->
@@ -52,4 +52,4 @@ compile_erlydtl_files(Opts) ->
         true -> ok end
     end,
 
-    lists:foreach(Compile, Files).
+    lists:any(fun({error,_}) -> true; (ok) -> false end,[Compile(F) || F <- Files]).

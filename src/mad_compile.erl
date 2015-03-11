@@ -3,16 +3,19 @@
 -compile(export_all).
 
 %% compile dependencies
-deps(_, _, _, []) -> ok;
+deps(_, _, _, []) -> false;
 deps(Cwd, Conf, ConfigFile, [H|T]) ->
     {Name, _} = mad_deps:name_and_repo(H),
-    case get(Name) == compiled andalso get(mode) /= active  of
-        true -> ok;
-        _ -> dep(Cwd, Conf, ConfigFile, Name) end,
-    deps(Cwd, Conf, ConfigFile, T).
+    Res = case get(Name) == compiled andalso get(mode) /= active  of
+          true -> false;
+          _    -> dep(Cwd, Conf, ConfigFile, Name) end,
+    case Res of
+         true  -> true;
+         false -> deps(Cwd, Conf, ConfigFile, T) end.
 
 %% compile a dependency
 dep(Cwd, _Conf, ConfigFile, Name) ->
+
     %% check dependencies of the dependency
     DepsDir = filename:join([mad_utils:get_value(deps_dir, _Conf, ["deps"])]),
     DepPath = filename:join([Cwd, DepsDir, Name]),
@@ -22,10 +25,11 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     Conf = mad_utils:consult(DepConfigFile),
     Conf1 = mad_script:script(DepConfigFile, Conf, Name),
     Deps = mad_utils:get_value(deps, Conf1, []),
-    deps(Cwd, Conf, ConfigFile, Deps),
+    DepsRes = deps(Cwd, Conf, ConfigFile, Deps),
+    %io:format("DepsStatus: ~p~n",[DepsRes]),
 
     SrcDir = filename:join([mad_utils:src(DepPath)]),
-%    io:format("DepPath ==> ~p~n\r",[DepPath]),
+    %io:format("DepPath ==> ~p~n\r",[DepPath]),
 
     Files = files(SrcDir,".yrl") ++ 
             files(SrcDir,".xrl") ++ 
@@ -33,7 +37,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             files(SrcDir,".app.src"),
 
     case Files of
-        [] -> ok;
+        [] -> false;
         Files ->
             IncDir = mad_utils:include(DepPath),
             EbinDir = mad_utils:ebin(DepPath),
@@ -41,25 +45,31 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             Includes = lists:flatten([
                 [{i,filename:join([DepPath,L,D,include])} || D<-mad_utils:raw_deps(Deps) ] % for -include
              ++ [{i,filename:join([DepPath,L])}] || L <- LibDirs ]), % for -include_lib
-%            io:format("DepPath ~p~n Includes: ~p~nLibDirs: ~p~n",[DepPath,Includes,LibDirs]),
+            %io:format("DepPath ~p~n Includes: ~p~nLibDirs: ~p~n",[DepPath,Includes,LibDirs]),
 
-            %% create EbinDir and add it to code path
+            % create EbinDir and add it to code path
             file:make_dir(EbinDir),
             code:replace_path(Name,EbinDir),
 
             %erlc(DepPath), % comment this to build with files/2
 
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
-            lists:foreach(compile_fun(IncDir, EbinDir, Opts,Includes), Files),
-
-            mad_dtl:compile(DepPath,Conf1),
-            mad_port:compile(DepPath,Conf1),
+            FilesStatus = compile_files(Files,IncDir, EbinDir, Opts,Includes),
+            DTLStatus = mad_dtl:compile(DepPath,Conf1),
+            PortStatus = lists:any(fun(X)->X end,mad_port:compile(DepPath,Conf1)),
+            %io:format("DTL Status: ~p~n",[DTLStatus]),
+            %io:format("Port Status: ~p~n",[PortStatus]),
+            %io:format("Files Status: ~p~n",[FilesStatus]),
 
             put(Name, compiled),
-            ok
+            DepsRes orelse FilesStatus orelse DTLStatus orelse PortStatus
     end.
 
-compile_fun(Inc,Bin,Opt,Deps) -> fun(File) -> (module(filetype(File))):compile(File,Inc,Bin,Opt,Deps) end.
+compile_files([],Inc,Bin,Opt,Deps) -> false;
+compile_files([File|Files],Inc,Bin,Opt,Deps) ->
+    case (module(filetype(File))):compile(File,Inc,Bin,Opt,Deps) of
+         true -> true;
+         false -> compile_files(Files,Inc,Bin,Opt,Deps) end.
 
 module("erl") -> mad_erl;
 module("erl.src") -> mad_utils;
@@ -74,6 +84,7 @@ is_compiled(BeamFile, File) -> mad_utils:last_modified(BeamFile) >= mad_utils:la
 
 'compile-apps'(Cwd, ConfigFile, Conf) ->
     Dirs = mad_utils:sub_dirs(Cwd, ConfigFile, Conf),
+    %io:format("Compile Apps: ~p~n",[Dirs]),
     case Dirs of
         [] -> mad_compile:dep(Cwd, Conf, ConfigFile, Cwd);
         Apps -> mad_compile:deps(Cwd, Conf, ConfigFile, Apps) end.

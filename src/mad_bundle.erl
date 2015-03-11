@@ -12,10 +12,10 @@ read_file(File) -> {ok, Bin} = file:read_file(filename:absname(File)), Bin.
 
 static() -> Name = "static.gz",
     {ok,{_,Bin}} = zip:create(Name,
-        [F || F <- mad_repl:wildcards(["{apps,deps}/*/priv/**","priv/**"]), not filelib:is_dir(F) ],
+        [begin io:format("F: ~p~n",[F]), F end  || F <- mad_repl:wildcards(["{apps,deps}/*/priv/**","priv/**"]), not filelib:is_dir(F) ],
         [{compress,all},memory]), [ { Name, Bin } ].
 
 beams() ->
     [ { filename:basename(F), read_file(F) } || F <-
-        lists:concat([filelib:wildcard(X)||X <- 
+        lists:concat([filelib:wildcard(X)||X <-
         [ "ebin/*","{apps,deps}/*/ebin/*","sys.config",".applist"]])].
