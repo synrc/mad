@@ -2,14 +2,15 @@
 -copyright('Sina Samavati').
 -compile(export_all).
 
-pull(Config,F) ->
+pull(_,[])         -> false;
+pull(Config,[F|T]) ->
     io:format("==> up: ~p~n", [F]),
     {_,Status,Message} = sh:run(io_lib:format("cd ~p && git pull && cd -",[F])),
     case Status of
-         0 -> mad_utils:verbose(Config,Message), false;
+         0 -> mad_utils:verbose(Config,Message), pull(Config,T);
          _ -> case binary:match(Message,[<<"You are not currently on a branch">>]) of
                    nomatch -> mad_utils:verbose(Config,Message), true;
-                   _ -> false end end.
+                   _ -> pull(Config,T) end end.
 
 up(Config,Params) ->
     List = case Params of
