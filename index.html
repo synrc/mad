@@ -2,9 +2,9 @@
 <html>
 
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="MAD : Small and Fast Rebar Replacement" />
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="MAD : Small and Fast Rebar Replacement">
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
@@ -32,20 +32,24 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h1>
-<a name="mad" class="anchor" href="#mad"><span class="octicon octicon-link"></span></a>MAD</h1>
+<a id="mad" class="anchor" href="#mad" aria-hidden="true"><span class="octicon octicon-link"></span></a>MAD</h1>
 
 <p>A simple rebar-compatible dependency manager.</p>
 
+<p><img src="http://synrc.com/lj/mad.png" alt="MAD"></p>
+
 <h2>
-<a name="goals" class="anchor" href="#goals"><span class="octicon octicon-link"></span></a>Goals</h2>
+<a id="goals" class="anchor" href="#goals" aria-hidden="true"><span class="octicon octicon-link"></span></a>Goals</h2>
 
 <p>It shall:</p>
 
 <ul>
 <li>be compatible with rebar configuration.</li>
 <li>be as small and fast as possible.</li>
-</ul><h2>
-<a name="build" class="anchor" href="#build"><span class="octicon octicon-link"></span></a>Build</h2>
+</ul>
+
+<h2>
+<a id="build" class="anchor" href="#build" aria-hidden="true"><span class="octicon octicon-link"></span></a>Build</h2>
 
 <pre><code>$ make
 </code></pre>
@@ -53,19 +57,66 @@
 <p>And put 'mad' to PATH.</p>
 
 <h2>
-<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+<a id="unikernel-bundle" class="anchor" href="#unikernel-bundle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Unikernel Bundle</h2>
 
-<pre><code>$ mad get-deps
-$ mad compile
+<p>Bundle is a gzipped archive of erlang beams of all dependecies
+along with directory structure of OTP-applications with priv directories.
+This allows you to pack all site inside single portable escript package able
+to run under Windows, Linux and Mac. Releases includes all current
+directory exept sources both code and data with all dependencies.</p>
+
+<pre><code>$ mad app "sample"
+$ cd sample
+$ mad deps compile plan bundle "web_app"
+$ ./web_app
 </code></pre>
 
 <h2>
-<a name="credits" class="anchor" href="#credits"><span class="octicon octicon-link"></span></a>Credits</h2>
+<a id="building-otp-release" class="anchor" href="#building-otp-release" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building OTP Release</h2>
+
+<p>Releases are bundles made by release_handler module of sasl applications.
+It has it own fat bootstripts along with erlang runtime included.
+This allows you to distribute you applications with copy deploy
+without Erlang prerequisite.</p>
+
+<pre><code>$ mad app sample
+$ cd sample
+$ mad dep com pla release
+$ _rel/sample/bin/sample console
+</code></pre>
+
+<p>Note: <a href="https://github.com/erlware/relx">relx</a> must be installed</p>
+
+<h2>
+<a id="support" class="anchor" href="#support" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support</h2>
+
+<ul>
+<li><a href="https://gitter.im/5HT/n2o?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Gitter"></a></li>
+<li>IRC Channel #n2o on FreeNode 24/7</li>
+</ul>
+
+<h2>
+<a id="documentation" class="anchor" href="#documentation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Documentation</h2>
+
+<p>If you are new or need to determine whether the MAD architecture and
+philosophy is a fit for your project</p>
+
+<ul>
+<li>Official MAD brochure <a href="http://synrc.com/apps/mad/">HTML</a> and
+                    <a href="https://synrc.com/apps/mad/doc/book.pdf">PDF</a>
+</li>
+</ul>
+
+<h2>
+<a id="credits" class="anchor" href="#credits" aria-hidden="true"><span class="octicon octicon-link"></span></a>Credits</h2>
 
 <ul>
 <li>Maxim Sokhatsky</li>
 <li>Sina Samavati</li>
-</ul><p>OM A HUM</p>
+<li>Vladimir Kirillov</li>
+</ul>
+
+<p>OM A HUM</p>
       </section>
     </div>
 
