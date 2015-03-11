@@ -5,7 +5,7 @@
 pull(_,[])         -> false;
 pull(Config,[F|T]) ->
     io:format("==> up: ~p~n", [F]),
-    {_,Status,Message} = sh:run(io_lib:format("cd ~p && git pull && cd -",[F])),
+    {_,Status,Message} = sh:run(lists:concat(["cd ",F," && git pull && cd -"])),
     case Status of
          0 -> mad_utils:verbose(Config,Message), pull(Config,T);
          _ -> case binary:match(Message,[<<"You are not currently on a branch">>]) of
@@ -16,7 +16,7 @@ up(Config,Params) ->
     List = case Params of
                 [] -> [ F || F <- mad_repl:wildcards(["deps/*"]), filelib:is_dir(F) ];
                 Apps -> [ "deps/" ++ A || A <- Apps ] end ++ ["."],
-    lists:any(fun(X) -> X end, [ pull(Config,F) || F <- List ]).
+    pull(Config,List).
 
 fetch(_, _Config, _, []) -> false;
 fetch(Cwd, Config, ConfigFile, [H|T]) when is_tuple(H) =:= false -> fetch(Cwd, Config, ConfigFile, T);
