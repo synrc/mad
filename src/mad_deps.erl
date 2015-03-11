@@ -7,9 +7,9 @@ pull(Config,F) ->
     {_,Status,Message} = sh:run(io_lib:format("git -C ~p pull",[F])),
     case Status of
          0 -> mad_utils:verbose(Config,Message), false;
-         _ -> case binary:match(Message,[<<"Aborting">>,<<"timed out">>]) of
-                   nomatch -> false;
-                   _ -> io:format("~s",[binary_to_list(Message)]), true end end.
+         _ -> case binary:match(Message,[<<"You are not currently on a branch">>]) of
+                   nomatch -> mad_utils:verbose(Config,Message), true;
+                   _ -> false end end.
 
 up(Config,Params) ->
     List = case Params of
