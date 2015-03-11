@@ -4,7 +4,7 @@
 
 pull(Config,F) ->
     io:format("==> up: ~p~n", [F]),
-    {_,Status,Message} = sh:run(io_lib:format("git -C ~p pull",[F])),
+    {_,Status,Message} = sh:run(io_lib:format("cd ~p && git pull && cd -",[F])),
     case Status of
          0 -> mad_utils:verbose(Config,Message), false;
          _ -> case binary:match(Message,[<<"You are not currently on a branch">>]) of
