@@ -65,7 +65,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             DepsRes orelse FilesStatus orelse DTLStatus orelse PortStatus
     end.
 
-compile_files([],Inc,Bin,Opt,Deps) -> false;
+compile_files([],_,_,_,_) -> false;
 compile_files([File|Files],Inc,Bin,Opt,Deps) ->
     case (module(filetype(File))):compile(File,Inc,Bin,Opt,Deps) of
          true -> true;

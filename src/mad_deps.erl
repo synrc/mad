@@ -59,7 +59,7 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
         {_,Rev} -> git_clone(Uri,Fast,TrunkPath,Rev);
         Master  -> git_clone(Uri,Fast,TrunkPath,Master) end,
 
-    io:format("Fetch: ~s~n",[R]),
+    %io:format("Fetch: ~s~n",[R]),
 
     FetchStatus = case filelib:is_dir(TrunkPath) of
                        true -> {skip,0,list_to_binary("Directory "++TrunkPath++" exists.")};

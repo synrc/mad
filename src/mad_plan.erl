@@ -30,7 +30,7 @@ orderapps() ->
 
 system_deps(A) ->
     case file:consult(code:where_is_file(lists:concat([A,".app"]))) of
-         {ok,[{application,Name,Opt}]} -> [ {A,Name} || A <- proplists:get_value(applications,Opt,[]) ];
+         {ok,[{application,Name,Opt}]} -> [ {_A,Name} || _A <- proplists:get_value(applications,Opt,[]) ];
          {error,_} -> [] end.
 
 main(_) ->
