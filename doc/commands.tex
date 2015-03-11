@@ -1,0 +1,30 @@
+\section{Commands}
+
+Synrc mad has a simple interface as follows:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+  BNF:
+      invoke := mad params
+      params := [] | run params
+         run := command [ options ]
+     command := app | lib | deps | compile | bundle
+                start | stop | repl
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+It seems to us more natural, you can specify random
+commands set with different specifiers (options).
+
+\subsection{deps}
+
+\subsection{compile}
+
+\subsection{plan}
+
+\subsection{repl}
+
+\subsection{bundle}
+
+\subsection{app}
+
