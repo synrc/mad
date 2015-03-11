@@ -1,8 +1,8 @@
 -module(mad_run).
 -compile(export_all).
 
-start(_) ->
-    {_,Status,X} = sh:run("run_erl",["-daemon",".devbox/",".devbox/logs/","exec mad rep"],
+start(_) ->                            % run_dir > < log_dir
+    {_,Status,X} = sh:run("run_erl",["-daemon",".",".","exec mad rep"],
       binary,".",
         [{"RUN_ERL_LOG_GENERATIONS","1000"},
          {"RUN_ERL_LOG_MAXSIZE","20000000"},
