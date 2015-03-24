@@ -46,10 +46,12 @@ compile_erlydtl_files(Opts) ->
         ModuleName = module_name(F, SourceExt, ModuleExt),
         BeamFile = file_to_beam(OutDir, atom_to_list(ModuleName)),
         Compiled = mad_compile:is_compiled(BeamFile, F),
-        if  Compiled =:= false ->
-            io:format("DTL Compiling ~s~n\r", [F -- mad_utils:cwd()]),
-            erlydtl:compile(F, ModuleName, Opts3);
-        true -> ok end
+        case Compiled of false ->
+             io:format("DTL Compiling ~s~n\r", [F -- mad_utils:cwd()]),
+             Res = erlydtl:compile(F, ModuleName, Opts3),
+             case Res of {error,Error} -> io:format("Error: ~p~n",[Error]);
+                                    OK -> OK end;
+             true -> ok end
     end,
 
     lists:any(fun({error,_}) -> true; (ok) -> false end,[Compile(F) || F <- Files]).
