@@ -48,6 +48,9 @@ without Erlang prerequisite.
     $ _rel/sample/bin/sample console
 
 Note: [relx](https://github.com/erlware/relx) must be installed
+LINUX NOTE: if you want to have online recompilation you should do at first:
+
+    $ sudo apt-get install inotify-tools
 
 Support
 -------
