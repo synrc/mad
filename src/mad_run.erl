@@ -12,7 +12,7 @@ start(_) ->                            % run_dir > < log_dir
          false -> io:format("Shell Error: ~s~n\r",[binary_to_list(X)]), exit({error,X}) end.
 
 attach(_) ->
-    io:format("to_erl .devbox/~n"). % use like $(mad attach)
+    io:format("to_erl .~n"). % use like $(mad attach)
 
 stop(_) -> ok. % TODO: stop box
 
