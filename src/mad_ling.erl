@@ -24,9 +24,9 @@ bundle_name() ->
          {ok,Cwd} -> filename:basename(Cwd) end.
 
 add_apps() ->
-	StartBoot = lists:concat([code:root_dir(),"/bin/start.boot"]),
-	Bucks     = [ {boot, "/boot", [local_map, StartBoot]} ]
-	         ++ [ lib(A) || A <- mad_repl:applist() ].
+    StartBoot = lists:concat([code:root_dir(),"/bin/start.boot"]),
+    Bucks     = [ {boot, "/boot", [local_map, StartBoot]} ]
+             ++ [ lib(A) || A <- mad_repl:applist() ].
 
 lib(A) -> A.
 
@@ -49,7 +49,7 @@ embed_fs(Bucks)  ->
     file:close(EmbedFs).
 
 write_bin(Dev, Bin, Data) ->
-	Name = binary:list_to_bin(Bin),
-	NameSize = size(Name),
-	DataSize = size(Data),
-	file:write(Dev, <<NameSize, Name/binary, DataSize:32, Data/binary>>).
+    Name = binary:list_to_bin(Bin),
+    NameSize = size(Name),
+    DataSize = size(Data),
+    file:write(Dev, <<NameSize, Name/binary, DataSize:32, Data/binary>>).
