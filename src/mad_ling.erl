@@ -37,9 +37,9 @@ embed_fs(Bucks)  ->
     BinCount = lists:foldl(fun({_,_,Bins},Count) -> Count + length(Bins) end,0,Bucks),
     file:write(EmbedFs, <<BuckCount:32,BinCount:32>>),
     lists:foreach(fun({Buck,_,Bins}) ->
-		  BuckName = binary:list_to_bin(atom_to_list(Buck)),
+          BuckName = binary:list_to_bin(atom_to_list(Buck)),
           BuckNameSize = size(BuckName),
-		  BuckBinCount = length(Bins),
+          BuckBinCount = length(Bins),
           file:write(EmbedFs, <<BuckNameSize, BuckName/binary, BuckBinCount:32>>),
           lists:foreach(fun
                 (local_map) -> write_bin(EmbedFs, "local.map", local_map(Bucks));
