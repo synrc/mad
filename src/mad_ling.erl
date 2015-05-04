@@ -20,8 +20,8 @@ local_map(Bucks) -> list_to_binary(lists:map(fun({B,M,_}) ->
 
 bundle_name() ->
     case file:get_cwd() of
-		 {ok,"/"} -> "himmel";
-		 {ok,Cwd} -> filename:basename(Cwd) end.
+         {ok,"/"} -> "himmel";
+         {ok,Cwd} -> filename:basename(Cwd) end.
 
 add_apps() ->
 	StartBoot = lists:concat([code:root_dir(),"/bin/start.boot"]),
@@ -44,8 +44,8 @@ embed_fs(Bucks)  ->
           lists:foreach(fun
                 (local_map) -> write_bin(EmbedFs, "local.map", local_map(Bucks));
                 (Bin) -> write_bin(EmbedFs, filename:basename(Bin), element(2,file:read_file(Bin)))
-		  end,Bins)
-	end,Bucks),
+          end,Bins)
+    end,Bucks),
     file:close(EmbedFs).
 
 write_bin(Dev, Bin, Data) ->
