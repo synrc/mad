@@ -69,6 +69,11 @@ up(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Up Params: ~p~n",[Params]),
     mad_deps:up(_Config,Params).
 
+ling(_Cwd,_ConfigFileName,_Config,Params) ->
+    io:format("Ling Params: ~p~n",[Params]),
+    Name = case Params of [] -> mad_utils:cwd(); E -> E end,
+    mad_ling:main(filename:basename(Name)).
+
 app(_Cwd,_ConfigFileName,_Config,Params) ->
     io:format("Create App Params: ~p~n",[Params]),
     mad_create:app(Params).

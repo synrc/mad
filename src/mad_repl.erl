@@ -6,12 +6,12 @@ disabled() -> [].
 system() -> [compiler,syntax_tools,sasl,tools,mnesia,reltool,xmerl,crypto,kernel,stdlib,
              wx,webtool,ssl,runtime_tools,public_key,observer,inets,asn1,et,eunit,hipe,os_mon].
 
-local_app() -> 
+local_app() ->
     case filename:basename(filelib:wildcard("ebin/*.app"),".app") of
          [] -> [];
-         A -> [list_to_atom(A)] end.
+         A -> list_to_atom(A) end.
 
-applist() -> 
+applist() ->
     Name = ".applist",
     case file:read_file(Name) of
          {ok,Binary} -> parse_applist(Binary); 
@@ -22,7 +22,7 @@ applist() ->
 
 wildcards(List) -> lists:concat([filelib:wildcard(X)||X<-List]).
 
-parse_applist(AppList) -> 
+parse_applist(AppList) ->
    Res = string:tokens(string:strip(string:strip(binary_to_list(AppList),right,$]),left,$[),","),
    [ list_to_atom(R) || R <-Res ]  -- disabled().
 
@@ -59,10 +59,10 @@ load_apps(Params,_,_Acc) -> [ application:ensure_all_started(list_to_atom(A))||A
 
 cwd() -> {ok, Cwd} = file:get_cwd(), Cwd.
 
-main(Params,RebarConfig) -> 
-    SystemPath = filelib:wildcard(code:root_dir() ++ 
-      "/lib/{"++ string:join([atom_to_list(X)||X<-mad_repl:system()],",") ++ "}-*/ebin"),
-    UserPath = wildcards(["{apps,deps}/*/ebin","ebin"]),
+main(Params,RebarConfig) ->
+    SystemPath = filelib:wildcard(code:root_dir() ++ "/lib/{"
+              ++ string:join([atom_to_list(X)||X<-mad_repl:system()],",") ++ "}-*/ebin"),
+    UserPath   = wildcards(["{apps,deps}/*/ebin","ebin"]),
     code:set_path(SystemPath++UserPath),
     code:add_path(filename:join([cwd(),filename:basename(escript:script_name())])),
     load(),
