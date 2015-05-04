@@ -43,7 +43,7 @@ embed_fs(Bucks)  ->
           file:write(EmbedFs, <<BuckNameSize, BuckName/binary, BuckBinCount:32>>),
           lists:foreach(fun
                 (local_map) -> write_bin(EmbedFs, "local.map", local_map(Bucks));
-				(Bin) -> write_bin(EmbedFs, filename:basename(Bin), element(2,file:read_file(Bin)))
+                (Bin) -> write_bin(EmbedFs, filename:basename(Bin), element(2,file:read_file(Bin)))
 		  end,Bins)
 	end,Bucks),
     file:close(EmbedFs).
