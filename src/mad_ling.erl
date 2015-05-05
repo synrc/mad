@@ -10,8 +10,9 @@ main(App) ->
     io:format("Bundle Name: ~p~n",  [mad_repl:local_app()]),
     io:format("System: ~p~n",       [mad_repl:system()]),
     io:format("Apps: ~p~n",         [mad_repl:applist()]),
-    io:format("Overlay: ~p~n",      [[{filename:basename(N),size(B)}||{N,B} <- mad_bundle:overlay()]]),
-    io:format("Files: ~p~n",        [[{filename:basename(N),size(B)}||{N,B} <- bundle()]]),
+%    io:format("Overlay: ~p~n",      [[{filename:basename(N),size(B)}||{N,B} <- mad_bundle:overlay()]]),
+%    io:format("Files: ~p~n",        [[{filename:basename(N),size(B)}||{N,B} <- bundle()]]),
+    io:format("Overlay: ~p~n",      [[filename:basename(N)||{N,B} <- mad_bundle:overlay()]]),
     add_apps(),
     false.
 
@@ -47,12 +48,14 @@ boot(Ordered) ->
    BootCode = element(2,file:read_file(lists:concat([code:root_dir(),"/bin/start.boot"]))),
    { script, Erlang, Boot } = binary_to_term(BootCode),
    AutoLaunch = {script,Erlang,Boot++[{apply,{application,start,[App]}} || App <- Ordered]},
+   io:format("Boot Code: ~p~n",[AutoLaunch]),
    { boot, "start.boot", term_to_binary(AutoLaunch) }.
 
 add_apps() ->
     {ok,Ordered} = mad_plan:orderapps(),
     Bucks = [{boot,"/boot",[local_map, boot(Ordered)]}] ++ [ lib(E) || E <- apps(Ordered) ],
-    io:format("Bucks: ~p~n",[[{App,Mount,[{filename:basename(F),size(Bin)}||{_,F,Bin}<-Files]}||{App,Mount,Files}<-Bucks]]),
+    %io:format("Bucks: ~p~n",[[{App,Mount,[{filename:basename(F),size(Bin)}||{_,F,Bin}<-Files]}||{App,Mount,Files}<-Bucks]]),
+    io:format("Bucks: ~p~n",[[{App,Mount,length(Files)}||{App,Mount,Files}<-Bucks]]),
     EmbedFsPath = lists:concat([cache_dir(),"/embed.fs"]),
     io:format("Initializing EMBED.FS:"),
     Res = embed_fs(EmbedFsPath,Bucks),
