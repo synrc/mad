@@ -5,6 +5,7 @@
 -define(ARCH, list_to_atom( case os:getenv("ARCH") of false -> "posix_x86"; A -> A end)).
 
 main(App) ->
+    io:format("ARCH: ~p~n",[?ARCH]),
     io:format("Bundle Name: ~p~n",[mad_repl:local_app()]),
     io:format("System: ~p~n",     [mad_repl:system()]),
     io:format("Apps: ~p~n",       [mad_repl:applist()]),
@@ -54,7 +55,7 @@ add_apps() ->
                 [ erlang_lib(E) || E <- apps(Ordered) ],
     io:format("Bucks: ~p~n",[[{App,Mount,[{filename:basename(F),size(Bin)}||{_,F,Bin}<-Files]}||{App,Mount,Files}<-Bucks]]),
     EmbedFsPath   = lists:concat([cache_dir(),"/embed.fs"]),
-    io:format("Initializing GooFS: ..."),
+    io:format("Initializing EMBED.FS: ..."),
     Res = embed_fs(EmbedFsPath,Bucks),
     io:format("~p~n",[Res]),
 	{ok, EmbedFsObject} = embedfs_object(EmbedFsPath),
@@ -69,7 +70,8 @@ embed_fs(EmbedFsPath,Bucks)  ->
     {ok, EmbedFs} = file:open(EmbedFsPath, [write]),
     BuckCount = length(Bucks),
     BinCount = lists:foldl(fun({_,_,Bins},Count) -> Count + length(Bins) end,0,Bucks),
-    file:write(EmbedFs, <<BuckCount:32,BinCount:32>>),
+    file:write(EmbedFs, <<BuckCount:32>>),
+	file:write(EmbedFs, <<BinCount:32>>),
     lists:foreach(fun({Buck,_,Bins}) ->
           BuckName = binary:list_to_bin(atom_to_list(Buck)),
           BuckNameSize = size(BuckName),
@@ -80,13 +82,14 @@ embed_fs(EmbedFsPath,Bucks)  ->
                   ({App,F,Bin}) -> write_bin(EmbedFs, App, filename:basename(F), Bin)
           end,Bins)
     end,Bucks),
-    file:close(EmbedFs).
+    file:close(EmbedFs),
+	ok.
 
 embedfs_object(EmbedFsPath) ->
 	EmbedCPath = filename:join(filename:absname(cache_dir()), "embedfs.c"),
 	OutPath = filename:join(filename:absname(cache_dir()), "embedfs.o"),
 	{ok, Embed} = file:read_file(EmbedFsPath),
-	io:format("Creating GooFS C file: ..."),
+	io:format("Creating EMBED.FS C file: ..."),
 	Res = bfd_objcopy:blob_to_src(EmbedCPath, "_binary_embed_fs", Embed),
     io:format("~p~n",[Res]),
 	io:format("Compilation of Filesystem object: ..."),
@@ -97,10 +100,13 @@ embedfs_object(EmbedFsPath) ->
 	{ok, OutPath}.
 
 write_bin(Dev, App, F, Bin) ->
-    Name = binary:list_to_bin(F),
-    Data = case filename:extension(F) of ".beam" -> beam_to_ling(Bin); _ -> Bin end,
+    {ListName,Data} = case filename:extension(F) of
+        ".beam" ->  { filename:rootname(F) ++ ".ling", beam_to_ling(Bin) };
+              _ ->  { F, Bin } end,
+    Name = binary:list_to_bin(ListName),
     NameSize = size(Name),
     DataSize = size(Data),
+    io:format("Write: ~p ~p~n",[Name,DataSize]),
     file:write(Dev, <<NameSize, Name/binary, DataSize:32, Data/binary>>).
 
 beam_to_ling(B) ->
