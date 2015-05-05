@@ -2,18 +2,20 @@
 -author('Maxim Sokhatsky').
 -compile(export_all).
 
+% dependency graph solver
+
 sort(Pairs) -> iterate(Pairs, [], lhs(Pairs) ++ rhs(Pairs)).
 lhs(L) -> [X || {X, _} <- L].
 rhs(L) -> [Y || {_, Y} <- L].
 rm_pairs(L1, L2) -> [All || All={X, _Y} <- L2, not lists:member(X, L1)].
 subtract(L1, L2) -> [X || X <- L1, not lists:member(X, L2)].
 iterate([], L, All) -> {ok,rm_dups(L ++ subtract(All, L))};
-iterate(Pairs, L, All) -> case subtract(lhs(Pairs), rhs(Pairs)) of [] -> Pairs; Lhs -> iterate(rm_pairs(Lhs, Pairs), L ++ Lhs, All) end.
+iterate(P, L, All) -> case subtract(lhs(P), rhs(P)) of [] -> P; Lhs -> iterate(rm_pairs(Lhs, P), L ++ Lhs, All) end.
 rm_dups([]) -> [];
 rm_dups([H|T]) -> case lists:member(H, T) of true -> rm_dups(T); false -> [H|rm_dups(T)] end.
 
 orderapps() ->
-    Pairs = lists:flatten([ case 
+    Pairs = lists:flatten([ case
        file:consult(F) of
          {ok,[{application,Name,Opt}]} ->
               Apps = proplists:get_value(applications,Opt,[]),
@@ -22,8 +24,7 @@ orderapps() ->
                      true -> [{A,Name}]++ system_deps(A) end || A <- Apps ];
          {error,_} ->
             io:format("AppName: ~p~n",[F]), skip
-    end || F <- filelib:wildcard("{apps,deps}/*/ebin/*.app")  ++ 
-                filelib:wildcard("ebin/*.app"), not filelib:is_dir(F) ]),
+    end || F <- mad_repl:wildcards(["{apps,deps}/*/ebin/*.app","ebin/*.app"]), not filelib:is_dir(F) ]),
     case sort(lists:flatten(Pairs)) of
          {ok,Sorted} -> {ok,Sorted};
          Return -> {error,{cycling_apps,Return}} end.
