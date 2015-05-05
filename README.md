@@ -17,7 +17,7 @@ Features
 --------
 
 * Support rebar.config
-* 
+* Support OTP releases and directory structure
 * Fast deps resolving and cycles detecting
 * Fast compilation
 * DTL/YECC/LEEX/PORT/SCRIPT/APP/ERL compilation
@@ -35,16 +35,17 @@ Build
     $ make
 ```
 
-And put 'mad' to PATH.
+And put `mad` to PATH.
 
-Unikernel Bundle
-----------------
+BEAM Lightweight Unikernel Bundle
+---------------------------------
 
 Bundle is a gzipped archive of erlang beams of all dependecies
 along with directory structure of OTP-applications with priv directories.
 This allows you to pack all site inside single portable escript package able
 to run under Windows, Linux and Mac. Releases includes all current
-directory exept sources both code and data with all dependencies.
+directory exept sources both code and data with all dependencies. You may think of BEAM 
+Lightweight Unikernel Bundle as of fixed Erlang releases.
 
 ```sh
     $ mad app "sample"
@@ -53,8 +54,8 @@ directory exept sources both code and data with all dependencies.
     $ ./web_app
 ```
 
-LING Bundle
------------
+LING Unikernel
+--------------
 
 Sample rebar.config for your application you want to go unikernel:
 
@@ -74,8 +75,8 @@ Now you should build LING/posix:
 
 Now pack vmling.o, your OTP apps and rest static to single-file LING bundle with VM inside.
 
-```erlang
-    $ mad lin
+```sh
+    $ ./mad lin
 Ling Params: []
 ARCH: posix_x86
 Bundle Name: mad
@@ -116,7 +117,7 @@ Linking Image: ok
 Run it:
 
 ```sh
-$ ./image.img
+$ rlwrap ./image.img
 Erlang [ling-0.3.2]
 
 Eshell V6.3  (abort with ^G)
