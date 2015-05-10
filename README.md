@@ -16,6 +16,7 @@ It shall:
 Features
 --------
 
+* Colorful REPL
 * Support rebar.config
 * Support OTP releases and directory structure
 * Fast deps resolving and cycles detecting
