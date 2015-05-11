@@ -37,5 +37,5 @@ apps(AppName) -> {ok,Apps} = mad_plan:orderapps(), {applications,Apps -- [AppNam
 generate_deps(AppName,Properties) ->
     case lists:keyfind(applications, 1, Properties) of
          false -> Properties ++ [apps(AppName)];
-        Exists -> Properties ++ [Exists] end.
+        Exists -> Properties end.
 
