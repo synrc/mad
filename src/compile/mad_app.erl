@@ -21,7 +21,7 @@ compile(File,_Inc,Bin,_Opt,_Deps) ->
         [Struct|_] = mad_utils:consult(File),
         {application, AppName, Props} = Struct,
         Props0 = add_modules_property(Props),
-        Props1 = generate_deps(Props0),
+        Props1 = generate_deps(AppName,Props0),
         Props2 = [validate_property(X, Modules) || X <- Props1],
         Struct1 = {application, AppName, Props2},
         file:write_file(AppFile, io_lib:format("~p.~n", [Struct1])),
@@ -33,10 +33,9 @@ add_modules_property(Properties) ->
         {modules, _} -> Properties;
         _ -> Properties ++ [{modules, []}] end.
 
-generate_deps(Properties) ->
+apps(AppName) -> {ok,Apps} = mad_plan:orderapps(), {applications,Apps -- [AppName]}.
+generate_deps(AppName,Properties) ->
     case lists:keyfind(applications, 1, Properties) of
-         false -> Properties ++ [apps()];
+         false -> Properties ++ [apps(AppName)];
         Exists -> Properties ++ [Exists] end.
 
-apps() -> {ok,Apps} = mad_plan:orderapps(),
-          {applications,Apps}.
