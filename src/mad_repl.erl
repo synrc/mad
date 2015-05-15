@@ -3,7 +3,7 @@
 -compile(export_all).
 
 disabled() -> [].
-system() -> [compiler,syntax_tools,sasl,tools,mnesia,reltool,xmerl,crypto,kernel,stdlib,
+system() -> [compiler,syntax_tools,sasl,tools,mnesia,reltool,xmerl,crypto,kernel,stdlib,ssh,
              wx,webtool,ssl,runtime_tools,public_key,observer,inets,asn1,et,eunit,hipe,os_mon].
 
 local_app() ->
