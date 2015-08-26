@@ -164,8 +164,7 @@ Documentation
 If you are new or need to determine whether the MAD architecture and
 philosophy is a fit for your project
 
-* Official MAD brochure [HTML](http://synrc.com/apps/mad/) and
-                        [PDF](https://synrc.com/apps/mad/doc/book.pdf)
+* Official MAD brochure [PDF](http://synrc.com/apps/mad/doc/book.pdf)
 
 Credits
 -------
