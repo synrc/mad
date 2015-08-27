@@ -7,6 +7,7 @@ release(Name,Apps) ->
       "{include_erts,true}.\n"
       "{extended_start_script,true}.\n"
       "{generate_start_script,true}.\n"
+      "{vm_args,\"vm.args\"}.\n"
       "{sys_config,\"sys.config\"}.\n"
       "{overlay,[{mkdir,\"log/sasl\"}]}.\n",[Name,Apps]))).
 
