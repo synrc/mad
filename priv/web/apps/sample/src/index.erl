@@ -9,5 +9,6 @@ body()    -> [ #panel{id=history}, #textbox{id=message},
                #button{id=send,body="Chat",postback=chat,source=[message]} ].
 
 event(init) -> wf:reg(room);
-event(chat) -> wf:insert_bottom(history,#panel{id=history,body=[peer(),": ",message(),#br{}]});
+event(chat) -> wf:send(room,{client,{peer(),message()}});
+event({client,{Peer,Message}}) -> wf:insert_bottom(history,#panel{id=history,body=[Peer,": ",Message,#br{}]});
 event(Event) -> wf:info(?MODULE,"Unknown Event: ~p~n",[Event]).

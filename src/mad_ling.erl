@@ -5,14 +5,14 @@
 -compile(export_all).
 -define(ARCH, list_to_atom( case os:getenv("ARCH") of false -> "posix_x86"; A -> A end)).
 
-main(App) ->
+main(_App) ->
     io:format("ARCH: ~p~n",         [?ARCH]),
     io:format("Bundle Name: ~p~n",  [mad_repl:local_app()]),
     io:format("System: ~p~n",       [mad_repl:system()]),
     io:format("Apps: ~p~n",         [mad_repl:applist()]),
 %    io:format("Overlay: ~p~n",      [[{filename:basename(N),size(B)}||{N,B} <- mad_bundle:overlay()]]),
 %    io:format("Files: ~p~n",        [[{filename:basename(N),size(B)}||{N,B} <- bundle()]]),
-    io:format("Overlay: ~p~n",      [[filename:basename(N)||{N,B} <- mad_bundle:overlay()]]),
+    io:format("Overlay: ~p~n",      [[filename:basename(N)||{N,_B} <- mad_bundle:overlay()]]),
     add_apps(),
     false.
 
@@ -82,7 +82,7 @@ embed_fs(EmbedFsPath,Bucks)  ->
                     (local_map) -> LocalMap = local_map(Bucks),
                                    io:format("~nMount View:~n ~s",[LocalMap]),
                                    write_bin(EmbedFs, "local.map", LocalMap);
-                  ({App,F,Bin}) -> write_bin(EmbedFs, filename:basename(F), Bin)
+                  ({_App,F,Bin}) -> write_bin(EmbedFs, filename:basename(F), Bin)
           end,Bins)
     end,Bucks),
     file:close(EmbedFs),
