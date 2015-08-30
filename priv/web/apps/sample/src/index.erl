@@ -1,5 +1,6 @@
 -module(index).
 -compile(export_all).
+-include_lib("nitro/include/nitro.hrl").
 -include_lib("n2o/include/wf.hrl").
 
 peer()    -> io_lib:format("~p",[wf:peer(?REQ)]).
