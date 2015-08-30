@@ -3,7 +3,7 @@
 -description("LING Erlang Virtual Machine Bundle Packaging").
 -copyright('Cloudozer, LLP').
 -compile(export_all).
--define(ARCH, list_to_atom( case os:getenv("ARCH") of false -> "posix_x86"; A -> A end)).
+-define(ARCH, list_to_atom( case os:getenv("ARCH") of false -> "posix"; A -> A end)).
 
 main(_App) ->
     io:format("ARCH: ~p~n",         [?ARCH]),
@@ -16,7 +16,7 @@ main(_App) ->
     add_apps(),
     false.
 
-cache_dir()       -> ".railing".
+cache_dir()       -> ".madaline/".
 local_map(Bucks)  -> list_to_binary(lists:map(fun({B,M,_}) -> io_lib:format("~s /~s\n",[M,B]) end,Bucks)).
 bundle()          -> lists:flatten([ mad_bundle:X() || X <- [beams,privs,system_files,overlay] ]).
 library(Filename) -> case filename:split(Filename) of
@@ -42,27 +42,31 @@ apps(Ordered) ->
     end,lists:zip(Ordered,lists:duplicate(length(Ordered),[])),bundle()).
 
 lib({App,Files}) ->
-   { App, lists:concat(["/erlang/lib/",App,"/ebin"]), Files }.
+    { App, lists:concat(["/erlang/lib/",App,"/ebin"]), Files }.
 
 boot(Ordered) ->
-   BootCode = element(2,file:read_file(lists:concat([code:root_dir(),"/bin/start.boot"]))),
-   { script, Erlang, Boot } = binary_to_term(BootCode),
-   AutoLaunch = {script,Erlang,Boot++[{apply,{application,start,[App]}} || App <- Ordered]},
-   io:format("Boot Code: ~p~n",[AutoLaunch]),
-   { boot, "start.boot", term_to_binary(AutoLaunch) }.
+    BootCode = element(2,file:read_file(lists:concat([code:root_dir(),"/bin/start.boot"]))),
+    { script, Erlang, Boot } = binary_to_term(BootCode),
+    AutoLaunch = {script,Erlang,Boot++[{apply,{application,start,[App]}} || App <- Ordered]},
+    io:format("Boot Code: ~p~n",[AutoLaunch]),
+    { boot, "start.boot", term_to_binary(AutoLaunch) }.
 
 add_apps() ->
     {ok,Ordered} = mad_plan:orderapps(),
     Bucks = [{boot,"/boot",[local_map, boot(Ordered)]}] ++ [ lib(E) || E <- apps(Ordered) ],
     %io:format("Bucks: ~p~n",[[{App,Mount,[{filename:basename(F),size(Bin)}||{_,F,Bin}<-Files]}||{App,Mount,Files}<-Bucks]]),
     io:format("Bucks: ~p~n",[[{App,Mount,length(Files)}||{App,Mount,Files}<-Bucks]]),
+    filelib:ensure_dir(cache_dir()),
     EmbedFsPath = lists:concat([cache_dir(),"/embed.fs"]),
     io:format("Initializing EMBED.FS:"),
     Res = embed_fs(EmbedFsPath,Bucks),
 	{ok, EmbedFsObject} = embedfs_object(EmbedFsPath),
-	Res = case sh:oneliner(ld() ++
-	           ["vmling.o", EmbedFsObject, "-o", "../" ++ atom_to_list(mad_repl:local_app()) ++ ".img"],
-	           cache_dir()) of
+	Oneliner = ld() ++
+               ["../deps/ling/core/vmling.o"] ++
+               ["-lm", "-lpthread", "-ldl"] ++
+               [EmbedFsObject, "-o", "../" ++ atom_to_list(mad_repl:local_app()) ++ ".img"],
+    io:format("LD: ~p~n",[Oneliner]),
+	Res = case sh:oneliner(Oneliner,cache_dir()) of
 	           {_,0,_} -> ok;
 	           {_,_,M} -> binary_to_list(M) end,
     io:format("Linking Image: ~p~n",[Res]).
@@ -100,6 +104,7 @@ embedfs_object(EmbedFsPath) ->
 	           {_,0,_} -> ok;
 	           {_,_,M} -> binary_to_list(M) end,
 	io:format("~p~n",[Res]),
+	io:format("Out Path: ~p~n",[OutPath]),
 	{ok, OutPath}.
 
 write_bin(Dev, F, Bin) ->
@@ -120,8 +125,8 @@ gold(Prog) -> [Prog, "-T", "ling.lds", "-nostdlib"].
 ld() -> ld(?ARCH).
 ld(arm) -> gold("arm-none-eabi-ld");
 ld(xen_x86) -> case os:type() of {unix, darwin} -> ["x86_64-pc-linux-ld"]; _ -> gold() end;
-ld(posix_x86) -> case os:type() of {unix, darwin} ->
-    ["ld","-image_base","0x8000","-pagezero_size","0x8000","-arch","x86_64","-framework","System"];
+ld(posix) -> case os:type() of {unix, darwin} ->
+    ["clang","-image_base","0x8000","-pagezero_size","0x8000","-arch","x86_64"];
 	_ -> gold() end;
 ld(_) -> gold().
 

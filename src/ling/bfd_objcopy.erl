@@ -1,7 +1,7 @@
 -module(bfd_objcopy).
--description("Embed binaries into object files").
+-description('Embed binaries into object files (objcopy -I binary -B arch)').
 -author('Vladimir Kirillov').
--compile(export_all).
+-export([binary_to_c_iolist/2, blob_to_src/3]).
 
 blob_to_src(TargetFile, SymPrefix, Blob) when is_list(Blob) orelse is_binary(Blob) ->
 	file:write_file(TargetFile, binary_to_c_iolist(SymPrefix, Blob)).
@@ -27,10 +27,13 @@ is_ascii(C) when C >= $A, C =< $Z -> true;
 is_ascii(_) -> false.
 
 array_format(Xs) -> ["", intersperse(<<", ">>, <<"\n">>, 10, Xs)].
-intersperse(Sep, GroupSep, Count, Xs) -> xsperse(Sep, GroupSep, Count, Xs, 0).
+intersperse(Sep, GroupSep, Count, Xs) -> cute_intersperse(Sep, GroupSep, Count, Xs, 0).
 
-xsperse(_,_, _, [],_)-> [];
-xsperse(_,_, _, [X], _)-> [X];
-xsperse(Sep, GS, Count, [X|Xs], Count) -> [X, [Sep, GS]|xsperse(Sep, GS, Count, Xs, 0)];
-xsperse(Sep, GS, Count, [X|Xs], N) -> [X, Sep|xsperse(Sep, GS, Count, Xs, N + 1)].
+cute_intersperse(_,_, _, [],_)-> [];
+cute_intersperse(_,_, _, [X], _)-> [X];
+cute_intersperse(Sep, GS, Count, [X|Xs], Count) ->
+	[X, [Sep, GS]|cute_intersperse(Sep, GS, Count, Xs, 0)];
+cute_intersperse(Sep, GS, Count, [X|Xs], N) ->
+	[X, Sep|cute_intersperse(Sep, GS, Count, Xs, N + 1)].
 
+%% vim: noet ts=4 sts=4 sw=4
