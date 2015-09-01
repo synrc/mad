@@ -62,7 +62,7 @@ Sample rebar.config for your application you want to go unikernel:
 
 ```erlang
 {deps_dir,"deps"}.
-{deps, [{ling, ".*", {git, "git://github.com/proger/ling", {tag, "osx-again"}}},
+{deps, [{ling, ".*", {git, "git://github.com/cloudozer/ling", {tag, "master"}}},
         {sh, ".*",   {git, "git://github.com/synrc/sh",       {tag, "1.4"}}}]}.
 ```
 
@@ -71,7 +71,7 @@ Now you should build LING/posix:
 ```sh
     $ ./mad dep
     $ cd deps/ling
-    $ ARCH=posix_x86 make
+    $ ARCH=posix make
 ```
 
 Now pack vmling.o, your OTP apps and rest static to single-file LING bundle with VM inside.
@@ -119,7 +119,7 @@ Run it:
 
 ```sh
 $ rlwrap ./image.img
-Erlang [ling-0.3.2]
+Erlang [ling-0.5]
 
 Eshell V6.3  (abort with ^G)
 1> application:which_applications().
