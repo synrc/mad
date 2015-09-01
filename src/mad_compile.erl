@@ -31,11 +31,17 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     SrcDir = filename:join([mad_utils:src(DepPath)]),
     %io:format("DepPath ==> ~p~n\r",[DepPath]),
 
-    Files = files(SrcDir,".yrl") ++ 
-            files(SrcDir,".xrl") ++ 
-            files(SrcDir,".erl") ++ % comment this to build with erlc/1
-            files(SrcDir,".app.src"),
-
+    AllFiles = files(SrcDir,".yrl") ++ 
+               files(SrcDir,".xrl") ++ 
+               files(SrcDir,".erl") ++ % comment this to build with erlc/1
+               files(SrcDir,".app.src"),
+    Files = case mad_utils:get_value(erl_first_files, Conf1, []) of
+              []         -> AllFiles;
+              FirstFiles ->
+                FirstFiles1 = lists:map(fun (F) -> filename:join(SrcDir, F ++ ".erl") end, FirstFiles),
+                FirstFiles1 ++ lists:filter(fun (F) -> lists:member(F, FirstFiles) == false end, AllFiles)
+            end,
+  
     case Files of
         [] -> false;
         Files ->
