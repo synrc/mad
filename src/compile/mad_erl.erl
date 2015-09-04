@@ -15,9 +15,9 @@ compile(File,Inc,Bin,Opt,Deps) ->
     true -> false end.
 
 ret(error) -> true;
-ret({error,Errors,Warnings}) ->
+ret({error,Errors,_}) ->
     [ [ mad:info("Line ~p: ~p~n",[Line,R]) || {Line,_,R} <- Reports]
-      || {File,Reports} <- Errors ], true;
-ret({ok,X}) -> false;
-ret({ok,X,Y}) -> false;
-ret({ok,X,Y,Z}) -> false.
+      || {_,Reports} <- Errors ], true;
+ret({ok,_}) -> false;
+ret({ok,_,_}) -> false;
+ret({ok,_,_,_}) -> false.
