@@ -1,7 +1,7 @@
 -module(mad_erl).
 -copyright('Sina Samavati').
 -compile(export_all).
--define(COMPILE_OPTS(Inc, Ebin, Opts, Deps), [report, {i, [Inc]}, {outdir, Ebin}] ++ Opts++Deps).
+-define(COMPILE_OPTS(Inc, Ebin, Opts, Deps), [return_errors, {i, [Inc]}, {outdir, Ebin}] ++ Opts++Deps).
 
 erl_to_beam(Bin, F) -> filename:join(Bin, filename:basename(F, ".erl") ++ ".beam").
 
@@ -15,7 +15,9 @@ compile(File,Inc,Bin,Opt,Deps) ->
     true -> false end.
 
 ret(error) -> true;
-ret({error,_,_}) -> true;
-ret({ok,_}) -> false;
-ret({ok,_,_}) -> false;
-ret({ok,_,_,_}) -> false.
+ret({error,Errors,Warnings}) ->
+    [ [ mad:info("Line ~p: ~p~n",[Line,R]) || {Line,_,R} <- Reports]
+      || {File,Reports} <- Errors ], true;
+ret({ok,X}) -> false;
+ret({ok,X,Y}) -> false;
+ret({ok,X,Y,Z}) -> false.
