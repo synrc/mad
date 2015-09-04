@@ -24,7 +24,7 @@ install_deps() ->
         _ ->
             case sh:oneliner("npm install mincer-erl") of
                 {_,0,_} -> false;
-                {_,_,_} -> io:format("error while installing mincer-erl~n"), true
+                {_,_,_} -> mad:info("error while installing mincer-erl~n"), true
             end
     end.
 
@@ -34,10 +34,10 @@ serve_static(Port) ->
     Res = sh:oneliner([?NODE("mincer-erl-serve"), "-p " ++ PortStr]),
     case Res of
         {_,0,_} -> false;
-        {_,_,_} -> io:format("error while serving assets~n"), true end.
+        {_,_,_} -> mad:info("error while serving assets~n"), true end.
 
 compile_static(Files) ->
     Res = sh:oneliner([?NODE("mincer-erl-compile")] ++ Files),
     case Res of
         {_,0,_} -> false;
-        {_,_,_} -> io:format("error while compiling assets~n"), true end.
+        {_,_,_} -> mad:info("error while compiling assets~n"), true end.

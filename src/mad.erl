@@ -8,10 +8,10 @@ main([]) -> help();
 main(Params) ->
 
     {Other,FP} = mad_utils:fold_params(Params),
-    %io:format("Params: ~p~n\r",[FP]),
+    %mad:info("Params: ~p~n",[FP]),
     case Other == [] of
          true -> skip;
-         false -> io:format("Unknown Command or Parameter ~p~n\r",[Other]), help() end,
+         false -> mad:info("Unknown Command or Parameter ~p~n",[Other]), help() end,
 
     Cwd           = mad_utils:cwd(),
     ConfigFile    = "rebar.config",
@@ -27,7 +27,7 @@ bool(_) -> 1.
 
 %% fetch dependencies
 deps(Cwd, ConfigFile, Conf, Params) ->
-    io:format("Deps Params: ~p~n",[Params]),
+    mad:info("Deps Params: ~p~n",[Params]),
     case mad_utils:get_value(deps, Conf, []) of
         [] -> false;
         Deps ->
@@ -42,7 +42,7 @@ deps(Cwd, ConfigFile, Conf, Params) ->
 
 %% compile dependencies and the app
 compile(Cwd, ConfigFile, Conf, Params) ->
-    io:format("Compile Params: ~p~n\r",[Params]),
+    mad:info("Compile Params: ~p~n",[Params]),
     Res = case Params of
          [] -> mad_compile:'compile-deps'(Cwd, ConfigFile, Conf);
          __ -> mad_compile:deps(Cwd, Conf, ConfigFile, Params)
@@ -53,70 +53,73 @@ compile(Cwd, ConfigFile, Conf, Params) ->
 
 %% reltool apps resolving
 plan(_Cwd,_ConfigFileName,_Config,Params) ->
-    io:format("Plan Params: ~p~n",[Params]),
+    mad:info("Plan Params: ~p~n",[Params]),
     mad_plan:main([]).
 
 repl(_Cwd,_ConfigFileName,_Config,Params) ->
-    io:format("REPL Params: ~p~n",[Params]),
+    mad:info("REPL Params: ~p~n",[Params]),
     mad_repl:main(Params,_Config).
 
 bundle(_Cwd,_ConfigFileName,_Config,Params) ->
-    io:format("Bundle Params: ~p~n",[Params]),
+    mad:info("Bundle Params: ~p~n",[Params]),
     Name = case Params of [] -> mad_utils:cwd(); E -> E end,
     mad_bundle:main(filename:basename(Name)).
 
 up(_Cwd,_ConfigFileName,_Config,Params) ->
-    io:format("Up Params: ~p~n",[Params]),
+    mad:info("Up Params: ~p~n",[Params]),
     mad_deps:up(_Config,Params).
 
 ling(_Cwd,_ConfigFileName,_Config,Params) ->
-    io:format("Ling Params: ~p~n",[Params]),
+    mad:info("Ling Params: ~p~n",[Params]),
     Name = case Params of [] -> mad_utils:cwd(); E -> E end,
     mad_ling:main(filename:basename(Name)).
 
 app(_Cwd,_ConfigFileName,_Config,Params) ->
-    io:format("Create App Params: ~p~n",[Params]),
+    mad:info("Create App Params: ~p~n",[Params]),
     mad_create:app(Params).
 
 lib(_Cwd,_ConfigFileName,_Config,Params) ->
-    io:format("Create Lib Params: ~p~n",[Params]),
+    mad:info("Create Lib Params: ~p~n",[Params]),
     mad_create:lib(Params).
 
 clean(_Cwd,_ConfigFileName,_Config,Params) ->
-    io:format("Clean Params: ~p~n",[Params]),
+    mad:info("Clean Params: ~p~n",[Params]),
     mad_run:clean(Params).
 
 start(_Cwd,_ConfigFileName,_Config,Params) ->
-    io:format("Start Params: ~p~n",[Params]),
+    mad:info("Start Params: ~p~n",[Params]),
     mad_run:start(Params), false.
 
 attach(_Cwd,_ConfigFileName,_Config,Params) ->
-    io:format("Attach Params: ~p~n",[Params]),
+    mad:info("Attach Params: ~p~n",[Params]),
     mad_run:attach(Params), false.
 
 stop(_Cwd,_ConfigFileName,_Config,Params) ->
-    io:format("Stop Params: ~p~n",[Params]),
+    mad:info("Stop Params: ~p~n",[Params]),
     mad_run:stop(Params), false.
 
 release(_Cwd,_ConfigFileName,_Config,Params) ->
-    io:format("Release Params: ~p~n",[Params]),
+    mad:info("Release Params: ~p~n",[Params]),
     mad_release:main(Params).
 
 static(_Cwd,_ConfigFileName,Config,Params) ->
-    io:format("Compile Static Params: ~p~n",[Params]),
+    mad:info("Compile Static Params: ~p~n",[Params]),
     mad_static:main(Config, Params).
 
 version() -> ?VERSION.
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).
-help(Msg) -> io:format("Error: ~s~n~n", [Msg]), help().
+help(Msg) -> mad:info("Error: ~s~n~n", [Msg]), help().
 help() ->
-    io:format("MAD Build Tool version ~s~n",[version()]),
-    io:format("BNF: ~n"),
-    io:format("    invoke := mad params~n"),
-    io:format("    params := [] | run params ~n"),
-    io:format("       run := command [ options ]~n"),
-    io:format("   command := app | lib | deps | up | compile | release | bundle~n"),
-    io:format("              clean | start | stop | attach | repl ~n"),
+    mad:info("MAD Build Tool version ~s~n",[version()]),
+    mad:info("BNF: ~n"),
+    mad:info("    invoke := mad params~n"),
+    mad:info("    params := [] | run params ~n"),
+    mad:info("       run := command [ options ]~n"),
+    mad:info("   command := app | lib | deps | up | compile | release | bundle~n"),
+    mad:info("              clean | start | stop | attach | repl ~n"),
     return(0).
+
+info(Format) -> io:format(lists:concat([Format,"\r"])).
+info(Format,Args) -> io:format(lists:concat([Format,"\r"]),Args).
 
 return(X) -> X.

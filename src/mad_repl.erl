@@ -53,7 +53,7 @@ load_apps([],_,_Acc) ->
                     _E -> acc_start(_E,Acc) end end end,[], applist()),
   case Res of
        [] -> ok;
-       _ -> io:format("\r\nApps couldn't be loaded: ~p~n\n\r",[Res]) end;
+       _ -> mad:info("~nApps couldn't be loaded: ~p~n",[Res]) end;
 load_apps(["applist"],Config,Acc) -> load_apps([],Config,Acc);
 load_apps(Params,_,_Acc) -> [ application:ensure_all_started(list_to_atom(A))||A<-Params].
 
@@ -129,7 +129,7 @@ pre(Driver) -> appconfig(Driver).
 post(start_kjell) -> appconfig(start_kjell);
 post(_) -> [].
 print(Label,Value,start_kjell) -> io:requests([{put_chars,Label ++ normalize(length(Label)+1,Value) ++ "\n\r"}]);
-print(Label,Value,_) -> io:format("~s~p~n",[Label,Value]).
+print(Label,Value,_) -> mad:info("~s~p~n",[Label,Value]).
 normalize(Padding,V) -> [ case X of 10 -> [13,10]; E -> E end || X <- lists:flatten(pp(Padding,V) )].
 pp(Padding,V) -> k_io_lib_pretty:print(V, Padding, 80, 30, 60, fun(_,_)-> no end).
 appconfig(Driver) ->

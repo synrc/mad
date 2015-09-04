@@ -89,7 +89,7 @@ beam(Beam) -> %% {ok,#m{}}
 		decode_lambdas(FunBin, Atoms)
 	end,
 
-	%%io:format("Lambdas=~p~n", [Lambdas]),
+	%%mad:info("Lambdas=~p~n", [Lambdas]),
 
 	Attrs = case optional_chunk(Beam, ?ATTR_CHUNK) of
 	missing ->
@@ -127,7 +127,7 @@ beam(Beam) -> %% {ok,#m{}}
 	end,
 
 	lists:foreach(fun(Op) ->
-		%%io:format("~p~n", [Op]),
+		%%mad:info("~p~n", [Op]),
 		validate(Op)
 	end, Code),
 

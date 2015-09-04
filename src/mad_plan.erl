@@ -23,7 +23,7 @@ orderapps() ->
                      false -> {A,Name};
                      true -> [{A,Name}]++ system_deps(A) end || A <- Apps ];
          {error,_} ->
-            io:format("AppName: ~p~n",[F]), skip
+            mad:info("AppName: ~p~n",[F]), skip
     end || F <- mad_repl:wildcards(["{apps,deps}/*/ebin/*.app","ebin/*.app"]), not filelib:is_dir(F) ]),
     case sort(lists:flatten(Pairs)) of
          {ok,Sorted} -> {ok,Sorted};
@@ -36,6 +36,6 @@ system_deps(A) ->
 
 main(_) ->
     case orderapps() of
-         {ok,Ordered}   -> io:format("Ordered: ~p~n\r",[Ordered]),
+         {ok,Ordered}   -> mad:info("Ordered: ~p~n",[Ordered]),
                            file:write_file(".applist",io_lib:format("~w",[Ordered])), false;
-         {error,Reason} -> io:format("Ordering Error: ~p~n\r",[Reason]), true end.
+         {error,Reason} -> mad:info("Ordering Error: ~p~n",[Reason]), true end.

@@ -19,4 +19,4 @@ main(Params) ->
     {_,Status,X} = sh:run("relx",[],binary,".",[]),
     case Status == 0 of
          true -> false;
-         false -> io:format("Shell Error: ~s~n\r",[binary_to_list(X)]), true end.
+         false -> mad:info("Shell Error: ~s~n",[binary_to_list(X)]), true end.

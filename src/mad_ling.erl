@@ -6,13 +6,13 @@
 -define(ARCH, list_to_atom( case os:getenv("ARCH") of false -> "posix"; A -> A end)).
 
 main(_App) ->
-    io:format("ARCH: ~p~n",         [?ARCH]),
-    io:format("Bundle Name: ~p~n",  [mad_repl:local_app()]),
-    io:format("System: ~p~n",       [mad_repl:system()]),
-    io:format("Apps: ~p~n",         [mad_repl:applist()]),
-%    io:format("Overlay: ~p~n",      [[{filename:basename(N),size(B)}||{N,B} <- mad_bundle:overlay()]]),
-%    io:format("Files: ~p~n",        [[{filename:basename(N),size(B)}||{N,B} <- bundle()]]),
-    io:format("Overlay: ~p~n",      [[filename:basename(N)||{N,_B} <- mad_bundle:overlay()]]),
+    mad:info("ARCH: ~p~n",         [?ARCH]),
+    mad:info("Bundle Name: ~p~n",  [mad_repl:local_app()]),
+    mad:info("System: ~p~n",       [mad_repl:system()]),
+    mad:info("Apps: ~p~n",         [mad_repl:applist()]),
+%    mad:info("Overlay: ~p~n",      [[{filename:basename(N),size(B)}||{N,B} <- mad_bundle:overlay()]]),
+%    mad:info("Files: ~p~n",        [[{filename:basename(N),size(B)}||{N,B} <- bundle()]]),
+    mad:info("Overlay: ~p~n",      [[filename:basename(N)||{N,_B} <- mad_bundle:overlay()]]),
     add_apps(),
     false.
 
@@ -48,28 +48,28 @@ boot(Ordered) ->
     BootCode = element(2,file:read_file(lists:concat([code:root_dir(),"/bin/start.boot"]))),
     { script, Erlang, Boot } = binary_to_term(BootCode),
     AutoLaunch = {script,Erlang,Boot++[{apply,{application,start,[App]}} || App <- Ordered]},
-    io:format("Boot Code: ~p~n",[AutoLaunch]),
+    mad:info("Boot Code: ~p~n",[AutoLaunch]),
     { boot, "start.boot", term_to_binary(AutoLaunch) }.
 
 add_apps() ->
     {ok,Ordered} = mad_plan:orderapps(),
     Bucks = [{boot,"/boot",[local_map, boot(Ordered)]}] ++ [ lib(E) || E <- apps(Ordered) ],
-    %io:format("Bucks: ~p~n",[[{App,Mount,[{filename:basename(F),size(Bin)}||{_,F,Bin}<-Files]}||{App,Mount,Files}<-Bucks]]),
-    io:format("Bucks: ~p~n",[[{App,Mount,length(Files)}||{App,Mount,Files}<-Bucks]]),
+    %mad:info("Bucks: ~p~n",[[{App,Mount,[{filename:basename(F),size(Bin)}||{_,F,Bin}<-Files]}||{App,Mount,Files}<-Bucks]]),
+    mad:info("Bucks: ~p~n",[[{App,Mount,length(Files)}||{App,Mount,Files}<-Bucks]]),
     filelib:ensure_dir(cache_dir()),
     EmbedFsPath = lists:concat([cache_dir(),"/embed.fs"]),
-    io:format("Initializing EMBED.FS:"),
+    mad:info("Initializing EMBED.FS:"),
     Res = embed_fs(EmbedFsPath,Bucks),
 	{ok, EmbedFsObject} = embedfs_object(EmbedFsPath),
 	Oneliner = ld() ++
                ["../deps/ling/core/vmling.o"] ++
                ["-lm", "-lpthread", "-ldl"] ++
                [EmbedFsObject, "-o", "../" ++ atom_to_list(mad_repl:local_app()) ++ ".img"],
-    io:format("LD: ~p~n",[Oneliner]),
+    mad:info("LD: ~p~n",[Oneliner]),
 	Res = case sh:oneliner(Oneliner,cache_dir()) of
 	           {_,0,_} -> ok;
 	           {_,_,M} -> binary_to_list(M) end,
-    io:format("Linking Image: ~p~n",[Res]).
+    mad:info("Linking Image: ~p~n",[Res]).
 
 embed_fs(EmbedFsPath,Bucks)  ->
     {ok, EmbedFs} = file:open(EmbedFsPath, [write]),
@@ -84,7 +84,7 @@ embed_fs(EmbedFsPath,Bucks)  ->
           file:write(EmbedFs, <<BuckNameSize, BuckName/binary, BuckBinCount:32>>),
           lists:foreach(fun
                     (local_map) -> LocalMap = local_map(Bucks),
-                                   io:format("~nMount View:~n ~s",[LocalMap]),
+                                   mad:info("~nMount View:~n ~s",[LocalMap]),
                                    write_bin(EmbedFs, "local.map", LocalMap);
                   ({_App,F,Bin}) -> write_bin(EmbedFs, filename:basename(F), Bin)
           end,Bins)
@@ -96,15 +96,15 @@ embedfs_object(EmbedFsPath) ->
 	EmbedCPath  = filename:join(filename:absname(cache_dir()), "embedfs.c"),
 	OutPath     = filename:join(filename:absname(cache_dir()), "embedfs.o"),
 	{ok, Embed} = file:read_file(EmbedFsPath),
-	io:format("Creating EMBED.FS C file: ..."),
+	mad:info("Creating EMBED.FS C file: ..."),
 	Res = bfd_objcopy:blob_to_src(EmbedCPath, "_binary_embed_fs", Embed),
-    io:format("~p~n",[Res]),
-	io:format("Compilation of Filesystem object: ..."),
+    mad:info("~p~n",[Res]),
+	mad:info("Compilation of Filesystem object: ..."),
 	Res = case sh:oneliner(cc() ++ ["-o", OutPath, "-c", EmbedCPath]) of
 	           {_,0,_} -> ok;
 	           {_,_,M} -> binary_to_list(M) end,
-	io:format("~p~n",[Res]),
-	io:format("Out Path: ~p~n",[OutPath]),
+	mad:info("~p~n",[Res]),
+	mad:info("Out Path: ~p~n",[OutPath]),
 	{ok, OutPath}.
 
 write_bin(Dev, F, Bin) ->

@@ -152,7 +152,7 @@ wrap([A,B,C,D], Body) ->
 	<<A,B,C,D,ChunkSize:32,Body/binary,0:PadSize/unit:8>>.
 
 atoms_chunk(#m{atoms=Atoms}) ->
-	%io:format("Atoms=~p~n", [Atoms]),
+	%mad:info("Atoms=~p~n", [Atoms]),
 	L = [<<(length(Atoms)):32>>] ++
 		[[length(atom_to_list(A))] ++ atom_to_list(A) || A <- Atoms],
 	list_to_binary(L).
@@ -188,7 +188,7 @@ strings_chunk(#m{strings=StrTabBin}) ->
 	StrTabBin.
 
 literals_chunk(#m{literals=Literals}) ->
-	%io:format("Literals=~p~n", [Literals]),
+	%mad:info("Literals=~p~n", [Literals]),
 	EncLits = [term_to_binary(Lit) || Lit <- Literals],
 	L = [<<(length(Literals)):32>>] ++
 		[<<(byte_size(EncLit)):32,EncLit/binary>> || EncLit <- EncLits],

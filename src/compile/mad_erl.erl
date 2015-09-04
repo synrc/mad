@@ -10,8 +10,7 @@ compile(File,Inc,Bin,Opt,Deps) ->
     Compiled = mad_compile:is_compiled(BeamFile, File),
     if  Compiled =:= false ->
         Opts1 = ?COMPILE_OPTS(Inc, Bin, Opt, Deps),
-%        io:format("Compiling ~s~n Opts ~p~n Deps~p~n", [File,Opts1,Deps]),
-        io:format("Compiling ~s~n", [File -- mad_utils:cwd()]),
+        mad:info("Compiling ~s~n", [File -- mad_utils:cwd()]),
         ret(compile:file(File, Opts1));
     true -> false end.
 

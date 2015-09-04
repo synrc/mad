@@ -9,10 +9,10 @@ start(_) ->                            % run_dir > < log_dir
          {"ERL_LIBS","apps:deps"}]),
     case Status == 0 of
          true -> skip;
-         false -> io:format("Shell Error: ~s~n\r",[binary_to_list(X)]), exit({error,X}) end.
+         false -> mad:info("Shell Error: ~s~n",[binary_to_list(X)]), exit({error,X}) end.
 
 attach(_) ->
-    io:format("to_erl .~n"). % use like $(mad attach)
+    mad:info("to_erl .~n"). % use like $(mad attach)
 
 stop(_) -> ok. % TODO: stop box
 
