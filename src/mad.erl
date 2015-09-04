@@ -91,7 +91,6 @@ start(_Cwd,_ConfigFileName,_Config,Params) ->
     mad_run:start(Params), false.
 
 attach(_Cwd,_ConfigFileName,_Config,Params) ->
-    mad:info("Attach Params: ~p~n",[Params]),
     mad_run:attach(Params), false.
 
 stop(_Cwd,_ConfigFileName,_Config,Params) ->
