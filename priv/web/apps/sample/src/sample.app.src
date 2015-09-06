@@ -1,9 +1,7 @@
 {application, sample,
- [
-  {description, "N2O Sample"},
-  {vsn, "1"},
-  {registered, []},
-  {applications, [kernel, stdlib, n2o]},
-  {mod, { web_app, []}},
-  {env, []}
- ]}.
+  [{description, "N2O Sample"},
+   {vsn, "1"},
+   {registered, []},
+   {applications, [kernel, stdlib, n2o]},
+   {mod, { sample, []}},
+   {env, []} ]}.
