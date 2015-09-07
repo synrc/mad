@@ -49,10 +49,10 @@ directory exept sources both code and data with all dependencies. You may think 
 Lightweight Unikernel Bundle as of fixed Erlang releases.
 
 ```sh
-    $ ./mad app "sample"
+    $ ./mad app sample
     $ cd sample
-    $ ./mad deps compile plan bundle "sample"
-    $ ./sample
+    $ ../mad deps compile plan bundle sample
+    $ ./sample repl
 ```
 
 LING Unikernel
