@@ -49,10 +49,10 @@ directory exept sources both code and data with all dependencies. You may think 
 Lightweight Unikernel Bundle as of fixed Erlang releases.
 
 ```sh
-    $ mad app "sample"
+    $ ./mad app "sample"
     $ cd sample
-    $ mad deps compile plan bundle "web_app"
-    $ ./web_app
+    $ ./mad deps compile plan bundle "sample"
+    $ ./sample
 ```
 
 LING Unikernel
@@ -140,9 +140,9 @@ This allows you to distribute you applications with copy deploy
 without Erlang prerequisite.
 
 ```sh
-    $ mad app sample
+    $ ./mad app "sample"
     $ cd sample
-    $ mad dep com pla release
+    $ ./mad dep com pla release
     $ _rel/sample/bin/sample console
 ```
 
