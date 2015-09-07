@@ -4,8 +4,7 @@
 -include_lib("nitro/include/nitro.hrl").
 
 peer()    -> wf:to_list(wf:peer(?REQ)).
-message() -> wf:info("wf:q: ~p~n",[wf:q(message)]),
-             wf:js_escape(wf:html_encode(wf:to_list(wf:q(message)))).
+message() -> wf:js_escape(wf:html_encode(wf:to_list(wf:q(message)))).
 main()    -> #dtl{file="index",app=sample,bindings=[{body,body()}]}.
 body()    -> [ #panel{id=history}, #textbox{id=message},
                #button{id=send,body="Chat",postback=chat,source=[message]} ].
