@@ -4,7 +4,7 @@
 -export([init/1, start/2, stop/1, main/1]).
 -compile(export_all).
 
-main(A)    -> mad:main(A).
+main(A)    -> mad_repl:main(A,[]).
 start(_,_) -> supervisor:start_link({local,sample},sample,[]).
 stop(_)    -> ok.
 init([])   -> case cowboy:start_http(http,3,port(),env()) of

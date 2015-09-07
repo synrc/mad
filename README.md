@@ -140,10 +140,10 @@ This allows you to distribute you applications with copy deploy
 without Erlang prerequisite.
 
 ```sh
-    $ ./mad app "sample"
+    $ ./mad app sample
     $ cd sample
-    $ ./mad dep com pla release
-    $ _rel/sample/bin/sample console
+    $ ../mad dep com pla rel
+    $ _rel/bin/sample console
 ```
 
 Note: [relx](https://github.com/erlware/relx) must be installed
