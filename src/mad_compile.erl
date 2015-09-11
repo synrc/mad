@@ -6,7 +6,7 @@
 deps(_, _, _, []) -> false;
 deps(Cwd, Conf, ConfigFile, [H|T]) ->
     {Name, _} = mad_deps:name_and_repo(H),
-    Res = case get(Name) == compiled andalso get(mode) /= active  of
+    Res = case get(Name) == compiled of
           true -> false;
           _    -> dep(Cwd, Conf, ConfigFile, Name) end,
     case Res of
