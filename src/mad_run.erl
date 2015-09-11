@@ -2,7 +2,8 @@
 -compile(export_all).
 
 start(_) ->                            % run_dir > < log_dir
-    {_,Status,X} = sh:run("run_erl",["-daemon",".",".","exec mad rep"],
+    mad:info("Scripting: ~p~n",[escript:script_name()]),
+    {_,Status,X} = sh:run("run_erl",["-daemon",".",".","exec "++escript:script_name()++" rep"],
       binary,".",
         [{"RUN_ERL_LOG_GENERATIONS","1000"},
          {"RUN_ERL_LOG_MAXSIZE","20000000"},
