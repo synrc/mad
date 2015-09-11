@@ -41,7 +41,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
                 FirstFiles1 = lists:map(fun (F) -> filename:join(SrcDir, F ++ ".erl") end, FirstFiles),
                 FirstFiles1 ++ lists:filter(fun (F) -> lists:member(F, FirstFiles) == false end, AllFiles)
             end,
-  
+
     case Files of
         [] -> false;
         Files ->
@@ -91,7 +91,7 @@ is_compiled(BeamFile, File) -> mad_utils:last_modified(BeamFile) >= mad_utils:la
 
 'compile-apps'(Cwd, ConfigFile, Conf) ->
     Dirs = mad_utils:sub_dirs(Cwd, ConfigFile, Conf),
-    %mad:info("Compile Apps: ~p~n",[Dirs]),
+    [put(D,0)||D<-Dirs],
     case Dirs of
            [] -> mad_compile:dep(Cwd,  Conf, ConfigFile, Cwd);
          Apps -> mad_compile:dep(Cwd,  Conf, ConfigFile, Cwd),
