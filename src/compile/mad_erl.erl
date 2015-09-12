@@ -16,8 +16,8 @@ compile(File,Inc,Bin,Opt,Deps) ->
 
 ret(error) -> true;
 ret({error,Errors,_}) ->
-    [ [ mad:info("Line ~p: ~p~n",[Line,R]) || {Line,_,R} <- Reports]
-      || {_,Reports} <- Errors ], true;
+    S=case file:get_cwd() of {ok,Cwd} -> length(Cwd); _ -> 0 end,
+    [[ mad:info("Line ~p: ~p in ~p~n",[ L,R,lists:nthtail(S,F) ]) || {L,_,R} <- E ] || {F,E} <- Errors ], true;
 ret({ok,_}) -> false;
 ret({ok,_,_}) -> false;
 ret({ok,_,_,_}) -> false.
