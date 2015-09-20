@@ -1,0 +1,10 @@
+SCRIPT="$(dirname "$0")"
+export EMU=beam
+export ROOT="$(cd "$SCRIPT/.." && pwd)"
+export ROOTDIR="$ROOT"
+export BINDIR="$ROOT/bin"
+export ERL_LIBS="$ROOT/lib"
+export LD_LIBRARY_PATH="$ROOT/lib:$LD_LIBRARY_PATH"
+VMARGS="$ROOT/etc/vm.args"
+CONFIG="$ROOT/etc/sys.config"
+"$BINDIR/erlexec" -boot "$ROOT/etc/{release}" -config "$CONFIG" -args_file "$VMARGS" ${1+"$@"}

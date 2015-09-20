@@ -1,22 +1,43 @@
 -module(mad_release).
 -compile(export_all).
 
-release(Name,Apps) ->
-    file:write_file("relx.config",list_to_binary(io_lib:format(
-      "{release,{~s,\"1.0.0\"},~p}.\n"
-      "{include_erts,true}.\n"
-      "{extended_start_script,true}.\n"
-      "{generate_start_script,true}.\n"
-      "{vm_args,\"vm.args\"}.\n"
-      "{sys_config,\"sys.config\"}.\n"
-      "{overlay,[{mkdir,\"log/sasl\"}]}.\n",[Name,Apps]))).
+release(Name) ->
+    Triples = mad_plan:triples(),
+    Apps = lists:usort(fun({Name,_},{Name2,_})-> Name =< Name2 end, [{A,{B,F}}||{_,A,{B,F}}<-Triples]) ++
+           [{kernel,{proplists:get_value(vsn,element(2,application:get_all_key(kernel)),[]),
+                     filename:absname(code:lib_dir(kernel))}}],
+    Sorted = [ lists:keyfind(A,1,Apps) || A <- element(2,mad_plan:orderapps())],
+    {L,R}     = lists:unzip(Sorted),
+    {Ver,Dir} = lists:unzip(R),
+    NameVer   = lists:zip(L,Ver),
+    {{release, {Name, "1"}, {erts, erlang:system_info(version)},NameVer},Sorted}.
+
+scripts(N) ->
+    mad_repl:load(),
+    {ok,Bin} = mad_repl:load_file("priv/systools/start"),
+    [{"/bin/start",list_to_binary(re:replace(binary_to_list(Bin),"{release}",N,[global,{return,list}]))},
+     {"/bin/attach",element(2,mad_repl:load_file("priv/systools/attach"))},
+     {"/bin/daemon",element(2,mad_repl:load_file("priv/systools/daemon"))},
+     {"/etc/"++N++".boot",N++".boot"},
+     {"/etc/vm.args","vm.args"},
+     {"/etc/sys.config","sys.config"}].
+
+apps(List) -> lists:flatten([[[ {filename:join([lib,lists:concat([App,"-",Version]),Class,filename:basename(F)]),F}
+    || F <- mad_repl:wildcards([filename:join([Dir,Class,"*"])]) ] || {App,{Version,Dir}} <- List ] || Class <- [ebin,priv] ]).
 
 main([]) -> main(["sample"]);
 main(Params) ->
     [N|_] = Params,
-    {ok,Apps} = mad_plan:orderapps(), %[ filename:basename(F) || F <- filelib:wildcard("{apps,deps}/*"),  filelib:is_dir(F)],
-    release(N,Apps),
-    {_,Status,X} = sh:run("relx",[],binary,".",[]),
-    case Status == 0 of
-         true -> false;
-         false -> mad:info("Shell Error: ~s~n",[binary_to_list(X)]), true end.
+    {Release,Apps} = release(N),
+    Directories = mad_repl:wildcards(["{deps,apps}/*/ebin","ebin"]),
+    code:add_paths(Directories),
+    file:write_file(N++".rel",io_lib:format("~p.",[Release])),
+    Res = systools:make_script(N),
+    Files = [ {"/bin/"++filename:basename(F),F} || F <-
+      mad_repl:wildcards([code:root_dir()++"/erts-"++erlang:system_info(version)++
+        "/bin/{epmd,erlexec,run_erl,to_erl,escript,beam.smp}"]) ] ++ apps(Apps) ++ scripts(N),
+    mad:info("Apps: ~p~n",[apps(Apps)]),
+    erl_tar:create(N++".tgz",Files,[compressed]),
+    mad:info("Files: ~p~n",[Files]),
+    mad:info("~s.boot: ~p~n",[N,Res]),
+    false.

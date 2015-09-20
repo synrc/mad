@@ -8,7 +8,7 @@ main([]) -> help();
 main(Params) ->
 
     {Other,FP} = mad_utils:fold_params(Params),
-    %mad:info("Params: ~p~n",[FP]),
+    mad:info("code:lib_dir/0: ~p~n",[code:lib_dir()]),
     case Other == [] of
          true -> skip;
          false -> mad:info("Unknown Command or Parameter ~p~n",[Other]), help() end,

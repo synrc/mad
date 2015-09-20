@@ -1,0 +1,3 @@
+SCRIPT="$(dirname "$0")"
+ROOT="$(cd "$SCRIPT/.." && pwd)"
+"$ROOT/bin/to_erl" "$ROOT/log" "$ROOT/log"
