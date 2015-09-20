@@ -60,16 +60,34 @@
 <li>DTL/YECC/LEEX/PORT/SCRIPT/APP/ERL compilation</li>
 <li>BEAM bundles (single-file escriptized app)</li>
 <li>LING bundles (single-file with built-in LING)</li>
-<li>RELX release (relx dependency should be discarded)</li>
+<li>BEAM releases (faster and smaller than RELX)</li>
+<li>Cloud Profiles</li>
 <li>Start/Stop/Attach</li>
 <li>Static files generation with node.js tools</li>
 <li>9p server for remote access</li>
 </ul>
 
 <h2>
+<a id="profiles" class="anchor" href="#profiles" aria-hidden="true"><span class="octicon octicon-link"></span></a>Profiles</h2>
+
+<pre><code>
+           MAD      VZ      LING    DOCKER
+ create    priv     tar     tar     tar
+ release   tgz      tgz     img     tgz
+ start     run_erl  chroot  xl      docker
+ stop      kill     kill    xl      docker
+ push      git      scp     scp     docker
+
+ deps      x
+ compile   x
+ plan      x
+
+</code></pre>
+
+<h2>
 <a id="build" class="anchor" href="#build" aria-hidden="true"><span class="octicon octicon-link"></span></a>Build</h2>
 
-<div class="highlight highlight-sh"><pre>    $ make</pre></div>
+<div class="highlight highlight-source-shell"><pre>    $ make</pre></div>
 
 <p>And put <code>mad</code> to PATH.</p>
 
@@ -83,29 +101,29 @@ to run under Windows, Linux and Mac. Releases includes all current
 directory exept sources both code and data with all dependencies. You may think of BEAM 
 Lightweight Unikernel Bundle as of fixed Erlang releases.</p>
 
-<div class="highlight highlight-sh"><pre>    $ mad app <span class="pl-s"><span class="pl-pds">"</span>sample<span class="pl-pds">"</span></span>
+<div class="highlight highlight-source-shell"><pre>    $ ./mad app sample
     $ <span class="pl-c1">cd</span> sample
-    $ mad deps compile plan bundle <span class="pl-s"><span class="pl-pds">"</span>web_app<span class="pl-pds">"</span></span>
-    $ ./web_app</pre></div>
+    $ ../mad deps compile plan bundle sample
+    $ ./sample repl</pre></div>
 
 <h2>
 <a id="ling-unikernel" class="anchor" href="#ling-unikernel" aria-hidden="true"><span class="octicon octicon-link"></span></a>LING Unikernel</h2>
 
 <p>Sample rebar.config for your application you want to go unikernel:</p>
 
-<div class="highlight highlight-erlang"><pre>{<span class="pl-c1">deps_dir</span>,<span class="pl-s"><span class="pl-pds">"</span>deps<span class="pl-pds">"</span></span>}.
-{<span class="pl-c1">deps</span>, [{<span class="pl-c1">ling</span>, <span class="pl-s"><span class="pl-pds">"</span>.*<span class="pl-pds">"</span></span>, {<span class="pl-c1">git</span>, <span class="pl-s"><span class="pl-pds">"</span>git://github.com/proger/ling<span class="pl-pds">"</span></span>, {<span class="pl-c1">tag</span>, <span class="pl-s"><span class="pl-pds">"</span>osx-again<span class="pl-pds">"</span></span>}}},
+<div class="highlight highlight-source-erlang"><pre>{<span class="pl-c1">deps_dir</span>,<span class="pl-s"><span class="pl-pds">"</span>deps<span class="pl-pds">"</span></span>}.
+{<span class="pl-c1">deps</span>, [{<span class="pl-c1">ling</span>, <span class="pl-s"><span class="pl-pds">"</span>.*<span class="pl-pds">"</span></span>, {<span class="pl-c1">git</span>, <span class="pl-s"><span class="pl-pds">"</span>git://github.com/cloudozer/ling<span class="pl-pds">"</span></span>, {<span class="pl-c1">tag</span>, <span class="pl-s"><span class="pl-pds">"</span>master<span class="pl-pds">"</span></span>}}},
         {<span class="pl-c1">sh</span>, <span class="pl-s"><span class="pl-pds">"</span>.*<span class="pl-pds">"</span></span>,   {<span class="pl-c1">git</span>, <span class="pl-s"><span class="pl-pds">"</span>git://github.com/synrc/sh<span class="pl-pds">"</span></span>,       {<span class="pl-c1">tag</span>, <span class="pl-s"><span class="pl-pds">"</span>1.4<span class="pl-pds">"</span></span>}}}]}.</pre></div>
 
 <p>Now you should build LING/posix:</p>
 
-<div class="highlight highlight-sh"><pre>    $ ./mad dep
+<div class="highlight highlight-source-shell"><pre>    $ ./mad dep
     $ <span class="pl-c1">cd</span> deps/ling
-    $ ARCH=posix_x86 make</pre></div>
+    $ ARCH=posix make</pre></div>
 
 <p>Now pack vmling.o, your OTP apps and rest static to single-file LING bundle with VM inside.</p>
 
-<div class="highlight highlight-sh"><pre>    $ ./mad lin
+<div class="highlight highlight-source-shell"><pre>    $ ./mad lin
 Ling Params: []
 ARCH: posix_x86
 Bundle Name: mad
@@ -144,8 +162,8 @@ Linking Image: ok</pre></div>
 
 <p>Run it:</p>
 
-<div class="highlight highlight-sh"><pre>$ rlwrap ./image.img
-Erlang [ling-0.3.2]
+<div class="highlight highlight-source-shell"><pre>$ rlwrap ./image.img
+Erlang [ling-0.5]
 
 Eshell V6.3  (abort with ^G)
 <span class="pl-k">1&gt;</span> <span class="pl-en">application:which_applications</span>().
@@ -164,15 +182,9 @@ It has it own fat bootstripts along with erlang runtime included.
 This allows you to distribute you applications with copy deploy
 without Erlang prerequisite.</p>
 
-<div class="highlight highlight-sh"><pre>    $ mad app sample
+<div class="highlight highlight-source-shell"><pre>    $ ./mad app sample
     $ <span class="pl-c1">cd</span> sample
-    $ mad dep com pla release
-    $ _rel/sample/bin/sample console</pre></div>
-
-<p>Note: <a href="https://github.com/erlware/relx">relx</a> must be installed
-LINUX NOTE: if you want to have online recompilation you should do at first:</p>
-
-<div class="highlight highlight-sh"><pre>    $ sudo apt-get install inotify-tools</pre></div>
+    $ ../mad dep com pla rel</pre></div>
 
 <h2>
 <a id="support" class="anchor" href="#support" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support</h2>
