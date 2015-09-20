@@ -24,7 +24,8 @@ Features
 * DTL/YECC/LEEX/PORT/SCRIPT/APP/ERL compilation
 * BEAM bundles (single-file escriptized app)
 * LING bundles (single-file with built-in LING)
-* RELX release (relx dependency should be discarded)
+* BEAM releases (faster and smaller than RELX)
+* Cloud Profiles
 * Start/Stop/Attach
 * Static files generation with node.js tools
 * 9p server for remote access
