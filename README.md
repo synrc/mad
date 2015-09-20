@@ -162,14 +162,6 @@ without Erlang prerequisite.
     $ ./mad app sample
     $ cd sample
     $ ../mad dep com pla rel
-    $ _rel/bin/sample console
-```
-
-Note: [relx](https://github.com/erlware/relx) must be installed
-LINUX NOTE: if you want to have online recompilation you should do at first:
-
-```sh
-    $ sudo apt-get install inotify-tools
 ```
 
 Support
