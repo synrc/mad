@@ -9,7 +9,7 @@ release(Name) ->
     Sorted = [ lists:keyfind(A,1,Apps) || A <- element(2,mad_plan:orderapps())],
     {L,R}     = lists:unzip(Sorted),
     {Ver,Dir} = lists:unzip(R),
-    NameVer   = lists:zip(L,Ver),
+    NameVer   = [ X || X <- lists:zip(L,Ver), element(1,X) /= active, element(1,X) /= fs ],
     {{release, {Name, "1"}, {erts, erlang:system_info(version)},NameVer},Sorted}.
 
 scripts(N) ->
