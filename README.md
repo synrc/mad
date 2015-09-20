@@ -30,6 +30,24 @@ Features
 * Static files generation with node.js tools
 * 9p server for remote access
 
+Profiles
+--------
+
+```
+
+           MAD      VZ      LING    DOCKER
+ create    priv     tar     tar     tar
+ release   tgz      tgz     img     tgz
+ start     run_erl  chroot  xl      docker
+ stop      kill     kill    xl      docker
+ push      git      scp     scp     docker
+
+ deps      x
+ compile   x
+ plan      x
+ 
+```
+
 Build
 -----
 
