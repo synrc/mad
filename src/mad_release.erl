@@ -36,8 +36,8 @@ main(Params) ->
     Files = [ {"/bin/"++filename:basename(F),F} || F <-
       mad_repl:wildcards([code:root_dir()++"/erts-"++erlang:system_info(version)++
         "/bin/{epmd,erlexec,run_erl,to_erl,escript,beam.smp}"]) ] ++ apps(Apps) ++ scripts(N),
-    mad:info("Apps: ~p~n",[apps(Apps)]),
+%    mad:info("Apps: ~p~n",[apps(Apps)]),
     erl_tar:create(N++".tgz",Files,[compressed]),
-    mad:info("Files: ~p~n",[Files]),
+%    mad:info("Files: ~p~n",[Files]),
     mad:info("~s.boot: ~p~n",[N,Res]),
     false.
