@@ -108,7 +108,7 @@ version() -> ?VERSION.
 help(Reason, Data) -> help(io_lib:format("~s ~p", [Reason, Data])).
 help(Msg) -> mad:info("Error: ~s~n~n", [Msg]), help().
 help() ->
-    mad:info("MAD Build Tool version ~s~n",[version()]),
+    mad:info("MAD Build Tool version 2.9 #~s~n",[version()]),
     mad:info("BNF: ~n"),
     mad:info("    invoke := mad params~n"),
     mad:info("    params := [] | run params ~n"),
