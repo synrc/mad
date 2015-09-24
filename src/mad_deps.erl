@@ -99,10 +99,4 @@ name_and_repo({Name, Version}) when is_list(Name) -> {Name, Version};
 name_and_repo({Name, Version}) -> {atom_to_list(Name), Version};
 name_and_repo(Name) -> {Name,Name}.
 
-get_publisher(Uri) ->
-    case http_uri:parse(Uri, [{scheme_defaults,
-            [{git, 9418}|http_uri:scheme_defaults()]}]) of
-        {ok, {_, _, _, _, Path, _}} -> hd(string:tokens(Path,"/"));
-        _ -> case string:tokens(Uri,":/") of
-                [_Server,Publisher,_Repo] -> Publisher;
-                _ -> exit(error) end end.
+get_publisher(Uri) -> case string:tokens(Uri,"@:/") of [_Proto,_Server,Publisher|_RepoPath] -> Publisher; _ -> core end.
