@@ -1,6 +1,6 @@
 {application, sample,
   [{description, "N2O Sample"},
-   {vsn, "1"},
+   {vsn, "2.10"},
    {registered, []},
    {applications, [kernel, stdlib, n2o]},
    {mod, { sample, []}},
