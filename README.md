@@ -24,10 +24,29 @@ Features
 * DTL/YECC/LEEX/PORT/SCRIPT/APP/ERL compilation
 * BEAM bundles (single-file escriptized app)
 * LING bundles (single-file with built-in LING)
-* RELX release (relx dependency should be discarded)
+* BEAM releases (faster and smaller than RELX)
+* Cloud Profiles
 * Start/Stop/Attach
 * Static files generation with node.js tools
 * 9p server for remote access
+
+Profiles
+--------
+
+```
+
+           MAD      VZ      LING    DOCKER
+ create    priv     tar     tar     tar
+ release   tgz      tgz     img     tgz
+ start     run_erl  chroot  xl      docker
+ stop      kill     kill    xl      docker
+ push      git      scp     scp     docker
+
+ deps      x
+ compile   x
+ plan      x
+ 
+```
 
 Build
 -----
@@ -143,14 +162,6 @@ without Erlang prerequisite.
     $ ./mad app sample
     $ cd sample
     $ ../mad dep com pla rel
-    $ _rel/bin/sample console
-```
-
-Note: [relx](https://github.com/erlware/relx) must be installed
-LINUX NOTE: if you want to have online recompilation you should do at first:
-
-```sh
-    $ sudo apt-get install inotify-tools
 ```
 
 Support
