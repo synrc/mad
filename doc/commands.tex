@@ -18,9 +18,36 @@ commands set with different specifiers (options).
 
 \subsection{deps}
 
-\subsection{compile}
+In rebar-like managers we are selecting deps from rebar.config:
+\vspace{1\baselineskip}
+\begin{lstlisting}
+  {sub_dirs,["apps"]}.
+  {deps_dir,"deps"}.
+  {deps, [active,{nitro,"2.9"},{n2o,"2.9"}]}.
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+
+\subsection{compile, com}
+Performs compilation of all known compilations backends in complilation profile of mad:
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    1. mad_app — app.src erlang templating.
+    2. mad_dtl — DTL compiler.
+    3. mad_erl — BEAM compiler.
+    4. mad_port — for gcc cland and other native compilation.
+    5. mad_script — .script file used in projects like gproc.
+    6. mad_yecc/mad_leex — DSL language parser compilers.
+    7. mad_upl — UPL compiler.
+\end{lstlisting}
+\vspace{1\baselineskip}
 
 \subsection{plan}
+Taking all dependecies and resolve boot sequence according to dependecy order. Storing this value in .applist.
+\vspace{1\baselineskip}
+\begin{lstlisting}
+\end{lstlisting}
+\vspace{1\baselineskip}
 
 \subsection{repl}
 
