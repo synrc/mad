@@ -41,3 +41,16 @@ compile_static(Files) ->
     case Res of
         {_,0,_} -> false;
         {_,_,_} -> mad:info("error while compiling assets~n"), true end.
+
+app([]) -> app(["sample"]);
+app(Params) ->
+    [Name] = Params,
+    mad_repl:load(),
+    Apps = ets:tab2list(filesystem),
+    [ case string:str(File,"priv/web") of
+       1 -> Relative = Name ++ string:substr(File, 9),
+            mad:info("Create File: ~p~n",[Relative]),
+            filelib:ensure_dir(Relative),
+            file:write_file(Relative,Bin);
+       _ -> skip
+       end || {File,Bin} <- Apps ], {ok,Name}.

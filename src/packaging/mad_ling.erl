@@ -4,8 +4,9 @@
 -compile(export_all).
 -define(ARCH, list_to_atom( case os:getenv("ARCH") of false -> "posix"; A -> A end)).
 
-main(_App) ->
+ling(Params) ->
     mad_plan:main(),
+    _App = filename:basename(case Params of [] ->   mad_utils:cwd(); E -> E end),
     mad:info("ARCH: ~p~n",         [?ARCH]),
     mad:info("Bundle Name: ~p~n",  [mad_repl:local_app()]),
     mad:info("System: ~p~n",       [mad_repl:system()]),

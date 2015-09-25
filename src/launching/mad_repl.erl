@@ -59,9 +59,8 @@ load_apps(Params,_,_Acc) -> [ application:ensure_all_started(list_to_atom(A))||A
 
 cwd() -> case  file:get_cwd() of {ok, Cwd} -> Cwd; _ -> "." end.
 
-main(Params,RebarConfig) -> put(rebar,RebarConfig), start(Params).
-
-start(Params) ->
+sh(Params) ->
+    { _Cwd,_ConfigFileName,_Config } = mad_utils:configs(),
     mad_plan:main([]),
     SystemPath = filelib:wildcard(code:root_dir() ++ "/lib/{"
               ++ string:join([atom_to_list(X)||X<-mad_repl:system()],",") ++ "}-*/ebin"),

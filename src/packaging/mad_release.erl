@@ -29,15 +29,15 @@ depot_release(Name) ->
     io:format("DEPOT Apps: ~p~n",[Files]),
     {ok,Name}.
 
-main([])              -> main(["beam"]);
-main(["depot"])       -> main(["depot", "sample"]);
-main(["beam"])        -> main(["beam",  "sample"]);
-main(["ling"])        -> main(["ling",  "sample"]);
-main(["script"])      -> main(["script","sample"]);
-main([X])             -> main(["script", X]);
+release([])              -> release(["beam"]);
+release(["depot"])       -> release(["depot", "sample"]);
+release(["beam"])        -> release(["beam",  "sample"]);
+release(["ling"])        -> release(["ling",  "sample"]);
+release(["script"])      -> release(["script","sample"]);
+release([X])             -> release(["script", X]);
 
-main(["ling"|Name])   -> mad_ling:main(Name);
-main(["script"|Name]) -> mad_bundle:main(filename:basename(case Name of [] -> mad_utils:cwd(); E -> E end));
-main(["depot"|Name])  -> mad_release:depot_release(Name);
-main(["beam" |Name])  -> mad_systools:beam_release(Name).
+release(["ling"|Name])   -> mad_ling:ling(Name);
+release(["script"|Name]) -> mad_bundle:main(filename:basename(case Name of [] -> mad_utils:cwd(); E -> E end));
+release(["depot"|Name])  -> mad_release:depot_release(Name);
+release(["beam" |Name])  -> mad_systools:beam_release(Name).
 

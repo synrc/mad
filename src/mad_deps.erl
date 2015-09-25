@@ -3,7 +3,7 @@
 -compile(export_all).
 
 deps(Params) ->
-    { Cwd, ConfigFile, Conf } = mad:configs(),
+    { Cwd, ConfigFile, Conf } = mad_utils:configs(),
     case mad_utils:get_value(deps, Conf, []) of
         [] -> {ok,[]};
         Deps ->
@@ -26,8 +26,9 @@ pull(Config,[F|T]) ->
                    nomatch -> mad_utils:verbose(Config,Message), true;
                    _ -> pull(Config,T) end end.
 
-up(Config,Params) ->
-    List = case Params of
+up(Params) ->
+  { _Cwd,_ConfigFileName,Config } = mad_utils:configs(),
+  List = case Params of
                 [] -> [ F || F <- mad_repl:wildcards(["deps/*"]), filelib:is_dir(F) ];
                 Apps -> [ "deps/" ++ A || A <- Apps ] end ++ ["."],
     pull(Config,List).

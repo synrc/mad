@@ -1,4 +1,4 @@
--module(mad_voxoz).
+-module(mad_vz).
 -compile(export_all).
 
 create(App,_) -> create(App).
