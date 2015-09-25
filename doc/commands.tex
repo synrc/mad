@@ -28,6 +28,38 @@ In rebar-like managers we are selecting deps from rebar.config:
 \end{lstlisting}
 \vspace{1\baselineskip}
 
+The search sequence for dependecies is follows. First mad will try to
+reach global package repository at \footahref{http://synrc.com/apps/index.txt}{http://synrc.com/apps/index.txt},
+this address is configurable. No application server is required for mad
+package management, only static files with OTP application format.
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+  {application,bpe,
+      [{description,"BPE SRC Business Process Engine"},
+       {vsn,"1.9"},
+       {registered,[]},
+       {applications,[kernel,stdlib,kvs,n2o]},
+       {dependencies,[kernel,stdlib,fs,ranch,crypto,mnesia,
+                      gproc,cowlib,kvs,cowboy,n2o,active,
+                      jsone,mad,nitro,sh,bpe]},
+       {mod,{bpe_app,[]}},
+       {env,[]},
+       {modules,[bpe,bpe_app,bpe_date,bpe_event,bpe_metainfo,bpe_proc,
+                 bpe_sup,bpe_task,default_railing,log_allow,routes,
+                 sampleproc,sampleproc_process]}]}.
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+If no file is found or server is unavailable then application registry will
+be taken from mad built-in index.txt. If no luck then the name of application,
+e.g. "spawnproc/rete" will be interpreted as github repository address.
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+   $ mad dep active n2o kvs ling "spawnproc/rete"
+\end{lstlisting}
+\vspace{1\baselineskip}
 
 \subsection{compile, com}
 Performs compilation of all known compilations backends in complilation profile of mad:
@@ -71,7 +103,6 @@ MAD supports several releasing backends:
     beam — ERTS releases with systools
     ling — LING portable unikernels
     runc — Docker-compatible containers
-    depot — releases from binary repositories
 \end{lstlisting}
 \vspace{1\baselineskip}
 
