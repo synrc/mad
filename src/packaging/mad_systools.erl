@@ -35,6 +35,7 @@ release(Name) ->
     {{release,{Name,"1"},{erts,erlang:system_info(version)},NameVer},Sorted}.
 
 beam_release(Params) ->
+    mad_plan:main([]),
     [N|_] = Params,
     Directories = mad_repl:wildcards(["{deps,apps}/*/ebin","ebin"]),
     code:add_paths(Directories),
@@ -47,5 +48,5 @@ beam_release(Params) ->
             "/bin/{epmd,erlexec,run_erl,to_erl,escript,beam.smp}"]) ] ++
         apps(Apps) ++ scripts(N),
     erl_tar:create(N ++ ".tgz",Files,[compressed]),
-    mad:info("~s.boot: ~p~n",[N,Res]).
-
+    mad:info("~s.boot: ~p~n",[N,Res]),
+    {ok,N}.

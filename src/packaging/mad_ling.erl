@@ -5,6 +5,7 @@
 -define(ARCH, list_to_atom( case os:getenv("ARCH") of false -> "posix"; A -> A end)).
 
 main(_App) ->
+    mad_plan:main(),
     mad:info("ARCH: ~p~n",         [?ARCH]),
     mad:info("Bundle Name: ~p~n",  [mad_repl:local_app()]),
     mad:info("System: ~p~n",       [mad_repl:system()]),
@@ -13,7 +14,7 @@ main(_App) ->
 %    mad:info("Files: ~p~n",        [[{filename:basename(N),size(B)}||{N,B} <- bundle()]]),
     mad:info("Overlay: ~p~n",      [[filename:basename(N)||{N,_B} <- mad_bundle:overlay()]]),
     add_apps(),
-    false.
+    {ok,_App}.
 
 cache_dir()       -> ".madaline/".
 local_map(Bucks)  -> list_to_binary(lists:map(fun({B,M,_}) -> io_lib:format("~s /~s\n",[M,B]) end,Bucks)).

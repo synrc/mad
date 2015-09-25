@@ -1,4 +1,4 @@
--module(mad_create).
+-module(mad_templates).
 -copyright('Maxim Sokhatsky').
 -compile(export_all).
 

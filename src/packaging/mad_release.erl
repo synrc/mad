@@ -15,6 +15,7 @@ atomlist(TARGETS) ->
     string:join(lists:map(fun(X) -> atom_to_list(X) end,TARGETS),",").
 
 depot_release(Name) ->
+    mad_plan:main(),
     TARGETS   = [beam,ling],
     HOSTS     = [mac,bsd,windows],
     Depot     = "/Users/5HT/depot/synrc/synrc.com/apps/",
@@ -25,15 +26,18 @@ depot_release(Name) ->
                     lists:foldl(fun(B,Acc)->[contains(P,B,Acc)||P<-HOSTS] end,
                         [], wildcards(Depot,X,"/{bin,priv}/**/*")) ]
     || {_,[X],_} <- lists:flatten(Apps) ]),
-    io:format("Apps: ~p~n",[Files]).
+    io:format("DEPOT Apps: ~p~n",[Files]),
+    {ok,Name}.
 
 main([])              -> main(["beam"]);
 main(["depot"])       -> main(["depot", "sample"]);
 main(["beam"])        -> main(["beam",  "sample"]);
 main(["ling"])        -> main(["ling",  "sample"]);
 main(["script"])      -> main(["script","sample"]);
+main([X])             -> main(["script", X]);
 
-main(["ling"|Name])   -> mad_ling:main(Name),              false;
-main(["script"|Name]) -> mad_bundle:main(Name),            false;
-main(["depot"|Name])  -> mad_release:depot_release(Name),  false;
-main(["beam" |Name])  -> mad_systools:beam_release(Name),  false.
+main(["ling"|Name])   -> mad_ling:main(Name);
+main(["script"|Name]) -> mad_bundle:main(filename:basename(case Name of [] -> mad_utils:cwd(); E -> E end));
+main(["depot"|Name])  -> mad_release:depot_release(Name);
+main(["beam" |Name])  -> mad_systools:beam_release(Name).
+

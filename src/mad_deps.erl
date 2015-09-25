@@ -2,7 +2,21 @@
 -copyright('Sina Samavati').
 -compile(export_all).
 
-pull(_,[])         -> false;
+deps(Params) ->
+    { Cwd, ConfigFile, Conf } = mad:configs(),
+    case mad_utils:get_value(deps, Conf, []) of
+        [] -> {ok,[]};
+        Deps ->
+            Cache = mad_utils:get_value(deps_dir, Conf, deps_fetch),
+            case Cache of
+                deps_fetch -> skip;
+                Dir -> file:make_dir(Dir) end,
+            FetchDir = mad_utils:get_value(deps_dir, Conf, ["deps"]),
+            file:make_dir(FetchDir),
+            mad_deps:fetch(Cwd, Conf, ConfigFile, Deps)
+    end.
+
+pull(_,[])         -> {ok,[]};
 pull(Config,[F|T]) ->
     mad:info("==> up: ~p~n", [F]),
     {_,Status,Message} = sh:run(lists:concat(["cd ",F," && git pull && cd -"])),
@@ -23,7 +37,7 @@ fetch(Cwd, Config, ConfigFile, [H|T]) when is_tuple(H) =:= false -> fetch(Cwd, C
 fetch(Cwd, Config, ConfigFile, [H|T]) ->
     {Name, Repo} = name_and_repo(H),
     Res = case get(Name) of
-        fetched -> false;
+        fetched -> {ok,Name};
         _ ->
             {Cmd, Uri, Co} = case Repo of
                                  V={_, _, _}          -> V;
@@ -35,8 +49,8 @@ fetch(Cwd, Config, ConfigFile, [H|T]) ->
             fetch_dep(Cwd, Config, ConfigFile, Name, Cmd1, Uri, Co, Cache)
     end,
     case Res of
-         true -> true;
-         false -> fetch(Cwd, Config, ConfigFile, T) end.
+         {error,E} -> {error,E};
+         {ok,_} -> fetch(Cwd, Config, ConfigFile, T) end.
 
 git_clone(Uri,Fast,TrunkPath,Rev) when Rev == "head" orelse Rev == "HEAD" orelse Rev == "master" ->
     {["git clone ",Fast,Uri," ",TrunkPath],Rev};
@@ -75,11 +89,12 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
                     Conf1 = mad_utils:script(TrunkConfigFile, Conf, Name),
                     fetch(Cwd, Config, ConfigFile, mad_utils:get_value(deps, Conf1, [])),
                     case Cache of
-                         deps_fetch -> false;
+                         deps_fetch -> {ok,Name};
                          CacheDir -> build_dep(Cwd, Config, ConfigFile,
                                         get_publisher(Uri), Name, Cmd, Co1, CacheDir)
                     end;
-    {_,_,FetchError} -> mad:info("Fetch Error: ~s~n",[binary_to_list(FetchError)]), true end.
+    {_,_,FetchError} -> mad:info("Fetch Error: ~s~n",[binary_to_list(FetchError)]),
+                        {error,binary_to_list(FetchError)} end.
 
 %% build dependency based on branch/tag/commit
 build_dep(Cwd, Conf, _ConfFile, Publisher, Name, _Cmd, _Co, Dir) ->
@@ -88,7 +103,7 @@ build_dep(Cwd, Conf, _ConfFile, Publisher, Name, _Cmd, _Co, Dir) ->
     os:cmd(["cp -r ", TrunkPath, " ", DepsDir]),
     ok = file:set_cwd(DepsDir),
     ok = file:set_cwd(Cwd),
-    false.
+    {ok,Name}.
 
 %% internal
 name_and_repo({Name, _, Repo}) when is_list(Name) -> {Name, Repo};

@@ -2,21 +2,32 @@
 -copyright('Sina Samavati').
 -compile(export_all).
 
-%% compile dependencies
-deps(_, _, _, []) -> false;
+compile(Params) ->
+    { Cwd, ConfigFile, Conf } = mad:configs(),
+    mad:info("Compile Params: ~p~n",[Params]),
+    Res = case Params of
+         [] -> mad_compile:'compile-deps'(Cwd, ConfigFile, Conf);
+         __ -> mad_compile:deps(Cwd, Conf, ConfigFile, Params)
+    end,
+    case bool(Res) of
+         true -> {error,Params};
+         false -> mad_compile:'compile-apps'(Cwd, ConfigFile, Conf) end.
+
+deps(_, _, _, []) -> {ok,deps};
 deps(Cwd, Conf, ConfigFile, [H|T]) ->
     {Name, _} = mad_deps:name_and_repo(H),
     Res = case get(Name) == compiled of
-          true -> false;
+          true -> {ok,[]};
           _    -> dep(Cwd, Conf, ConfigFile, Name) end,
-    case Res of
-         true  -> true;
+    case bool(Res) of
+         true  -> {error,Name};
          false -> deps(Cwd, Conf, ConfigFile, T) end.
 
-%% compile a dependency
+bool({ok,_}) -> false;
+bool({error,_}) -> true.
+
 dep(Cwd, _Conf, ConfigFile, Name) ->
 
-    %% check dependencies of the dependency
     DepsDir = filename:join([mad_utils:get_value(deps_dir, _Conf, ["deps"])]),
     DepPath = filename:join([Cwd, DepsDir, Name]),
     mad:info("==> ~p~n",[Name]),
@@ -25,12 +36,9 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     Conf = mad_utils:consult(DepConfigFile),
     Conf1 = mad_script:script(DepConfigFile, Conf, Name),
     Deps = mad_utils:get_value(deps, Conf1, []),
-    DepsRes = deps(Cwd, Conf, ConfigFile, Deps),
-    %mad:info("DepsStatus: ~p~n",[DepsRes]),
+    DepsRes = bool(deps(Cwd, Conf, ConfigFile, Deps)),
 
     SrcDir = filename:join([mad_utils:src(DepPath)]),
-    %mad:info("DepPath ==> ~p~n",[DepPath]),
-
     AllFiles = files(SrcDir,".yrl") ++ 
                files(SrcDir,".xrl") ++ 
                files(SrcDir,".erl") ++ % comment this to build with erlc/1
@@ -43,7 +51,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             end,
 
     case Files of
-        [] -> false;
+        [] -> {ok,Name};
         Files ->
             IncDir = mad_utils:include(DepPath),
             EbinDir = mad_utils:ebin(DepPath),
@@ -57,33 +65,29 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             file:make_dir(EbinDir),
             code:replace_path(Name,EbinDir),
 
-            %erlc(DepPath), % comment this to build with files/2
-
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
             FilesStatus = compile_files(Files,IncDir, EbinDir, Opts,Includes),
             DTLStatus = mad_dtl:compile(DepPath,Conf1),
             PortStatus = lists:any(fun(X)->X end,mad_port:compile(DepPath,Conf1)),
-            %mad:info("DTL Status: ~p~n",[DTLStatus]),
-            %mad:info("Port Status: ~p~n",[PortStatus]),
-            %mad:info("Files Status: ~p~n",[FilesStatus]),
 
             put(Name, compiled),
-            DepsRes orelse FilesStatus orelse DTLStatus orelse PortStatus
-    end.
+            case DepsRes orelse FilesStatus orelse DTLStatus orelse PortStatus of
+                 true -> {error,Name};
+                 false -> {ok,Name} end end.
 
 compile_files([],_,_,_,_) -> false;
 compile_files([File|Files],Inc,Bin,Opt,Deps) ->
     case (module(filetype(File))):compile(File,Inc,Bin,Opt,Deps) of
          true -> true;
          false -> compile_files(Files,Inc,Bin,Opt,Deps);
-         _ -> mad:info("Error: ~p~n",[{File}]) end.
+         X -> mad:info("Compilation Error: ~p~n",[{X,File}]), true end.
 
-module("erl") -> mad_erl;
-module("erl.src") -> mad_utils;
-module("yrl") -> mad_yecc;
-module("xrl") -> mad_leex;
-module("app.src") -> mad_app;
-module(_) -> mad_none.
+module("erl")      -> mad_erl;
+module("erl.src")  -> mad_utils;
+module("yrl")      -> mad_yecc;
+module("xrl")      -> mad_leex;
+module("app.src")  -> mad_app;
+module(_)          -> mad_none.
 
 filetype(Path) -> string:join(tl(string:tokens(filename:basename(Path), ".")), ".").
 files(Dir,Ext) -> filelib:fold_files(Dir, Ext, true, fun(F, Acc) -> [F|Acc] end, []).
@@ -102,12 +106,3 @@ is_compiled(BeamFile, File) -> mad_utils:last_modified(BeamFile) >= mad_utils:la
 
 list(X) when is_atom(X) -> atom_to_list(X);
 list(X) -> X.
-
-erlc(DepPath) ->
-    ErlFiles = filelib:wildcard(DepPath++"/src/**/*.erl"),
-    mad:info("Files: ~s~n",[[filename:basename(Erl)++" " ||Erl<-ErlFiles]]),
-    {_,Status,X} = sh:run("erlc",["-o"++DepPath++"/ebin/","-I"++DepPath++"/include"]++
-        ErlFiles,binary,filename:absname("."),[{"ERL_LIBS","apps:deps"}]),
-    case Status == 0 of
-         true -> skip;
-         false -> mad:info("Error: ~s~n",[binary_to_list(X)]) end.

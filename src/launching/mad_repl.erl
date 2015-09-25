@@ -59,7 +59,10 @@ load_apps(Params,_,_Acc) -> [ application:ensure_all_started(list_to_atom(A))||A
 
 cwd() -> case  file:get_cwd() of {ok, Cwd} -> Cwd; _ -> "." end.
 
-main(Params,RebarConfig) ->
+main(Params,RebarConfig) -> put(rebar,RebarConfig), start(Params).
+
+start(Params) ->
+    mad_plan:main([]),
     SystemPath = filelib:wildcard(code:root_dir() ++ "/lib/{"
               ++ string:join([atom_to_list(X)||X<-mad_repl:system()],",") ++ "}-*/ebin"),
     UserPath   = wildcards(["{apps,deps}/*/ebin","ebin"]),
@@ -67,7 +70,7 @@ main(Params,RebarConfig) ->
     code:add_path(filename:join([cwd(),filename:basename(escript:script_name())])),
     load(),
     Config = load_config(),
-    Driver = mad_utils:get_value(shell_driver,RebarConfig,user_drv),
+    Driver = mad_utils:get_value(shell_driver,get(rebar),user_drv),
     pre(Driver),
     case os:type() of
          {win32,nt} -> shell:start();

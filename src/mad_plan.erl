@@ -31,7 +31,6 @@ triples() ->
 
 orderapps() ->
     Apps = triples(),
-%    mad:info("Triples: ~p~n",[Apps]),
     case sort(lists:flatten(Apps)) of
          {ok,Sorted} -> {ok,Sorted};
          Return -> {error,{cycling_apps,Return}} end.
@@ -46,6 +45,5 @@ system_deps(A) ->
 
 main(_) ->
     case orderapps() of
-         {ok,Ordered}   -> mad:info("Ordered: ~p~n",[Ordered]),
-                           file:write_file(".applist",io_lib:format("~w",[Ordered])), false;
-         {error,Reason} -> mad:info("Ordering Error: ~p~n",[Reason]), true end.
+         {ok,Ordered}   -> file:write_file(".applist",io_lib:format("~w",[Ordered])), {ok,Ordered};
+         {error,Reason} -> {error,Reason} end.

@@ -3,11 +3,12 @@
 -compile(export_all).
 
 main(App) ->
+    mad_plan:main([]),
     EmuArgs = "-noshell -noinput +pc unicode",
     Files = static() ++ beams(fun filename:basename/1, fun read_file/1) ++ overlay(),
     escript:create(App,[shebang,{comment,""},{emu_args,EmuArgs},{archive,Files,[memory]}]),
     file:change_mode(App, 8#764),
-    false.
+    {ok,App}.
 
 id(X) -> X.
 read_file(File) -> {ok, Bin} = file:read_file(filename:absname(File)), Bin.
