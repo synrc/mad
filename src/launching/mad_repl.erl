@@ -57,7 +57,7 @@ load_apps([],_,_Acc) ->
 load_apps(["applist"],Config,Acc) -> load_apps([],Config,Acc);
 load_apps(Params,_,_Acc) -> [ application:ensure_all_started(list_to_atom(A))||A<-Params].
 
-cwd() -> {ok, Cwd} = file:get_cwd(), Cwd.
+cwd() -> case  file:get_cwd() of {ok, Cwd} -> Cwd; _ -> "." end.
 
 main(Params,RebarConfig) ->
     SystemPath = filelib:wildcard(code:root_dir() ++ "/lib/{"

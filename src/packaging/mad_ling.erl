@@ -1,5 +1,4 @@
 -module(mad_ling).
--author('Maxim Sokhatsky').
 -description("LING Erlang Virtual Machine Bundle Packaging").
 -copyright('Cloudozer, LLP').
 -compile(export_all).

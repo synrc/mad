@@ -1,5 +1,5 @@
 -module(mad_bundle).
--copyright('Maxim Sokhatsky').
+-description("ESCRIPT bundles").
 -compile(export_all).
 
 main(App) ->
