@@ -37,6 +37,7 @@ include(Dir) -> filename:join(Dir, "include").
 ebin(Dir) -> filename:join(Dir, "ebin").
 deps(File) -> get_value(deps, consult(File), []).
 
+get_value(Key, Opts, undefined) -> get_value(Key, Opts, []);
 get_value(Key, Opts, Default) ->
     case lists:keyfind(Key, 1, Opts) of
         {Key, Value} ->

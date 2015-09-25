@@ -34,9 +34,8 @@ release(Name) ->
                                               element(1,X) /= fs ],
     {{release,{Name,"1"},{erts,erlang:system_info(version)},NameVer},Sorted}.
 
-beam_release(Params) ->
+beam_release(N) ->
     mad_plan:main([]),
-    [N|_] = Params,
     Directories = mad_repl:wildcards(["{deps,apps}/*/ebin","ebin"]),
     code:add_paths(Directories),
     {Release,Apps} = release(N),

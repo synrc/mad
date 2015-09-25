@@ -29,15 +29,17 @@ depot_release(Name) ->
     io:format("DEPOT Apps: ~p~n",[Files]),
     {ok,Name}.
 
-release([])              -> release(["script"]);
+release([])              -> io:format("REL1~n"),
+                            release(["script"]);
 release(["depot"])       -> release(["depot", "sample"]);
 release(["beam"])        -> release(["beam",  "sample"]);
 release(["ling"])        -> release(["ling",  "sample"]);
-release(["script"])      -> release(["script","sample"]);
-release([X])             -> release(["script", X]);
-
-release(["ling"|Name])   -> mad_ling:ling(Name);
-release(["script"|Name]) -> mad_bundle:main(filename:basename(case Name of [] -> mad_utils:cwd(); E -> E end));
-release(["depot"|Name])  -> mad_release:depot_release(Name);
-release(["beam" |Name])  -> mad_systools:beam_release(Name).
-
+release(["script"])      -> io:format("REL2~n"),
+                            release(["script","sample"]);
+release(["ling",N])      -> mad_ling:ling(N);
+release(["script",N])    -> io:format("REL3~n"),
+                            mad_bundle:main(N);
+release(["depot",N])     -> mad_release:depot_release(N);
+release(["beam",N])      -> mad_systools:beam_release(N);
+release([X])             -> io:format("REL5~n"),
+                            release(["script",X]).

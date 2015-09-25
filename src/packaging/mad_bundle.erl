@@ -2,7 +2,8 @@
 -description("ESCRIPT bundles").
 -compile(export_all).
 
-main(App) ->
+main(N) ->
+    App = filename:basename(case N of [] -> mad_utils:cwd(); E -> E end),
     mad_plan:main([]),
     EmuArgs = "-noshell -noinput +pc unicode",
     Files = static() ++ beams(fun filename:basename/1, fun read_file/1) ++ overlay(),

@@ -6,13 +6,14 @@
 
 main([])          -> help();
 main(Params)      ->
-    {Other,FP}     = mad_utils:fold_params(Params),
+    {Other,F}      = mad_utils:fold_params(Params),
+    io:format("Params: ~p~n",[{Other,F}]),
     unknown(Other),
     return(lists:any(fun(X) -> element(1,X) == error end,
            lists:flatten(
            lists:foldl(
         fun ({Name,Par},Errors) when length(Errors) > 0 -> [{error,Errors}];
-            ({Name,Par},Errors) -> lists:flatten([errors((profile()):Name(Par))|Errors]) end, [], FP)))).
+            ({Name,Par},Errors) -> lists:flatten([errors((profile()):Name(Par))|Errors]) end, [], F)))).
 
 deps(Params)      -> mad_deps:deps(Params).
 compile(Params)   -> mad_compile:compile(Params).
@@ -31,9 +32,9 @@ unknown(Other)    -> info("Unknown: ~p~n",[Other]), help().
 
 errors(false)     -> [];
 errors(true)      -> {error,unknown};
-errors({ok,L})    -> info("OK:  ~tp~n",[L]), [];
 errors({error,L}) -> info("ERR: ~tp~n",[L]), {error,L};
-errors(X)         -> info("ERR: ~tp~n",[X]), {error,X}.
+errors({ok,L})    -> info("OK:  ~tp~n",[L]), [];
+errors(X)         -> info("RETURN: ~tp~n",[X]), {error,X}.
 
 return(true)      -> 1;
 return(false)     -> 0;
