@@ -1,6 +1,6 @@
 {application, mad,
  [{description, "MAD VXZ Build Tool"},
-  {vsn, "2.10"},
+  {vsn, "1.9"},
   {registered, []},
   {applications, [kernel,stdlib,inets]},
   {env, []}]}.
