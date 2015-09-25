@@ -7,7 +7,6 @@
 main([])          -> help();
 main(Params)      ->
     {Other,F}      = mad_utils:fold_params(Params),
-    io:format("Params: ~p~n",[{Other,F}]),
     unknown(Other),
     return(lists:any(fun(X) -> element(1,X) == error end,
            lists:flatten(
