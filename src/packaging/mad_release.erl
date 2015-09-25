@@ -29,7 +29,7 @@ depot_release(Name) ->
     io:format("DEPOT Apps: ~p~n",[Files]),
     {ok,Name}.
 
-release([])              -> release(["beam"]);
+release([])              -> release(["script"]);
 release(["depot"])       -> release(["depot", "sample"]);
 release(["beam"])        -> release(["beam",  "sample"]);
 release(["ling"])        -> release(["ling",  "sample"]);
