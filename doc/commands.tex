@@ -5,12 +5,11 @@ Synrc mad has a simple interface as follows:
 \vspace{1\baselineskip}
 \begin{lstlisting}
   MAD Container Tool version b547fa
-  BNF:
+
       invoke = mad params
-      params = [] | run params
-         run = command [ options ]
+      params = [] | command [ options  ] params
      command = app     | deps  | clean | compile | up
-             | release [ beam  | ling  | script  | runc | depot ]
+             | release [ beam  | ling  | script  | runc ]
              | deploy  | start | stop  | attach  | sh
 \end{lstlisting}
 \vspace{1\baselineskip}

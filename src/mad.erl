@@ -45,10 +45,9 @@ info(Format,Args) -> io:format(lists:concat([Format,"\r"]),Args).
 help(Reason,D)    -> help(io_lib:format("~s ~p", [Reason, D])).
 help(Msg)         -> help().
 help()            -> info("MAD Container Tool version ~s~n",[?VERSION]),
-                     info("BNF: ~n"),
+                     info("~n"),
                      info("    invoke = mad params~n"),
-                     info("    params = [] | run params ~n"),
-                     info("       run = command [ options ]~n"),
+                     info("    params = [] | command [ options  ] params ~n"),
                      info("   command = app     | deps  | clean | compile | up~n"),
                      info("           | release [ beam  | ling  | script  | runc | depot ]~n"),
                      info("           | deploy  | start | stop  | attach  | sh ~n"),
