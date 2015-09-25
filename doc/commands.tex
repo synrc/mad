@@ -17,7 +17,7 @@ Synrc mad has a simple interface as follows:
 It seems to us more natural, you can specify random
 commands set with different specifiers (options).
 
-\subsection{deps}
+\subsection{deps, dep}
 
 In rebar-like managers we are selecting deps from rebar.config:
 \vspace{1\baselineskip}
@@ -43,7 +43,7 @@ Performs compilation of all known compilations backends in complilation profile 
 \end{lstlisting}
 \vspace{1\baselineskip}
 
-\subsection{release, rel}
+\subsection{release, rel, bundle, bun}
 Taking all dependecies and resolve boot sequence according to dependecy order.
 Storing this value in .applist. If release type is not defined ({\bf beam} in following example),
 then {\bf script} release will be taken as a default.
@@ -75,6 +75,6 @@ MAD supports several releasing backends:
 \end{lstlisting}
 \vspace{1\baselineskip}
 
-\subsection{sh}
+\subsection{sh, repl, rep}
 
 Start REPL shell session.

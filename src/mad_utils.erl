@@ -2,6 +2,8 @@
 -copyright('Sina Samavati').
 -compile(export_all).
 
+atomize("static") -> static;
+atomize("deploy") -> deploy;
 atomize("app"++_) -> app;
 atomize("dep")    -> deps;
 atomize("deps")   -> deps;
@@ -10,12 +12,11 @@ atomize("com"++_) -> compile;
 atomize("up")     -> up;
 atomize("rel"++_) -> release;
 atomize("bun"++_) -> release;
-atomize("deploy") -> deploy;
 atomize("sta"++_) -> start;
 atomize("sto"++_) -> stop;
 atomize("att"++_) -> attach;
 atomize("sh")     -> sh;
-atomize("static") -> static;
+atomize("rep"++_) -> sh;
 atomize("pla"++_) -> release;
 atomize(Else)     -> Else.
 
