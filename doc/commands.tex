@@ -4,12 +4,14 @@ Synrc mad has a simple interface as follows:
 
 \vspace{1\baselineskip}
 \begin{lstlisting}
+  MAD Container Tool version b547fa
   BNF:
-      invoke := mad params
-      params := [] | run params
-         run := command [ options ]
-     command := app | lib | deps | compile | bundle
-                start | stop | repl
+      invoke = mad params
+      params = [] | run params
+         run = command [ options ]
+     command = app     | deps  | clean | compile | up
+             | release [ beam  | ling  | script  | runc | depot ]
+             | deploy  | start | stop  | attach  | sh
 \end{lstlisting}
 \vspace{1\baselineskip}
 
@@ -32,29 +34,48 @@ In rebar-like managers we are selecting deps from rebar.config:
 Performs compilation of all known compilations backends in complilation profile of mad:
 \vspace{1\baselineskip}
 \begin{lstlisting}
-    1. mad_app — app.src erlang templating.
-    2. mad_dtl — DTL compiler.
-    3. mad_erl — BEAM compiler.
-    4. mad_port — for gcc cland and other native compilation.
-    5. mad_script — .script file used in projects like gproc.
-    6. mad_yecc/mad_leex — DSL language parser compilers.
-    7. mad_upl — UPL compiler.
+    app — app.src erlang templating
+    dtl — DTL compiler
+    erl — BEAM compiler
+    c/c++ — for gcc cland and other native compilation
+    script — .script file used in projects like gproc
+    yrl/xrl — DSL language parser compilers
+    upl — UPL compiler
 \end{lstlisting}
 \vspace{1\baselineskip}
 
-\subsection{pla}
-Taking all dependecies and resolve boot sequence according to dependecy order. Storing this value in .applist.
+\subsection{release, rel}
+Taking all dependecies and resolve boot sequence according to dependecy order.
+Storing this value in .applist. If release type is not defined ({\bf beam} in following example),
+then {\bf script} release will be taken as a default.
 \vspace{1\baselineskip}
 \begin{lstlisting}
-  Ordered: [kernel,stdlib,fs,ranch,crypto,compiler,syntax_tools,
-            gproc,cowlib,cowboy,n2o,sample,active,erlydtl,jsone,
-            mad,nitro,sh]
+    $ mad release beam sample
+    Ordered: [kernel,stdlib,fs,ranch,crypto,compiler,syntax_tools,
+              gproc,cowlib,cowboy,n2o,sample,active,erlydtl,jsone,
+              mad,nitro,sh]
+    *WARNING* : Missing application sasl. Can not upgrade with this release
+    sample.boot: ok
+    OK:  "sample"
+
+    $ mad rel mad
+    Ordered: [kernel,stdlib,inets,sh,mad]
+    OK:  "mad"
 \end{lstlisting}
 \vspace{1\baselineskip}
 
-\subsection{repl}
+MAD supports several releasing backends:
 
-\subsection{bundle}
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    script — script bundles, like mad itself
+    beam — ERTS releases with systools
+    ling — LING portable unikernels
+    runc — Docker-compatible containers
+    depot — releases from binary repositories
+\end{lstlisting}
+\vspace{1\baselineskip}
 
-\subsection{app}
+\subsection{sh}
 
+Start REPL shell session.

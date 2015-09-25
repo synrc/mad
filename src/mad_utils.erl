@@ -16,7 +16,7 @@ atomize("sto"++_) -> stop;
 atomize("att"++_) -> attach;
 atomize("sh")     -> sh;
 atomize("static") -> static;
-atomize("pla"++_) -> plan;
+atomize("pla"++_) -> release;
 atomize(Else)     -> Else.
 
 cwd() -> {ok, Cwd} = file:get_cwd(), Cwd.

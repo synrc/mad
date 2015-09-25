@@ -15,7 +15,7 @@ atomlist(TARGETS) ->
     string:join(lists:map(fun(X) -> atom_to_list(X) end,TARGETS),",").
 
 depot_release(Name) ->
-    mad_plan:main(),
+    mad_plan:main([]),
     TARGETS   = [beam,ling],
     HOSTS     = [mac,bsd,windows],
     Depot     = "/Users/5HT/depot/synrc/synrc.com/apps/",
