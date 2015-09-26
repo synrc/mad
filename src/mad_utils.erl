@@ -2,28 +2,17 @@
 -copyright('Sina Samavati').
 -compile(export_all).
 
-atomize("static") -> static;
-atomize("deploy") -> deploy;
-atomize("app"++_) -> app;
-atomize("dep")    -> deps;
-atomize("deps")   -> deps;
-atomize("cle"++_) -> clean;
-atomize("com"++_) -> compile;
-atomize("up")     -> up;
-atomize("rel"++_) -> release;
-atomize("bun"++_) -> release;
-atomize("sta"++_) -> start;
-atomize("sto"++_) -> stop;
-atomize("att"++_) -> attach;
-atomize("sh")     -> sh;
-atomize("rep"++_) -> sh;
-atomize("pla"++_) -> release;
-atomize(Else)     -> Else.
+%% internal
+name_and_repo({Name, _, Repo}) when is_list(Name) -> {Name, Repo};
+name_and_repo({Name, _, Repo, _}) when is_list(Name) -> {Name, Repo};
+name_and_repo({Name, _, Repo}) -> {atom_to_list(Name), Repo};
+name_and_repo({Name, _, Repo, _}) -> {atom_to_list(Name), Repo};
+name_and_repo({Name, Version}) when is_list(Name) -> {Name, Version};
+name_and_repo({Name, Version}) -> {atom_to_list(Name), Version};
+name_and_repo(Name) -> {Name,Name}.
 
 cwd() -> {ok, Cwd} = file:get_cwd(), Cwd.
-
 home() -> {ok, [[H|_]]} = init:get_argument(home), H.
-
 consult(File) ->
     AbsFile = filename:absname(File),
     case file:consult(AbsFile) of
@@ -89,17 +78,6 @@ to_atom(X) when is_list(X) -> list_to_atom(X);
 to_atom(X) when is_binary(X) -> to_atom(binary_to_list(X));
 to_atom(X) -> X.
 
-atomize_params_commands(Params) -> atomize_params_commands(Params,[]).
-atomize_params_commands([],New) -> New;
-atomize_params_commands([H|T], New) -> atomize_params_commands(T,[atomize(H)|New]).
-
-fold_params(Params) ->
-   Atomized = atomize_params_commands(Params),
-   lists:foldl(fun(X,{Current,Result}) -> 
-      case atomize(X) of
-           X when is_atom(X) -> {[],[{X,Current}|Result]};
-           E -> {[E|Current],Result} end
-      end, {[],[]}, Atomized).
 
 verbose(Config,Message) ->
     case mad_utils:get_value(verbose, Config, 0) of

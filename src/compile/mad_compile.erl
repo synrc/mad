@@ -14,7 +14,7 @@ compile(Params) ->
 
 deps(_, _, _, []) -> {ok,deps};
 deps(Cwd, Conf, ConfigFile, [H|T]) ->
-    {Name, _} = mad_deps:name_and_repo(H),
+    {Name, _} = mad_utils:name_and_repo(H),
     Res = case get(Name) == compiled of
           true -> {ok,[]};
           _    -> dep(Cwd, Conf, ConfigFile, Name) end,

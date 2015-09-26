@@ -1,4 +1,4 @@
--module(mad).
+-module(mad)..
 -copyright('Maxim Sokhatsky').
 -include("mad.hrl").
 -compile(export_all).
@@ -6,33 +6,46 @@
 
 main([])          -> help();
 main(Params)      ->
-    {Other,F}      = mad_utils:fold_params(Params),
-    unknown(Other),
-    return(lists:any(fun(X) -> element(1,X) == error end,
+
+    { Invalid, Valid } = lists:foldr(
+                               fun (X,{C,R}) when is_atom(X) -> {[],[{X,C}|R]};
+                                   (X,{C,R}) -> {[X|C],R} end,
+                               {[],[]}, lists:map(fun atomize/1, Params)),
+
+    return(lists:any(fun({error,_}) -> true;
+                                (_) -> false end,
            lists:flatten(
            lists:foldl(
-        fun ({Name,Par},Errors) when length(Errors) > 0 -> [{error,Errors}];
-            ({Name,Par},Errors) -> lists:flatten([errors((profile()):Name(Par))|Errors]) end, [], F)))).
+                 fun ({Fun,Arg},[])  -> errors((profile()):Fun(Arg));
+                     ({Fun,Arg},Err) -> errors(Invalid),
+                                        { return, Err } end,
+                 [], Valid)))).
 
-deps(Params)      -> mad_deps:deps(Params).
-compile(Params)   -> mad_compile:compile(Params).
-app(Params)       -> mad_static:app(Params).
-clean(Params)     -> mad_run:clean(Params).
-start(Params)     -> mad_run:start(Params).
-attach(Params)    -> mad_run:attach(Params).
-stop(Params)      -> mad_run:stop(Params).
-release(Params)   -> mad_release:release(Params).
-sh(Params)        -> mad_repl:sh(Params).
-up(Params)        -> mad_deps:up(Params).
-profile()         -> application:get_env(mad,profile,mad).
+atomize("static") -> 'static';
+atomize("deploy") -> 'deploy';
+atomize("app"++_) -> 'app';
+atomize("dep")    -> 'deps';
+atomize("deps")   -> 'deps';
+atomize("cle"++_) -> 'clean';
+atomize("com"++_) -> 'compile';
+atomize("up")     -> 'up';
+atomize("rel"++_) -> 'release';
+atomize("bun"++_) -> 'release';
+atomize("sta"++_) -> 'start';
+atomize("sto"++_) -> 'stop';
+atomize("att"++_) -> 'attach';
+atomize("sh")     -> 'sh';
+atomize("rep"++_) -> 'sh';
+atomize("pla"++_) -> 'release';
+atomize(Else)     -> Else.
 
-unknown([])       -> skip;
-unknown(Other)    -> info("Unknown: ~p~n",[Other]), help().
+profile()         -> application:get_env(mad,profile,mad_local).
 
+errors([])        -> [];
 errors(false)     -> [];
 errors(true)      -> {error,unknown};
-errors({error,L}) -> info("ERR: ~tp~n",[L]), {error,L};
-errors({ok,L})    -> info("OK:  ~tp~n",[L]), [];
+errors({error,L}) -> info("ERROR: ~tp~n",[L]), {error,L};
+errors({ok,_})    -> info("OK~n",[]), [];
 errors(X)         -> info("RETURN: ~tp~n",[X]), {error,X}.
 
 return(true)      -> 1;

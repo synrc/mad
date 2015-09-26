@@ -1,4 +1,4 @@
--module(mad_plan).
+-module(mad_resolve).
 -author('Maxim Sokhatsky').
 -compile(export_all).
 
