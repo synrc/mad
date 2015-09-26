@@ -1,6 +1,6 @@
-\section{Bundles}
+\section{Container Bundles}
 
-\subsection{Single-file SCRIPT Bundles}
+\subsection{ESCRIPT Bundles}
 
 The key feature of mad is ability to create single-file bundled web sites.
 Thus making dream to boot simpler than node.js come true.
@@ -36,7 +36,7 @@ function defined, which will boot up the bundle. This function could be like tha
 \end{lstlisting}
 \vspace{1\baselineskip}
 
-\subsection{BEAM Releases}
+\subsection{BEAM ERTS Releases}
 
 As you may know you can create OTP releases with
 reltool (rebar generate) or systools (relx). mad creates releases boot
@@ -147,7 +147,8 @@ development mode because all directory structure is open and mutable,
 so you can reload modified files and perform recompilation on the fly.
 
 It uses the original code to fast resolve dependencies into the right
-boot sequence to start.
+boot sequence to start. If you want more powerful Makefile-based erlang
+package management you may take a look onto ERLANG.MK by Ninenines.
 
 \vspace{1\baselineskip}
 \begin{lstlisting}
