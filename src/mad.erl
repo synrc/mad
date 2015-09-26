@@ -1,4 +1,4 @@
--module(mad)..
+-module(mad).
 -copyright('Maxim Sokhatsky').
 -include("mad.hrl").
 -compile(export_all).
