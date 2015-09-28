@@ -2,7 +2,7 @@
 -compile(export_all).
 
 start(App) ->                            % run_dir > < log_dir
-    mad_plan:main([]),
+    mad_resolve:main([]),
     mad:info("Scripting: ~p~n",[escript:script_name()]),
     {_,Status,X} = sh:run("run_erl",["-daemon",".",".","exec "++escript:script_name()++" sh"],
       binary,".",

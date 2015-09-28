@@ -17,7 +17,7 @@ applist() ->
          {ok,Binary} -> parse_applist(Binary); 
          {error,_} ->
            case mad_repl:load_file(Name) of
-              {error,_} -> mad_plan:main([]);
+              {error,_} -> mad_resolve:main([]);
               {ok,Plan} -> parse_applist(Plan) end end.
 
 wildcards(List) -> lists:concat([filelib:wildcard(X)||X<-List]).
@@ -61,7 +61,7 @@ cwd() -> case  file:get_cwd() of {ok, Cwd} -> Cwd; _ -> "." end.
 
 sh(Params) ->
     { _Cwd,_ConfigFileName,_Config } = mad_utils:configs(),
-    mad_plan:main([]),
+    mad_resolve:main([]),
     SystemPath = filelib:wildcard(code:root_dir() ++ "/lib/{"
               ++ string:join([atom_to_list(X)||X<-mad_repl:system()],",") ++ "}-*/ebin"),
     UserPath   = wildcards(["{apps,deps}/*/ebin","ebin"]),
