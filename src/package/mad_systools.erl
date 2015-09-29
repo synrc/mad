@@ -32,7 +32,10 @@ release(Name) ->
     {Ver,Dir} = lists:unzip(R),
     NameVer   = [ X || X <- lists:zip(L,Ver), element(1,X) /= active,
                                               element(1,X) /= fs ],
-    {{release,{Name,"1"},{erts,erlang:system_info(version)},NameVer},Sorted}.
+    Version = case lists:keyfind(list_to_atom(Name),2,Triples) of
+                  {_,_,{Vsn,_}} -> Vsn;
+                  _ -> "1" end,
+    {{release,{Name,Version},{erts,erlang:system_info(version)},NameVer},Sorted}.
 
 beam_release(N) ->
     mad_resolve:main([]),
@@ -41,6 +44,7 @@ beam_release(N) ->
     {Release,Apps} = release(N),
     file:write_file(N ++ ".rel",io_lib:format("~p.",[Release])),
     Res = systools:make_script(N),
+    systools:make_tar(N),
     Files = [ {"/bin/" ++ filename:basename(F), F}
         || F <- mad_repl:wildcards([code:root_dir() ++
             "/erts-" ++ erlang:system_info(version) ++

@@ -61,7 +61,6 @@ cwd() -> case  file:get_cwd() of {ok, Cwd} -> Cwd; _ -> "." end.
 
 sh(Params) ->
     { _Cwd,_ConfigFileName,_Config } = mad_utils:configs(),
-    mad_resolve:main([]),
     SystemPath = filelib:wildcard(code:root_dir() ++ "/lib/{"
               ++ string:join([atom_to_list(X)||X<-mad_repl:system()],",") ++ "}-*/ebin"),
     UserPath   = wildcards(["{apps,deps}/*/ebin","ebin"]),
