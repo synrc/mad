@@ -29,10 +29,7 @@ function defined, which will boot up the bundle. This function could be like tha
 \vspace{1\baselineskip}
 \begin{lstlisting}
      -module(app_name).
-
-     main(Params) ->
-          RebarConfig = [],
-          mad_repl:main(Params,RebarConfig).
+     main(Params) -> mad_repl:sh(Params).
 \end{lstlisting}
 \vspace{1\baselineskip}
 

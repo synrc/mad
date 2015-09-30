@@ -44,7 +44,7 @@ beam_release(N) ->
     {Release,Apps} = release(N),
     file:write_file(N ++ ".rel",io_lib:format("~p.",[Release])),
     Res = systools:make_script(N),
-    systools:make_tar(N),
+%    systools:make_tar(N),
     Files = [ {"/bin/" ++ filename:basename(F), F}
         || F <- mad_repl:wildcards([code:root_dir() ++
             "/erts-" ++ erlang:system_info(version) ++
