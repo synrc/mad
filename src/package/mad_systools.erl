@@ -22,14 +22,14 @@ apps(List) ->
 
 release(Name) ->
     Triples = mad_resolve:triples(),
-    Apps = lists:usort(fun({Name,_},{Name2,_})-> Name =< Name2 end,
+    Apps = lists:usort(fun({Name1,_},{Name2,_})-> Name1 =< Name2 end,
                 [{A,{B,F}}||{_,A,{B,F}}<-Triples]) ++
       [{kernel,{proplists:get_value(vsn,element(2,
                 application:get_all_key(kernel)),[]),
                 filename:absname(code:lib_dir(kernel))}}],
     Sorted = [ lists:keyfind(A,1,Apps) || A <- element(2,mad_resolve:orderapps())],
     {L,R}     = lists:unzip(Sorted),
-    {Ver,Dir} = lists:unzip(R),
+    {Ver,_Dir} = lists:unzip(R),
     NameVer   = [ X || X <- lists:zip(L,Ver), element(1,X) /= active,
                                               element(1,X) /= fs ],
     Version = case lists:keyfind(list_to_atom(Name),2,Triples) of

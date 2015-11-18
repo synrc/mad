@@ -1,7 +1,7 @@
 -module(mad_erl).
 -copyright('Sina Samavati').
 -compile(export_all).
--define(COMPILE_OPTS(Inc, Ebin, Opts, Deps), [return_errors, {i, [Inc]}, {outdir, Ebin}] ++ Opts++Deps).
+-define(COMPILE_OPTS(Inc, Ebin, Opts, Deps), [return_errors, return_warnings, {i, [Inc]}, {outdir, Ebin}] ++ Opts++Deps).
 
 erl_to_beam(Bin, F) -> filename:join(Bin, filename:basename(F, ".erl") ++ ".beam").
 
@@ -15,9 +15,13 @@ compile(File,Inc,Bin,Opt,Deps) ->
     true -> false end.
 
 ret(error) -> true;
-ret({error,Errors,_}) ->
-    S=case file:get_cwd() of {ok,Cwd} -> length(Cwd); _ -> 0 end,
-    [[ mad:info("Line ~p: ~p in ~p~n",[ L,R,lists:nthtail(S,F) ]) || {L,_,R} <- E ] || {F,E} <- Errors ], true;
+ret({error,X}) -> lines(error,X);
+ret({error,X,_}) -> lines(error,X);
 ret({ok,_}) -> false;
-ret({ok,_,_}) -> false;
-ret({ok,_,_,_}) -> false.
+ret({ok,_,[]}) -> false;
+ret({ok,_,X}) -> lines(warning,X), false;
+ret({ok,_,X,_}) -> lines(warning,X), false.
+
+lines(Tag,X) ->
+    S=case file:get_cwd() of {ok,Cwd} -> length(Cwd); _ -> 0 end,
+    [[ mad:info("Line ~p: ~p ~p in ~p~n",[ L,Tag,R,lists:nthtail(S,F) ]) || {L,_,R} <- E ] || {F,E} <- X ], true.

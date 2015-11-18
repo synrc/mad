@@ -19,7 +19,7 @@ start(App) ->
     mad:info("Oneliner: ~p~n",[Concat]),
     {ret(R),S}.
 
-stop(App) -> ok.
+stop(_App) -> ok.
 
 ret(0) -> ok;
 ret(_) -> error.

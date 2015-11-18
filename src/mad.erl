@@ -16,10 +16,8 @@ main(Params)      ->
                                 (_) -> false end,
            lists:flatten(
            lists:foldl(
-                 fun ({Fun,Arg},[])  -> errors((profile()):Fun(Arg));
-                     ({Fun,Arg},Err) -> errors(Invalid),
-                                        { return, Err } end,
-                 [], Valid)))).
+                 fun ({Fun,Arg},[]) -> errors((profile()):Fun(Arg));
+                        ({_,_},Err) -> errors(Invalid), {return,Err} end, [], Valid)))).
 
 atomize("static") -> 'static';
 atomize("deploy") -> 'deploy';
@@ -44,9 +42,9 @@ profile()         -> application:get_env(mad,profile,mad_local).
 errors([])        -> [];
 errors(false)     -> [];
 errors(true)      -> {error,unknown};
-errors({error,L}) -> info("ERROR: ~tp~n",[L]), {error,L};
+errors({error,L}) -> info("ERROR: ~tp~n",[L]), [{error,L}];
 errors({ok,_})    -> info("OK~n",[]), [];
-errors(X)         -> info("RETURN: ~tp~n",[X]), {error,X}.
+errors(X)         -> info("RETURN: ~tp~n",[X]), [{error,X}].
 
 return(true)      -> 1;
 return(false)     -> 0;
@@ -56,7 +54,7 @@ info(Format)      -> io:format(lists:concat([Format,"\r"])).
 info(Format,Args) -> io:format(lists:concat([Format,"\r"]),Args).
 
 help(Reason,D)    -> help(io_lib:format("~s ~p", [Reason, D])).
-help(Msg)         -> help().
+help(_Msg)        -> help().
 help()            -> info("MAD Container Tool version ~s~n",[?VERSION]),
                      info("~n"),
                      info("    invoke = mad params~n"),

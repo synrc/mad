@@ -7,7 +7,7 @@ main(N) ->
     mad_resolve:main([]),
     EmuArgs = "-noshell -noinput +pc unicode",
     Files = static() ++ beams(fun filename:basename/1, fun read_file/1) ++ overlay(),
-%   [ io:format("Escript: ~ts~n",[File]) || { File, _ } <- Files ],
+   [ io:format("Escript: ~ts~n",[File]) || { File, _ } <- Files ],
     escript:create(App,[shebang,{comment,""},{emu_args,EmuArgs},{archive,Files,[memory]}]),
     file:change_mode(App, 8#764),
     {ok,App}.

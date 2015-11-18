@@ -1,7 +1,7 @@
 -module(mad_git).
 -compile(export_all).
 
-deps(Params) ->
+deps(_Params) ->
     { Cwd, ConfigFile, Conf } = mad_utils:configs(),
     case mad_utils:get_value(deps, Conf, []) of
         [] -> {ok,[]};
