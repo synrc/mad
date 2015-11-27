@@ -20,7 +20,9 @@ triples() ->
     lists:flatten([ case
        file:consult(F) of
          {ok,[{application,Name,Opt}]} ->
-              Apps = proplists:get_value(applications,Opt,[]),
+              Apps1 = proplists:get_value(included_applications,Opt,[]),
+              Apps2 = proplists:get_value(applications,Opt,[]),
+              Apps = lists:usort(Apps1++Apps2),
               Vsn  = proplists:get_value(vsn,Opt,[]),
               [ case lists:member(A,mad_repl:system()) of
                      false -> {A,Name,{Vsn,appdir(filename:absname(F))}};
