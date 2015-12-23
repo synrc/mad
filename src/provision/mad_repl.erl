@@ -32,7 +32,7 @@ load_config() ->
         [] -> case mad_repl:load_file("sys.config") of
               {error,_} -> [];
               {ok,Bin} -> parse(binary_to_list(Bin)) end;
-      File -> case file:consult(File) of
+      File -> case file:consult(hd(File)) of
               {error,_} -> [];
               {ok,[A]} -> A end end,
  [ begin [ application:set_env(App,K,V) || {K,V} <- Cfg ], {App,Cfg} end || {App,Cfg} <- Apps ].
