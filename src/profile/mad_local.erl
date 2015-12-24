@@ -4,6 +4,7 @@
 compile(Params)   -> mad_compile:compile(Params).
 app(Params)       -> mad_static:app(Params).
 release(Params)   -> mad_release:release(Params).
+resolve(Params)   -> mad_resolve:main(Params).
 clean(Params)     -> mad_run:clean(Params).
 start(Params)     -> mad_run:start(Params).
 attach(Params)    -> mad_run:attach(Params).

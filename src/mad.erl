@@ -34,7 +34,7 @@ atomize("sto"++_) -> 'stop';
 atomize("att"++_) -> 'attach';
 atomize("sh")     -> 'sh';
 atomize("rep"++_) -> 'sh';
-atomize("pla"++_) -> 'release';
+atomize("pla"++_) -> 'resolve';
 atomize(Else)     -> Else.
 
 profile()         -> application:get_env(mad,profile,mad_local).
