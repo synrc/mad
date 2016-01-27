@@ -39,6 +39,8 @@ compile_erlydtl_files(Opts) ->
     {{_, ModuleExt}, Opts3} = get_kv(module_ext, Opts2, ""),
     {{_, OutDir},        _} = get_kv(out_dir,    Opts3, ""),
 
+    true = code:add_pathz(OutDir),
+
     Files = filelib:fold_files(DocRoot, SourceExt, true,
                                fun(F, Acc) -> [F|Acc] end, []),
 
@@ -55,4 +57,4 @@ compile_erlydtl_files(Opts) ->
              true -> ok end
     end,
 
-    lists:any(fun({error,_}) -> true; (ok) -> false end,[Compile(F) || F <- Files]).
+    lists:any(fun({error,_}) -> true; ({ok, _Module}) -> false; (ok) -> false end,[Compile(F) || F <- Files]).
