@@ -31,7 +31,7 @@ load_config() ->
    Apps = case Config of
         [] -> case mad_repl:load_file("sys.config") of
               {error,_} -> [];
-              {ok,Bin} -> parse(binary_to_list(Bin)) end;
+              {ok,Bin} -> parse(unicode:characters_to_list(Bin)) end;
       File -> case file:consult(hd(File)) of
               {error,_} -> [];
               {ok,[A]} -> A end end,
