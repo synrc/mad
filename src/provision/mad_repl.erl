@@ -35,7 +35,21 @@ load_config() ->
       File -> case file:consult(hd(File)) of
               {error,_} -> [];
               {ok,[A]} -> A end end,
- [ begin [ application:set_env(App,K,V) || {K,V} <- Cfg ], {App,Cfg} end || {App,Cfg} <- Apps ].
+    load_config(Apps, []).
+
+load_config([H|T], Apps2) ->
+    App2 = case H of
+        {App,Cfg} -> [application:set_env(App,K,V) || {K,V} <- Cfg], [H];
+        File when is_list(File) ->
+            Apps = case file:consult(File) of
+                {error,_} -> [];
+                {ok,[A]} -> A end,
+            load_config(Apps, []);
+        _ -> []
+    end,
+    load_config(T, Apps2 ++ App2);
+load_config([], Apps2) ->
+    Apps2.
 
 acc_start(A,Acc) ->
    case application:start(A) of
@@ -136,3 +150,4 @@ pp(Padding,V) -> k_io_lib_pretty:print(V, Padding, 80, 30, 60, fun(_,_)-> no end
 appconfig(Driver) ->
     print("Configuration: ", load_config(), Driver),
     print("Applications: ",  applist(),     Driver).
+
