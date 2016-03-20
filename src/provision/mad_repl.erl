@@ -101,7 +101,9 @@ load() ->
 unfold_zips(Bin) ->
     {ok,Unzip} = zip:unzip(Bin,[memory]),
     [ begin
-        ets:insert(filesystem,{U,FileBin}),
+       try
+        ets:insert(filesystem,{binary_to_list(base64:decode(list_to_binary(U))),FileBin})
+       catch _:_ -> ok end,
         case U of
             "static.gz" -> unfold_zips(FileBin);
             _ -> skip end

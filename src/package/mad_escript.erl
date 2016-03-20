@@ -17,7 +17,8 @@ read_file(File) -> {ok, Bin} = file:read_file(filename:absname(File)), Bin.
 static() ->
     Name = "static.gz",
     {ok,{_,Bin}} = zip:create(Name,
-        [ F || F <- mad_repl:wildcards(["{apps,deps}/*/priv/**","priv/**"]), not filelib:is_dir(F) ],
+        [ { binary_to_list(base64:encode(F)), element(2,file:read_file(F)) } 
+     || F <- mad_repl:wildcards(["{apps,deps}/*/priv/**","priv/**"]), not filelib:is_dir(F) ],
         [{compress,all},memory]),
     [ { Name, Bin } ].
 
