@@ -83,11 +83,10 @@ sh(Params) ->
     load(),
     Config = load_config(),
     Driver = mad_utils:get_value(shell_driver,_Config,user_drv),
-    pre(Driver),
+    repl_intro(),
     case os:type() of
-         {win32,nt} -> shell:start();
+         {win32,nt} -> os:cmd("chcp 65001"), shell:start();
                   _ -> Driver:start() end,
-    post(Driver),
     load_apps(Params,Config,[]),
     case Params of
         ["applist"] -> skip;
@@ -135,19 +134,7 @@ parse(String) ->
     {value,Value,_Bs} = erl_eval:exprs(AbsForm, erl_eval:new_bindings()),
     Value.
 
-% we need to call printing before starting driver for user_drv
-% but for start_kjell we should call after, that's why we have pre and post here.
-
-pre(start_kjell) -> [];
-pre(user_drv) -> unregister(user), appconfig(user_drv);
-pre(Driver) -> appconfig(Driver).
-post(start_kjell) -> appconfig(start_kjell);
-post(_) -> [].
-print(Label,Value,start_kjell) -> io:requests([{put_chars,Label ++ normalize(length(Label)+1,Value) ++ "\n\r"}]);
-print(Label,Value,_) -> mad:info("~s~p~n",[Label,Value]).
-normalize(Padding,V) -> [ case X of 10 -> [13,10]; E -> E end || X <- lists:flatten(pp(Padding,V) )].
-pp(Padding,V) -> k_io_lib_pretty:print(V, Padding, 80, 30, 60, fun(_,_)-> no end).
-appconfig(Driver) ->
-    print("Configuration: ", load_config(), Driver),
-    print("Applications: ",  applist(),     Driver).
+repl_intro() ->
+    io:format("Configuration: ~p~n", [load_config()]),
+    io:format("Applications:  ~p~n", [applist()]).
 
