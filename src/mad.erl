@@ -50,7 +50,7 @@ return(true)      -> 1;
 return(false)     -> 0;
 return(X)         -> X.
 
-host()            -> Host = try {ok,H} = inet:gethostname(), H catch _:_ -> <<>> end.
+host()            -> try {ok,H} = inet:gethostname(), H catch _:_ -> <<>> end.
 
 info(Format)      -> io:format(lists:concat([Format,"\r"])).
 info(Format,Args) -> io:format(lists:concat([Format,"\r"]),Args).

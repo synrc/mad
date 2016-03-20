@@ -1,8 +1,9 @@
 language: erlang
 otp_release:
+  - 18.0
   - R16B02
   - R16B01
 notifications:
   email: false
   irc: "chat.freenode.net#n2o"
-script: "./mad get-deps compile"
+script: "make"
