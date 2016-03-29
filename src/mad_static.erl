@@ -3,6 +3,19 @@
 -compile(export_all).
 -define(NODE(Bin), "node_modules/.bin/"++Bin).
 
+main(Config, ["min"]) ->
+    {ok,[SysConfig]} = file:consult("sys.config"),
+    N2O     = proplists:get_value(n2o,SysConfig,[]),
+    AppName = proplists:get_value(app,N2O,sample),
+    Minify  = proplists:get_value(minify,N2O,[]),
+    Command = lists:concat(["uglifyjs ",string:join(element(2,Minify)," "),
+                                 " -o ",element(1,Minify),"/",AppName,".js -p 5 -c -m"]),
+    io:format("Minify: ~p~n",[Command]),
+    case sh:run(Command) of
+         {_,0,_} -> {ok,static};
+         {_,_,_} -> mad:info("minifyjs not installed. try `npm install -g uglify`~n"), {error,minifier}
+    end;
+
 main(Config, ["watch"]) ->
     case mad_utils:get_value(static, Config, []) of
         [] -> {ok,static};

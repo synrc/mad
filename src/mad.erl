@@ -63,5 +63,5 @@ help()            -> info("MAD Container Tool version ~s~n",[?VERSION]),
                      info("    params = [] | command [ options  ] params ~n"),
                      info("   command = app     | deps  | clean | compile | up~n"),
                      info("           | release [ beam  | ling  | script  | runc | depot ]~n"),
-                     info("           | deploy  | start | stop  | attach  | sh ~n"),
+                     info("           | deploy  | start | stop  | attach  | sh | static [ <watch|min> ] ~n"),
                      return(false).
