@@ -133,7 +133,11 @@ unfold_zips(Bin) ->
     [ begin
        try
         ets:insert(filesystem,{unicode:characters_to_list(base64:decode(list_to_binary(U))),FileBin})
-       catch _:_ -> ok end,
+       catch _:_ ->
+        io:format("``~n"),
+        ets:insert(filesystem,{U,FileBin})
+        
+       end,
         case U of
             "static.gz" -> unfold_zips(FileBin);
             _ -> skip end
