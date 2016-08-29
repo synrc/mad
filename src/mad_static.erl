@@ -9,7 +9,7 @@ main(Config, ["min"]) ->
     AppName = proplists:get_value(app,N2O,sample),
     Minify  = proplists:get_value(minify,N2O,[]),
     Command = lists:concat(["uglifyjs ",string:join(element(2,Minify)," "),
-                                 " -o ",element(1,Minify),"/",AppName,".js -p 5 -c -m"]),
+                                 " -o ",element(1,Minify),"/",AppName,".min.js -p 5 -c -m"]),
     io:format("Minify: ~p~n",[Command]),
     case sh:run(Command) of
          {_,0,_} -> {ok,static};
