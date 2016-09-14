@@ -48,7 +48,7 @@ beam_release(N) ->
     Files = [ {"/bin/" ++ filename:basename(F), F}
         || F <- mad_repl:wildcards([code:root_dir() ++
             "/erts-" ++ erlang:system_info(version) ++
-            "/bin/{epmd,erlexec,run_erl,to_erl,escript,beam.smp}"]) ] ++
+            "/bin/{epmd,erlexec,run_erl,to_erl,escript,beam.smp,erl_child_setup}"]) ] ++
         apps(Apps) ++ scripts(N),
     erl_tar:create(N ++ ".tgz",Files,[compressed]),
     mad:info("~s.boot: ~p~n",[N,Res]),
