@@ -28,28 +28,16 @@ parse_applist(AppList) ->
 
 load_config() ->
    Config = wildcards(["sys.config",lists:concat(["etc/",mad:host(),"/sys.config"])]),
-   Apps = case Config of
+   _Apps = case Config of
         [] -> case mad_repl:load_file("sys.config") of
               {error,_} -> [];
               {ok,Bin} -> parse(unicode:characters_to_list(Bin)) end;
       File -> case file:consult(hd(File)) of
               {error,_} -> [];
-              {ok,[A]} -> A end end,
-    load_config(Apps, []).
+              {ok,[A]} -> A end end.
 
-load_config([H|T], Apps2) ->
-    App2 = case H of
-        {App,Cfg} -> [application:set_env(App,K,V) || {K,V} <- Cfg], [H];
-        File when is_list(File) ->
-            Apps = case file:consult(File) of
-                {error,_} -> [];
-                {ok,[A]} -> A end,
-            load_config(Apps, []);
-        _ -> []
-    end,
-    load_config(T, Apps2 ++ App2);
-load_config([], Apps2) ->
-    Apps2.
+load_config(AppConfigs,[]) ->
+    [ [application:set_env(App,K,V) || {K,V} <- Cfg] || {App,Cfg} <- AppConfigs].
 
 acc_start(A,Acc) ->
    case application:start(A) of
@@ -59,12 +47,14 @@ acc_start(A,Acc) ->
          ok -> Acc;
          _  -> Acc end.
 
-load_apps([],_,_Acc) ->
+load_apps([],Config,_Acc) ->
   Res = lists:foldl(fun(A,Acc) -> case lists:member(A,system()) of
        true -> acc_start(A,Acc);
-          _ -> case load_config(A) of
+          _ -> X = load_config(A),
+               case X of
                     [] -> acc_start(A,Acc);
                     _E -> acc_start(_E,Acc) end end end,[], applist()),
+  load_config(Config,[]),
   case Res of
        [] -> ok;
        _ -> mad:info("~nApps couldn't be loaded: ~p~n",[Res]) end;
@@ -83,7 +73,7 @@ sh(Params) ->
     load(),
     Config = load_config(),
     Driver = mad_utils:get_value(shell_driver,_Config,user_drv),
-    repl_intro(),
+    repl_intro(Config),
     case os:type() of
          {win32,nt} -> os:cmd("chcp 65001"), shell:start();
                   _ -> O = whereis(user),
@@ -168,7 +158,7 @@ parse(String) ->
     {value,Value,_Bs} = erl_eval:exprs(AbsForm, erl_eval:new_bindings()),
     Value.
 
-repl_intro() ->
-    io:format("Configuration: ~p~n", [load_config()]),
+repl_intro(Config) ->
+    io:format("Configuration: ~p~n", [Config]),
     io:format("Applications:  ~p~n", [applist()]).
 
