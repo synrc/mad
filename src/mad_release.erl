@@ -9,4 +9,5 @@ release(["script"])      -> release(["script","sample"]);
 release(["ling",N])      -> mad_ling:ling(N);
 release(["script",N])    -> mad_escript:main(N);
 release(["beam",N])      -> mad_systools:beam_release(N);
+release(["depot",N])     -> mad_synrc:depot_release(N);
 release([X])             -> release(["script",X]).

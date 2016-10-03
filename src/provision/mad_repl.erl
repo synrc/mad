@@ -4,7 +4,7 @@
 
 disabled() -> [].
 system() -> [compiler,syntax_tools,sasl,tools,mnesia,reltool,xmerl,crypto,kernel,stdlib,ssh,eldap,
-             wx,webtool,ssl,runtime_tools,public_key,observer,inets,asn1,et,eunit,hipe,os_mon,parsetools,odbc].
+             wx,ssl,runtime_tools,public_key,observer,inets,asn1,et,eunit,hipe,os_mon,parsetools,odbc].
 
 local_app() ->
     case filename:basename(filelib:wildcard("ebin/*.app"),".app") of
@@ -14,7 +14,7 @@ local_app() ->
 applist() ->
     Name = ".applist",
     case file:read_file(Name) of
-         {ok,Binary} -> parse_applist(Binary); 
+         {ok,Binary} -> parse_applist(Binary);
          {error,_} ->
            case mad_repl:load_file(Name) of
               {error,_} -> mad_resolve:main([]);
@@ -37,7 +37,14 @@ load_config() ->
               {ok,[A]} -> A end end.
 
 load_config(AppConfigs,[]) ->
-    [ [application:set_env(App,K,V) || {K,V} <- Cfg] || {App,Cfg} <- AppConfigs].
+    [ [application:set_env(App,K,V) || {K,V} <- Cfg] || {App,Cfg} <- AppConfigs],
+    load_includes(AppConfigs).
+
+load_includes(AppConfigs) ->
+    [ begin Apps = case file:consult(File) of
+                        {error,_} -> [];
+                        {ok,[A]} -> A end,
+             load_config(Apps, []) end || File <- AppConfigs, is_list(File) ].
 
 acc_start(A,Acc) ->
    case application:start(A) of
