@@ -37,7 +37,7 @@ load_config() ->
               {ok,[A]} -> A end end.
 
 load_config(AppConfigs,[]) ->
-    [ [application:set_env(App,K,V) || {K,V} <- Cfg] || {App,Cfg} <- AppConfigs],
+    [ [ application:set_env(App,K,V) || {K,V} <- Cfg] || {App,Cfg} <- AppConfigs],
     load_includes(AppConfigs).
 
 load_includes(AppConfigs) ->
@@ -55,13 +55,13 @@ acc_start(A,Acc) ->
          _  -> Acc end.
 
 load_apps([],Config,_Acc) ->
+  load_config(Config,[]),
   Res = lists:foldl(fun(A,Acc) -> case lists:member(A,system()) of
        true -> acc_start(A,Acc);
           _ -> X = load_config(A),
                case X of
                     [] -> acc_start(A,Acc);
                     _E -> acc_start(_E,Acc) end end end,[], applist()),
-  load_config(Config,[]),
   case Res of
        [] -> ok;
        _ -> mad:info("~nApps couldn't be loaded: ~p~n",[Res]) end;
