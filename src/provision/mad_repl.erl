@@ -46,7 +46,23 @@ load_includes(AppConfigs) ->
                         {ok,[A]} -> A end,
              load_config(Apps, []) end || File <- AppConfigs, is_list(File) ].
 
-acc_start(A,Acc) ->
+acc_start(_A,Acc,Config) ->
+   case is_tuple(_A) of
+      true -> % If _A is app descriptor we extend the env information
+          AppName = element(2, _A),
+          SysConfigs = lists:flatten(lists:filtermap(
+                    fun({Elem,Rest}) -> case Elem == AppName of
+                        true -> { true, Rest };
+                        _    -> false
+                    end end, Config)),
+          A = setelement(3, _A, lists:map(fun({K,V}) ->
+                           case K == env of
+                             true -> { K, V ++ SysConfigs };
+                             _    -> { K, V }
+                           end
+                          end, element(3, _A)));
+      false -> A = _A end,
+
    case application:start(A) of
          {error,{already_started,_}} -> Acc;
          {error,{_,{{M,_F,_},_Ret}}} -> [M|Acc];
@@ -57,11 +73,11 @@ acc_start(A,Acc) ->
 load_apps([],Config,_Acc) ->
   load_config(Config,[]),
   Res = lists:foldl(fun(A,Acc) -> case lists:member(A,system()) of
-       true -> acc_start(A,Acc);
+       true -> acc_start(A,Acc,Config);
           _ -> X = load_config(A),
                case X of
-                    [] -> acc_start(A,Acc);
-                    _E -> acc_start(_E,Acc) end end end,[], applist()),
+                    [] -> acc_start(A,Acc,Config);
+                    _E -> acc_start(_E,Acc,Config) end end end,[], applist()),
   case Res of
        [] -> ok;
        _ -> mad:info("~nApps couldn't be loaded: ~p~n",[Res]) end;
