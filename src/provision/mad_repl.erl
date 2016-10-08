@@ -46,22 +46,38 @@ load_includes(AppConfigs) ->
                         {ok,[A]} -> A end,
              load_config(Apps, []) end || File <- AppConfigs, is_list(File) ].
 
-acc_start(A,Acc,Config) ->
+acc_start(A,Acc) ->
     application:ensure_all_started(A), Acc.
 
-load_apps([],Config,_Acc) ->
-    lists:foldl(fun(A,Acc) -> case lists:member(A,system()) of
-         true -> load_config(Config,[]),
-                 acc_start(A,Acc,Config);
-            _ -> X = load_config(A),
-                 {application,Name,Map} = X,
-                 [ application:set_env(Name,K,V) || {K,V} <- proplists:get_value(env,Map,[]) ],
-                 load_config(Config,[]),
-                 case X of
-                      [] -> acc_start(A,Acc,X);
-                      _E -> acc_start(_E,Acc,X) end end end,[], applist());
-load_apps(["applist"],Config,Acc) -> load_apps([],Config,Acc);
-load_apps(Params,_,_Acc) -> [ application:ensure_all_started(list_to_atom(A))||A<-Params].
+% for system application we just start, forgot about env merging
+
+load(true,A,Acc,Config) ->
+    load_config(Config,[]),
+    acc_start(A,Acc);
+
+% for user application we should merge app from ebin and from sys.config
+% and start application using tuple argument in app controller
+
+load(_,A,Acc,Config) ->
+    X = load_config(A),
+    {application,Name,Map} = X,
+    Env = [ begin application:set_env(Name,K,V),{K,V} end
+            || {K,V} <- proplists:get_value(env,Map,[]) ],
+    load_config(Config,[]),
+    NewEnv = lists:foldl(fun({Name,E},Acc2) ->
+             lists:foldl(fun({K,V},Acc1)    -> set_value(K,1,Acc1,{K,V}) end,Acc2,E);
+                                   (_,Acc2) -> Acc end, Env, Config),
+    NewMap = set_value(env,1,Map,{env,NewEnv}),
+    NewApp = {application,Name,NewMap},
+    acc_start(NewApp,Acc).
+
+load_apps([],Config,Acc)             -> [ load(lists:member(A,system()),A,Acc,Config) || A <- applist()];
+load_apps(["applist"],Config,Acc)    -> load_apps([],Config,Acc);
+load_apps(Params,_,_Acc)             -> [ application:ensure_all_started(list_to_atom(A))||A<-Params].
+
+set_value(Name,Pos,List,New)         -> add_replace(lists:keyfind(Name,Pos,List),Name,Pos,List,New).
+add_replace(false,Name,Pos,List,New) -> [New|List];
+add_replace(_____,Name,Pos,List,New) -> lists:keyreplace(Name,Pos,List,New).
 
 cwd() -> case  file:get_cwd() of {ok, Cwd} -> Cwd; _ -> "." end.
 
