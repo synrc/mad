@@ -46,23 +46,20 @@ load_includes(AppConfigs) ->
                         {ok,[A]} -> A end,
              load_config(Apps, []) end || File <- AppConfigs, is_list(File) ].
 
-acc_start(A,Acc,Config) when is_tuple(A) -> % If "A" is app descriptor we extend the env information
-    AppName = element(2, A),
-    Filter=fun({Elem,Rest}) when Elem =:= AppName -> { true, Rest }; (_) -> false end,
-    SysConfigs = lists:flatten(lists:filtermap(Filter,Config)),
-    Map=fun({env=K,V}) -> {K, V++SysConfigs}; ({K,V}) -> {K,V} end,
-    setelement(3, A, lists:map(Map, element(3,A)));
-acc_start(A,Acc,Config) -> A.
+acc_start(A,Acc,Config) ->
+    application:ensure_all_started(A), Acc.
 
 load_apps([],Config,_Acc) ->
-    load_config(Config,[]),
-    AppList=applist(),
     lists:foldl(fun(A,Acc) -> case lists:member(A,system()) of
-        true -> acc_start(A,Acc,Config);
-        _ -> case load_config(A) of
-            [] -> acc_start(A,Acc,Config);
-            E  -> acc_start(E,Acc,Config) end end end,[], AppList),
-    [ application:ensure_all_started(A) || A <- AppList ];
+         true -> load_config(Config,[]),
+                 acc_start(A,Acc,Config);
+            _ -> X = load_config(A),
+                 {application,Name,Map} = X,
+                 [ application:set_env(Name,K,V) || {K,V} <- proplists:get_value(env,Map,[]) ],
+                 load_config(Config,[]),
+                 case X of
+                      [] -> acc_start(A,Acc,X);
+                      _E -> acc_start(_E,Acc,X) end end end,[], applist());
 load_apps(["applist"],Config,Acc) -> load_apps([],Config,Acc);
 load_apps(Params,_,_Acc) -> [ application:ensure_all_started(list_to_atom(A))||A<-Params].
 
