@@ -4,3 +4,4 @@ erl_crash.dump
 logs
 .mad.plt
 deps
+.DS_Store

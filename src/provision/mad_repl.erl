@@ -46,41 +46,23 @@ load_includes(AppConfigs) ->
                         {ok,[A]} -> A end,
              load_config(Apps, []) end || File <- AppConfigs, is_list(File) ].
 
-acc_start(_A,Acc,Config) ->
-   case is_tuple(_A) of
-      true -> % If _A is app descriptor we extend the env information
-          AppName = element(2, _A),
-          SysConfigs = lists:flatten(lists:filtermap(
-                    fun({Elem,Rest}) -> case Elem == AppName of
-                        true -> { true, Rest };
-                        _    -> false
-                    end end, Config)),
-          A = setelement(3, _A, lists:map(fun({K,V}) ->
-                           case K == env of
-                             true -> { K, V ++ SysConfigs };
-                             _    -> { K, V }
-                           end
-                          end, element(3, _A)));
-      false -> A = _A end,
-
-   case application:start(A) of
-         {error,{already_started,_}} -> Acc;
-         {error,{_,{{M,_F,_},_Ret}}} -> [M|Acc];
-         {error,{_Reason,Name}} when is_atom(_Reason) -> [Name|Acc];
-         ok -> Acc;
-         _  -> Acc end.
+acc_start(A,Acc,Config) when is_tuple(A) -> % If "A" is app descriptor we extend the env information
+    AppName = element(2, A),
+    Filter=fun({Elem,Rest}) when Elem =:= AppName -> { true, Rest }; (_) -> false end,
+    SysConfigs = lists:flatten(lists:filtermap(Filter,Config)),
+    Map=fun({env=K,V}) -> {K, V++SysConfigs}; ({K,V}) -> {K,V} end,
+    setelement(3, A, lists:map(Map, element(3,A)));
+acc_start(A,Acc,Config) -> A.
 
 load_apps([],Config,_Acc) ->
-  load_config(Config,[]),
-  Res = lists:foldl(fun(A,Acc) -> case lists:member(A,system()) of
-       true -> acc_start(A,Acc,Config);
-          _ -> X = load_config(A),
-               case X of
-                    [] -> acc_start(A,Acc,Config);
-                    _E -> acc_start(_E,Acc,Config) end end end,[], applist()),
-  case Res of
-       [] -> ok;
-       _ -> mad:info("~nApps couldn't be loaded: ~p~n",[Res]) end;
+    load_config(Config,[]),
+    AppList=applist(),
+    lists:foldl(fun(A,Acc) -> case lists:member(A,system()) of
+        true -> acc_start(A,Acc,Config);
+        _ -> case load_config(A) of
+            [] -> acc_start(A,Acc,Config);
+            E  -> acc_start(E,Acc,Config) end end end,[], AppList),
+    [ application:ensure_all_started(A) || A <- AppList ];
 load_apps(["applist"],Config,Acc) -> load_apps([],Config,Acc);
 load_apps(Params,_,_Acc) -> [ application:ensure_all_started(list_to_atom(A))||A<-Params].
 
@@ -133,7 +115,7 @@ rewrite_leaders(OldUser, NewUser) ->
                          OldMasters)],
     try   error_logger:swap_handler(tty),
           remove(3)
-    catch E:R -> hope_for_best end.
+    catch _E:_R -> hope_for_best end.
 
 load() ->
     ets_created(),
