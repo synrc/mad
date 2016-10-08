@@ -59,17 +59,14 @@ load(true,A,Acc,Config) ->
 % and start application using tuple argument in app controller
 
 load(_,A,Acc,Config) ->
-    X = load_config(A),
-    {application,Name,Map} = X,
-    Env = [ begin application:set_env(Name,K,V),{K,V} end
-            || {K,V} <- proplists:get_value(env,Map,[]) ],
-    load_config(Config,[]),
-    NewEnv = lists:foldl(fun({Name,E},Acc2) ->
-             lists:foldl(fun({K,V},Acc1)    -> set_value(K,1,Acc1,{K,V}) end,Acc2,E);
-                                   (_,Acc2) -> Acc end, Env, Config),
-    NewMap = set_value(env,1,Map,{env,NewEnv}),
-    NewApp = {application,Name,NewMap},
-    acc_start(NewApp,Acc).
+    {application,Name,Map} = load_config(A),
+    NewEnv = merge(Config,Map,Name),
+    acc_start({application,Name,set_value(env,1,Map,{env,NewEnv})},Acc).
+
+merge(Config,Map,Name) ->
+    lists:foldl(fun({Name,E},Acc2)   ->
+    lists:foldl(fun({K,V},Acc1)      -> set_value(K,1,Acc1,{K,V}) end,Acc2,E);
+                          (_,Acc2)   -> Acc2 end, proplists:get_value(env,Map,[]), Config).
 
 load_apps([],Config,Acc)             -> [ load(lists:member(A,system()),A,Acc,Config) || A <- applist()];
 load_apps(["applist"],Config,Acc)    -> load_apps([],Config,Acc);
