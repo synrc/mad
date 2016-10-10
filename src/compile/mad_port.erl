@@ -27,14 +27,14 @@ compile_port(Dir,Specs0,Config) ->
           false -> Template = string:join(Files," ") 
                               ++ " CFLAGS LDFLAGS " ++ ei(Flavour,Out) ++ " -o " ++ Ouput,
                    Args = string:strip(replace_env(Template,Env),both,32),
-                   mad:info("Args: ~p~n",[Args]),
-                   mad:info("Env: ~p~n",[Env]),
+                   %mad:info("Args: ~p~n",[Args]),
+                   %mad:info("Env: ~p~n",[Env]),
                    {_,Status,Report} = sh:run("cc",string:tokens(Args," "),binary,Dir,Env),
                    case Status of
                     0 -> false;
                     _ -> mad:info("Port Compilation Error:~n" ++ io_lib:format("~ts",[Report]),[]), true 
                    end;
-          _ -> mad:info("No Need recompile  ~p~n",[{Ouput,Files}]), 
+          _ -> %mad:info("No Need recompile  ~p~n",[{Ouput,Files}]), 
                false
         end
       end || {Out,Patern} <- Specs ].
