@@ -40,7 +40,9 @@ compile_port(Dir,Specs0,Config) ->
       end || {Out,Patern} <- Specs ].
 
 is_compiled(O,Files) -> lists:foldl(fun(X,false) -> false;
-                                       (X, true) -> mad_utils:last_modified(O) >= mad_utils:last_modified(X)
+                                       (X, true) ->
+                                          filelib:is_file(O) andalso  
+                                          (mad_utils:last_modified(O) >= mad_utils:last_modified(X))
                                     end, true, Files).
 system(Sys,System) -> Sys == System orelse match(Sys,System).
 match(Re,System)   -> case re:run(System, Re, [{capture,none}]) of match -> true; nomatch -> false end.
