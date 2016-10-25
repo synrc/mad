@@ -164,7 +164,7 @@ load_config(A) when is_list(A) ->
     case file:read_file(Name) of
          {ok,Bin} -> parse(binary_to_list(Bin));
          {error,_} -> case ets:lookup(filesystem,AppFile) of
-                          [{Name,Bin}] -> parse(binary_to_list(Bin));
+                          [{AppFile,Bin}] -> parse(binary_to_list(Bin));
                           _ -> [] end end.
 
 parse(String) ->
