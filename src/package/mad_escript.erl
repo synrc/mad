@@ -5,7 +5,11 @@
 main(N) ->
     App = filename:basename(case N of [] -> mad_utils:cwd(); E -> E end),
     mad_resolve:main([]),
-    EmuArgs = "+pc unicode",
+    DefaultEmuArgs = "+pc unicode",
+    EmuArgs = case file:consult( "escript.config" ) of
+       { ok, Terms } -> proplists:get_value( emu_args, Terms, DefaultEmuArgs );
+       _ -> DefaultEmuArgs
+    end,
     Files = static() ++ beams(fun filename:basename/1, fun read_file/1) ++ overlay(),
 %   [ io:format("Escript: ~ts~n",[File]) || { File, _ } <- Files ],
     escript:create(App,[shebang,{comment,""},{emu_args,EmuArgs},{archive,Files,[memory]}]),
