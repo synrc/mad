@@ -84,7 +84,7 @@ match(Re,System)   -> case re:run(System, Re, [{capture,none}]) of match -> true
 erts_dir()         -> join(code:root_dir(), concat(["erts-", erlang:system_info(version)])) .
 erts_dir(include)  -> " -I"++join(erts_dir(), "include").
 ei_dir()           -> case code:lib_dir(erl_interface) of {error,bad_name} -> ""; E -> E end.
-ei_dir(include)    -> case ei_dir() of "" -> ""; E -> " -I"++join(E,"include") end.
+ei_dir(include)    -> case ei_dir() of "" -> ""; E -> " -I"++join(E,"include") end;
 ei_dir(lib)        -> case ei_dir() of "" -> ""; E -> " -L"++join(E,"lib") end.
 link_lang(Files)   -> lists:foldl(fun(F,cxx) -> cxx;
                                      (F,cc) -> case compiler(extension(F)) == "$CXX" of 
