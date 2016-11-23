@@ -36,12 +36,11 @@ compile_port(Dir,Specs0,Config) ->
                             0 -> {ok,Obj};
                             _ -> {error, "Port Compilation Error:~n" ++ io_lib:format("~ts",[Report])},true
                            end;
-                        true -> {even,Obj}
+                        true -> {ok,Obj}
                        end 
                     end,
 
           Res = lists:foldl(fun({ok,X},Acc)   -> [X|Acc];
-                               ({event,X},Acc)-> [X|Acc];
                                ({error,Err},_)-> {error,Err} 
                             end,[],[Compile(F) || F <- Files]),
           case Res of
@@ -94,8 +93,7 @@ link_lang(Files)   -> lists:foldl(fun(F,cxx) -> cxx;
 files(Dir,Patterns)-> files(Dir,Patterns, []).
 files(_,[], Acc) -> lists:reverse(Acc);
 files(D,[H|T], Acc) ->
-  files(D,T,filelib:wildcard(H)++Acc). 
-  %files(D,T,filelib:wildcard(join(D,H))++Acc). 
+  files(D,T,filelib:wildcard(join(D,H))++Acc). 
 
 
 target_type(".so")   -> drv;
