@@ -33,40 +33,35 @@ compile_port(Dir,Specs0,Config) ->
                            Cmd = expand(System,CmdCC,[{"CXXFLAGS",""},{"LDFLAGS",""},{"CFLAGS",""}]),
                            mad:info("cc ~s~n",[Cmd]),
                            {_,Status,Report} = sh:run("cc",string:tokens(Cmd," "),binary,Dir,Env),
-                           case Status of 
-                            0 -> {ok,Obj} ;
-                            _ -> {error, "Port Compilation Error:~n" ++ io_lib:format("~ts",[Report])},true
-                           end;
+                           case Status of 0 -> {ok,Obj} ;_ -> {error, Report} end;
                         true -> {even,Obj}
                        end 
                     end,
 
-          Res = lists:foldl(fun({ok,X},Acc)   -> [{ok,X}|Acc];
-                               ({even,X},Acc) -> [{even,X}|Acc];
-                               ({error,Err},_)-> {error,Err} 
-                            end,[],[Compile(F) || F <- Files]),
-
-          %%if any ok recompile target
-          case Res of 
-            {error,_} = Err -> 
-              mad:info("Port Compilation Error:~n" ++ io_lib:format("~p",[Err]),[]),true; 
-            Res ->
-              case lists:any(fun({ok,_}) -> true;(_)->false end, Res) of
-                false -> false; %% all even, no need to link target
-                true ->  Objs = [O||{_,O} <-Res],
-                         Env2  = [{"PORT_IN_FILES", string:join(Objs," ")},
-                                  {"PORT_OUT_FILE", Target}] ++ Env ++ default_env(),
-                         TplLD = tpl_ld(TargetType,LinkLang),
-                         CmdLD = string:strip(expand(System,TplLD,Env2)),
-                         Cmd = expand(System,CmdLD,[{"CXXFLAGS",""},{"LDFLAGS",""},{"CFLAGS",""}]),
-                         mad:info("cc ~s~n",[Cmd]),
-                         {_,Status,Report} = sh:run("cc",string:tokens(Cmd," "),binary,Dir,Env),
-                         case Status of 
-                          0 -> false;
-                          _ -> mad:info("Port Compilation Error:~n" ++ io_lib:format("~ts",[Report]),[]),
-                               {error, Report},true
-                         end                      
-              end
+          {EvenOrOk,Errors} = lists:partition(fun({ok,_})   -> true;
+                                                 ({even,_}) -> true;
+                                                 ({error,_})-> false
+                                              end,[Compile(F) || F <- Files]),
+          %mad:info("EvenOrOk: ~p~nErrors: ~p~n",[EvenOrOk,Errors]),
+          case Errors of
+            [] -> case lists:any(fun({ok,_}) -> true;(_)->false end, EvenOrOk) of
+                   false ->  false; %% all even, no need to link target
+                   true  ->  Objs = [O||{_,O} <-EvenOrOk],
+                             Env2  = [{"PORT_IN_FILES", string:join(Objs," ")},
+                                      {"PORT_OUT_FILE", Target}] ++ Env ++ default_env(),
+                             TplLD = tpl_ld(TargetType,LinkLang),
+                             CmdLD = string:strip(expand(System,TplLD,Env2)),
+                             Cmd = expand(System,CmdLD,[{"CXXFLAGS",""},{"LDFLAGS",""},{"CFLAGS",""}]),
+                             mad:info("cc ~s~n",[Cmd]),
+                             {_,Status,Report} = sh:run("cc",string:tokens(Cmd," "),binary,Dir,Env),
+                             case Status of 
+                              0 -> false;
+                              _ -> mad:info("Port Compilation Error:~n" ++ io_lib:format("~ts",[Report]),[]),
+                                   {error, Report},true
+                             end                      
+                  end;
+            Errors -> mad:info("Port Compilation Error:~p~n",[Errors]),
+                      true
           end
         end,
   [Job(S)||S<-Specs].
@@ -145,4 +140,4 @@ compiler(".c++") -> "$CXX";
 compiler(".C")   -> "$CXX";
 compiler(cxx)    -> "$CXX";
 compiler(cc)     -> "$CC";
-compiler(_)      -> "$CC".                       
+compiler(_)      -> "$CC".     
