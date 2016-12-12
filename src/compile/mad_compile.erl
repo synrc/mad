@@ -37,6 +37,8 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     Deps = mad_utils:get_value(deps, Conf1, []),
     DepsRes = bool(deps(Cwd, Conf, ConfigFile, Deps)),
 
+    mad_hooks:apply_hooks(pre_hooks, Conf, Cwd, Name),
+
     SrcDir = filename:join([mad_utils:src(DepPath)]),
     AllFiles = files(SrcDir,".yrl") ++ 
                files(SrcDir,".xrl") ++ 
