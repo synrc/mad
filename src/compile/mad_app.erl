@@ -11,6 +11,10 @@ validate_property({modules, _}, Modules) -> {modules, Modules};
 validate_property({vsn, Value}, _) -> {vsn, to_list(Value)};
 validate_property(Else, _) -> Else.
 
+consult(F) -> AppSrc = mad_utils:consult(F), 
+              case mad_script:script(F, AppSrc, "dummy") of
+                R when is_tuple(R) -> [R]; E -> E end. 
+
 compile(File,_Inc,Bin,_Opt,_Deps) ->
     AppFile = filename:join(Bin, app_src_to_app(File)),
     Compiled = mad_compile:is_compiled(AppFile, File),
@@ -18,7 +22,7 @@ compile(File,_Inc,Bin,_Opt,_Deps) ->
         mad:info("Writing ~s~n", [AppFile -- mad_utils:cwd()]),
         BeamFiles = filelib:wildcard("*.beam", Bin),
         Modules = [list_to_atom(filename:basename(X, ".beam")) || X <- BeamFiles],
-        [Struct|_] = mad_utils:consult(File),
+        [Struct|_] = consult(File),
         {application, AppName, Props} = Struct,
         Props0 = add_modules_property(Props),
         Props1 = generate_deps(AppName,Props0),
@@ -38,4 +42,3 @@ generate_deps(AppName,Properties) ->
     case lists:keyfind(applications, 1, Properties) of
          false -> Properties ++ [apps(AppName)];
         _Exists -> Properties end.
-
