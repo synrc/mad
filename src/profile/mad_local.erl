@@ -13,4 +13,5 @@ sh(Params)        -> mad_repl:sh(Params).
 deps(Params)      -> mad_git:deps(Params).
 up(Params)        -> mad_git:up(Params).
 fetch(Params)     -> mad_git:fetch(Params).
+tpl(Params)       -> mad_tpl:app(Params).
 static(Params)    -> mad_static:main([],Params).

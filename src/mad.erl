@@ -34,6 +34,7 @@ atomize("sto"++_) -> 'stop';
 atomize("att"++_) -> 'attach';
 atomize("sh")     -> 'sh';
 atomize("rep"++_) -> 'sh';
+atomize("cre"++_) -> 'tpl';
 atomize("pla"++_) -> 'resolve';
 atomize(Else)     -> Else.
 
@@ -64,4 +65,5 @@ help()            -> info("MAD Container Tool version ~s~n",[?VERSION]),
                      info("   command = app     | deps  | clean | compile | up~n"),
                      info("           | release [ beam  | ling  | script  | runc | depot ]~n"),
                      info("           | deploy  | start | stop  | attach  | sh | static [ <watch|min> ] ~n"),
+                     info("           | create [ name=<name> tpl=<tpl_name> <key>=<val> ] ~n"),                     
                      return(false).
