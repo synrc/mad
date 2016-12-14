@@ -12,12 +12,21 @@ main(Params)      ->
                                    (X,{C,R}) -> {[X|C],R} end,
                                {[],[]}, lists:map(fun atomize/1, Params)),
 
-    return(lists:any(fun({error,_}) -> true;
-                                (_) -> false end,
-           lists:flatten(
-           lists:foldl(
-                 fun ({Fun,Arg},[]) -> errors((profile()):Fun(Arg));
-                        ({_,_},Err) -> errors(Invalid), {return,Err} end, [], Valid)))).
+    return(
+        lists:any(fun({error,_}) -> true; (_) -> false end,
+            lists:flatten(
+                lists:foldl(fun({Fun,Arg},[]) ->
+                    mad_hooks:run_hooks(pre, Fun),
+                    Errors = errors((profile()):Fun(Arg)),
+                    mad_hooks:run_hooks(post, Fun),
+                    Errors;
+                ({_,_},Err) ->
+                    errors(Invalid), {return,Err}
+                end,
+                [], Valid)
+           )
+        )
+    ).
 
 atomize("static") -> 'static';
 atomize("deploy") -> 'deploy';
