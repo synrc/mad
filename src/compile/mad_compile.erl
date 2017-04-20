@@ -68,16 +68,16 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             FilesStatus = compile_files(Files,IncDir, EbinDir, Opts,Includes),
             DTLStatus = mad_dtl:compile(DepPath,Conf1),
             PortStatus = lists:any(fun(X)->X end,mad_port:compile(DepPath,Conf1)),
-
+            % io:format("Status: ~p~n",[[Name,FilesStatus,DTLStatus,PortStatus,DepsRes]]),
             put(Name, compiled),
-            case DepsRes orelse FilesStatus orelse DTLStatus orelse PortStatus of
+            case (DepsRes orelse FilesStatus orelse DTLStatus orelse PortStatus) andalso filelib:is_dir(Name)==false of
                  true -> {error,Name};
                  false -> {ok,Name} end end.
 
 compile_files([],_,_,_,_) -> false;
 compile_files([File|Files],Inc,Bin,Opt,Deps) ->
     case (module(filetype(File))):compile(File,Inc,Bin,Opt,Deps) of
-         true -> true;
+         true -> io:format("Error: ~p~n",[[File,Inc,Bin,Opt,Deps]]), true;
          false -> compile_files(Files,Inc,Bin,Opt,Deps);
          X -> mad:info("Compilation Error: ~p~n",[{X,File}]), true end.
 
