@@ -58,7 +58,7 @@ load(true,A,Acc,Config) ->
 % for user application we should merge app from ebin and from sys.config
 % and start application using tuple argument in app controller
 
-load(_,A,Acc,Config) ->
+load(X,A,Acc,Config) ->
     {application,Name,Map} = load_config(A),
     NewEnv = merge(Config,Map,Name),
     acc_start({application,Name,set_value(env,1,Map,{env,NewEnv})},Acc).
