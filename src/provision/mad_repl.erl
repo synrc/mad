@@ -59,9 +59,10 @@ load(true,A,Acc,Config) ->
 % and start application using tuple argument in app controller
 
 load(X,A,Acc,Config) ->
-    {application,Name,Map} = load_config(A),
-    NewEnv = merge(Config,Map,Name),
-    acc_start({application,Name,set_value(env,1,Map,{env,NewEnv})},Acc).
+    try {application,Name,Map} = load_config(A),
+        NewEnv = merge(Config,Map,Name),
+        acc_start({application,Name,set_value(env,1,Map,{env,NewEnv})},Acc)
+    catch E:R -> io:format("Application Load Error: ~p",[{X,A,Acc}]) end.
 
 merge(Config,Map,Name) ->
     lists:foldl(fun({Name,E},Acc2)   ->
