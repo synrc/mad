@@ -91,10 +91,11 @@ pull(_,[])         -> {ok,[]};
 pull(Config,[F|T]) ->
     mad:info("==> up: ~p~n", [F]),
     {_,Status,Message} = sh:run(lists:concat(["cd ",F," && git pull && cd -"])),
+    %io:format("status: ~p~n",[{Status,Message}]),
     case Status of
          0 -> mad_utils:verbose(Config,Message), pull(Config,T);
          _ -> case binary:match(Message,[<<"You are not currently on a branch">>]) of
-                   nomatch -> mad_utils:verbose(Config,Message), true;
+                   nomatch -> mad_utils:verbose(Config,Message), {error,Message};
                    _ -> pull(Config,T) end end.
 
 up(Params) ->
