@@ -35,6 +35,7 @@ atomize("dep")    -> 'deps';
 atomize("deps")   -> 'deps';
 atomize("cle"++_) -> 'clean';
 atomize("com"++_) -> 'compile';
+atomize("eunit")  -> 'eunit';
 atomize("up")     -> 'up';
 atomize("rel"++_) -> 'release';
 atomize("bun"++_) -> 'release';
@@ -70,7 +71,7 @@ help()            -> info("MAD Container Tool version ~s~n",[?VERSION]),
                      info("~n"),
                      info("    invoke = mad params~n"),
                      info("    params = [] | command [ options  ] params ~n"),
-                     info("   command = app     | deps  | clean | compile | up~n"),
+                     info("   command = app     | deps  | clean | compile | up | eunit~n"),
                      info("           | release [ beam  | ling  | script  | runc | depot ]~n"),
                      info("           | deploy  | start | stop  | attach  | sh | static [ <watch|min> ] ~n"),
                      return(false).
