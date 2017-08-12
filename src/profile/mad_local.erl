@@ -14,3 +14,4 @@ deps(Params)      -> mad_git:deps(Params).
 up(Params)        -> mad_git:up(Params).
 fetch(Params)     -> mad_git:fetch(Params).
 static(Params)    -> mad_static:main([],Params).
+eunit(Params)     -> mad_eunit:main_test(Params).
