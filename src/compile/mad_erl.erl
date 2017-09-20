@@ -1,7 +1,9 @@
 -module(mad_erl).
 -copyright('Sina Samavati').
 -compile(export_all).
--define(COMPILE_OPTS(Inc, Ebin, Opts, Deps), [return_errors, return_warnings, debug_info, {i, [Inc]}, {outdir, Ebin}] ++ Opts++Deps).
+-define(COMPILE_OPTS(Inc, Ebin, Opts, Deps),
+    [return_errors, return_warnings, debug_info,
+    {i, [Inc]}, {outdir, Ebin}] ++ Opts ++ Deps).
 
 erl_to_beam(Bin, F) -> filename:join(Bin, filename:basename(F, ".erl") ++ ".beam").
 
