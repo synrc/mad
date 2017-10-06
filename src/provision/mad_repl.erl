@@ -65,7 +65,7 @@ load(X,A,Acc,Config) ->
     catch E:R -> io:format("Application Load Error: ~p",[{X,A,Acc}]) end.
 
 merge(Config,Map,Name) ->
-    lists:foldl(fun({Name,E},Acc2)   ->
+    lists:foldl(fun({Name2,E},Acc2) when Name2 =:= Name ->
     lists:foldl(fun({K,V},Acc1)      -> set_value(K,1,Acc1,{K,V}) end,Acc2,E);
                           (_,Acc2)   -> Acc2 end, proplists:get_value(env,Map,[]), Config).
 
