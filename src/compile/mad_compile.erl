@@ -67,10 +67,11 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
             FilesStatus = compile_files(Files,IncDir, EbinDir, Opts,Includes),
             DTLStatus = mad_dtl:compile(DepPath,Conf1),
+            JADEStatus = mad_jade:compile(DepPath, Conf1),
             PortStatus = lists:any(fun(X)->X end,mad_port:compile(DepPath,Conf1)),
             % io:format("Status: ~p~n",[[Name,FilesStatus,DTLStatus,PortStatus,DepsRes]]),
             put(Name, compiled),
-            case (DepsRes orelse FilesStatus orelse DTLStatus orelse PortStatus) andalso filelib:is_dir(Name)==false of
+            case (DepsRes orelse FilesStatus orelse DTLStatus orelse JADEStatus orelse PortStatus) andalso filelib:is_dir(Name)==false of
                  true -> {error,Name};
                  false -> {ok,Name} end end.
 
