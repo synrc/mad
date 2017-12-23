@@ -38,8 +38,10 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     DepsRes = bool(deps(Cwd, Conf, ConfigFile, Deps)),
 
     SrcDir = filename:join([mad_utils:src(DepPath)]),
-    AllFiles = files(SrcDir,".yrl") ++ 
-               files(SrcDir,".xrl") ++ 
+    PrivDir = filename:join([mad_utils:priv(DepPath)]),
+    PrivFiles = files(PrivDir,".ctt"),
+    AllFiles = files(SrcDir,".yrl") ++
+               files(SrcDir,".xrl") ++
                files(SrcDir,".erl") ++ % comment this to build with erlc/1
                files(SrcDir,".app.src"),
     Files = case mad_utils:get_value(erl_first_files, Conf1, []) of
@@ -65,7 +67,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             code:replace_path(Name,EbinDir),
 
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
-            FilesStatus = compile_files(Files,IncDir, EbinDir, Opts,Includes),
+            FilesStatus = compile_files(Files++PrivFiles,IncDir, EbinDir, Opts,Includes),
             DTLStatus = mad_dtl:compile(DepPath,Conf1),
             PortStatus = lists:any(fun(X)->X end,mad_port:compile(DepPath,Conf1)),
             % io:format("Status: ~p~n",[[Name,FilesStatus,DTLStatus,PortStatus,DepsRes]]),
@@ -82,6 +84,7 @@ compile_files([File|Files],Inc,Bin,Opt,Deps) ->
          X -> mad:info("Compilation Error: ~p~n",[{X,File}]), true end.
 
 module("erl")      -> mad_erl;
+module("ctt")      -> mad_cubical;
 module("erl.src")  -> mad_utils;
 module("yrl")      -> mad_yecc;
 module("xrl")      -> mad_leex;

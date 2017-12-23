@@ -8,6 +8,6 @@ compile(File,Inc,Bin,Opt,Deps) ->
     ErlFile = yrl_to_erl(File),
     Compiled = mad_compile:is_compiled(ErlFile,File),
     if Compiled == false ->
-        yecc:file(File),
+        yecc:file(File,[{verbose,true}]),
         mad_erl:compile(ErlFile,Inc,Bin,Opt,Deps); true -> false end.
 
