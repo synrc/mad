@@ -7,12 +7,12 @@
 scripts(N) ->
     mad_repl:load(),
     {ok,Bin} = mad_repl:load_file("priv/systools/start"),
-    [{"/bin/start",list_to_binary(re:replace(binary_to_list(Bin),"{release}",N,[global,{return,list}]))},
-     {"/bin/attach",element(2,mad_repl:load_file("priv/systools/attach"))},
-     {"/bin/daemon",element(2,mad_repl:load_file("priv/systools/daemon"))},
-     {"/etc/"++N++".boot",N++".boot"},
-     {"/etc/vm.args","vm.args"},
-     {"/etc/sys.config","sys.config"}].
+    [{"bin/start",list_to_binary(re:replace(binary_to_list(Bin),"{release}",N,[global,{return,list}]))},
+     {"bin/attach",element(2,mad_repl:load_file("priv/systools/attach"))},
+     {"bin/daemon",element(2,mad_repl:load_file("priv/systools/daemon"))},
+     {"etc/"++N++".boot",N++".boot"},
+     {"etc/vm.args","vm.args"},
+     {"etc/sys.config","sys.config"}].
 
 apps(List) ->
     lists:flatten([[[ {filename:join([lib,
