@@ -61,9 +61,10 @@ app(Params) ->
     mad_repl:load(),
     Apps = ets:tab2list(filesystem),
     [ case string:str(File,"priv/web") of
-       1 -> Relative = Name ++ string:substr(File, 9),
+       1 -> Relative = unicode:characters_to_list(Name ++ string:replace(string:substr(File, 9), "sample", Name, all), utf8),
             mad:info("Create File: ~p~n",[Relative]),
             filelib:ensure_dir(Relative),
-            file:write_file(Relative,Bin);
+            BinNew = string:replace(Bin, "sample", Name, all),
+            file:write_file(Relative, BinNew);
        _ -> skip
-       end || {File,Bin} <- Apps ], {ok,Name}.
+       end || {File,Bin} <- Apps, is_list(File) ], {ok,Name}.
