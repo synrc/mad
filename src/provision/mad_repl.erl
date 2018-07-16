@@ -23,12 +23,12 @@ applist() ->
 wildcards(List) -> lists:concat([filelib:wildcard(X)||X<-List]).
 
 parse_applist(AppList) ->
-   Res = string:tokens(string:strip(string:strip(binary_to_list(AppList),right,$]),left,$[),","),
-   [ list_to_atom(R) || R <-Res ]  -- disabled().
+    Res = string:tokens(string:strip(string:strip(binary_to_list(AppList),right,$]),left,$[),","),
+    [ list_to_atom(R) || R <-Res ]  -- disabled().
 
 load_sysconfig() ->
-   Config = wildcards(["sys.config",lists:concat(["etc/",mad:host(),"/sys.config"])]),
-   _Apps = case Config of
+    Config = wildcards(["sys.config",lists:concat(["etc/",mad:host(),"/sys.config"])]),
+    _Apps = case Config of
         [] -> case mad_repl:load_file("sys.config") of
               {error,_} -> [];
               {ok,Bin} -> parse(unicode:characters_to_list(Bin)) end;
@@ -36,7 +36,7 @@ load_sysconfig() ->
               {error,_} -> [];
               {ok,[A]} -> merge_include(A, []) end end.
 
-load_sysconfig(AppConfigs) ->
+application_config(AppConfigs) ->
     [[application:set_env(App,K,V) || {K,V} <- Cfg] || {App,Cfg} <- AppConfigs].
 
 merge_include([], Acc) -> Acc;
@@ -101,7 +101,7 @@ sh(Params) ->
     code:add_path(filename:join([cwd(),filename:basename(escript:script_name())])),
     load(),
     Config = load_sysconfig(),
-    load_sysconfig(Config),
+    application_config(Config),
     Driver = mad_utils:get_value(shell_driver,_Config,user_drv),
     repl_intro(Config),
     case os:type() of
