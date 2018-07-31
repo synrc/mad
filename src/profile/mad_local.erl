@@ -15,3 +15,4 @@ up(Params)        -> mad_git:up(Params).
 fetch(Params)     -> mad_git:fetch(Params).
 static(Params)    -> mad_static:main([],Params).
 eunit(Params)     -> mad_eunit:main_test(Params).
+strip(Params)     -> mad_strip:main(Params).
