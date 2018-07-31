@@ -45,6 +45,7 @@ atomize("att"++_) -> 'attach';
 atomize("sh")     -> 'sh';
 atomize("rep"++_) -> 'sh';
 atomize("pla"++_) -> 'resolve';
+atomize("str"++_) -> 'strip';
 atomize(Else)     -> Else.
 
 profile()         -> application:get_env(mad,profile,mad_local).
@@ -71,7 +72,7 @@ help()            -> info("MAD Container Tool version ~s~n",[?VERSION]),
                      info("~n"),
                      info("    invoke = mad params~n"),
                      info("    params = [] | command [ options  ] params ~n"),
-                     info("   command = app     | deps  | clean | compile | up | eunit~n"),
+                     info("   command = app     | deps  | clean | compile | up | eunit | strip~n"),
                      info("           | release [ beam  | ling  | script  | runc | depot ]~n"),
                      info("           | deploy  | start | stop  | attach  | sh | static [ <watch|min> ] ~n"),
                      return(false).
