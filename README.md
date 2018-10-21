@@ -1,6 +1,8 @@
 MAD
 ===
 
+[![Build Status](https://travis-ci.org/synrc/mad.svg?branch=master)](https://travis-ci.org/synrc/mad)
+
 A simple rebar-compatible dependency manager and developer tool with plugins.
 
 ![MAD](http://synrc.space/images/mad.png)
