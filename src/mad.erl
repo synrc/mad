@@ -12,7 +12,7 @@ main(Params)      ->
                                    (X,{C,R}) -> {[X|C],R} end,
                                {[],[]}, lists:map(fun atomize/1, Params)),
 
-    return(
+    halt(return(
         lists:any(fun({error,_}) -> true; (_) -> false end,
         lists:flatten(
         lists:foldl(
@@ -23,7 +23,7 @@ main(Params)      ->
                 Errors;
             ({_,_},Err) ->
                 errors(Invalid), {return,Err}
-        end, [], Valid)))).
+        end, [], Valid))))).
 
 atomize("static") -> 'static';
 atomize("deploy") -> 'deploy';
@@ -65,9 +65,9 @@ help(Reason,D)    -> help(io_lib:format("~s ~p", [Reason, D])).
 help(_Msg)        -> help().
 help()            -> info("MAD Container Tool version ~s~n",[?VERSION]),
                      info("~n"),
-                     info("    invoke = mad params~n"),
-                     info("    params = [] | command [ options  ] params ~n"),
-                     info("   command = app     | deps  | clean | compile | up | eunit | strip~n"),
-                     info("           | release [ beam  | ling  | script  | runc | depot ]~n"),
-                     info("           | deploy  | start | stop  | attach  | sh | static [ <watch|min> ] ~n"),
+                     info("    invoke = mad | mad params~n"),
+                     info("    params = command [ options ] params ~n"),
+                     info("   command = app     | deps  | clean | compile | up   | eunit  | strip~n"),
+                     info("           | bundle  [ beam  | ling  | script  | runc | depot  ]~n"),
+                     info("           | deploy  | start | stop  | attach  | sh   | static [ <watch|min> ] ~n"),
                      return(false).
