@@ -14,8 +14,9 @@ compile(File,Inc,Bin,Opt,Deps) ->
     Compiled = mad_compile:is_compiled(BeamFile, File),
     if  Compiled =:= false ->
         Opts1 = ?COMPILE_OPTS(Inc, Bin, Opt, Deps),
+        NewCompile = compile:file(File, filter(Opts1)),
         mad:info("Compiling ~s~n", [File -- mad_utils:cwd()]),
-        ret(compile:file(File, filter(Opts1)));
+        ret(NewCompile);
     true -> false end.
 
 ret(error) -> true;

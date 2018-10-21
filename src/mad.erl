@@ -14,19 +14,16 @@ main(Params)      ->
 
     return(
         lists:any(fun({error,_}) -> true; (_) -> false end,
-            lists:flatten(
-                lists:foldl(fun({Fun,Arg},[]) ->
-                    mad_hooks:run_hooks(pre, Fun),
-                    Errors = errors((profile()):Fun(Arg)),
-                    mad_hooks:run_hooks(post, Fun),
-                    Errors;
-                ({_,_},Err) ->
-                    errors(Invalid), {return,Err}
-                end,
-                [], Valid)
-           )
-        )
-    ).
+        lists:flatten(
+        lists:foldl(
+        fun ({Fun,Arg},[]) ->
+                mad_hooks:run_hooks(pre, Fun),
+                Errors = errors((profile()):Fun(Arg)),
+                mad_hooks:run_hooks(post, Fun),
+                Errors;
+            ({_,_},Err) ->
+                errors(Invalid), {return,Err}
+        end, [], Valid)))).
 
 atomize("static") -> 'static';
 atomize("deploy") -> 'deploy';
@@ -50,16 +47,14 @@ atomize(Else)     -> Else.
 
 profile()         -> application:get_env(mad,profile,mad_local).
 
-errors([])        -> [];
-errors(false)     -> [];
-errors(true)      -> {error,unknown};
-errors({error,L}) -> info("ERROR: ~tp~n",[L]), [{error,L}];
-errors({ok,_})    -> info("OK~n",[]), [];
-errors(X)         -> info("RETURN: ~tp~n",[X]), [{error,X}].
+errors([])            -> [];
+errors(false)         -> [];
+errors(true)          -> {error,unknown};
+errors({error,Where}) -> info("ERROR~n"), [{error,Where}];
+errors({ok,_})        -> info("OK~n",[]), [].
 
 return(true)      -> 1;
-return(false)     -> 0;
-return(X)         -> X.
+return(false)     -> 0.
 
 host()            -> try {ok,H} = inet:gethostname(), H catch _:_ -> <<>> end.
 

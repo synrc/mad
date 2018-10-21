@@ -68,17 +68,16 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
                                         IncDir, EbinDir, Opts,Includes),
 
             put(Name, compiled),
-            case (DepsRes orelse FilesStatus orelse DTLStatus orelse PortStatus)
-                 andalso filelib:is_dir(Name)==false of
-                 true -> {error,Name};
+            case (DepsRes orelse FilesStatus orelse DTLStatus orelse PortStatus) of
+                 true  -> {error,Name};
                  false -> {ok,Name} end end.
 
 compile_files([],_,_,_,_) -> false;
 compile_files([File|Files],Inc,Bin,Opt,Deps) ->
     case (module(filetype(File))):compile(File,Inc,Bin,Opt,Deps) of
-         true -> io:format("Error: ~p~n",[[File,Inc,Bin,Opt,Deps]]), true;
+         true -> io:format("Broken Compilation in ~p~n",[File]), true;
          false -> compile_files(Files,Inc,Bin,Opt,Deps);
-         X -> mad:info("Compilation Error: ~p~n",[{X,File}]), true end.
+         X -> mad:info("Unknown Error: ~p~n",[{X,File}]), true end.
 
 module("erl")      -> mad_erl;
 module("ctt")      -> mad_cubical;
