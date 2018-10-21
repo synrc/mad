@@ -5,7 +5,7 @@ MAD
 
 A simple rebar-compatible dependency manager and developer tool with plugins.
 
-![MAD](http://synrc.space/images/mad.png)
+![MAD](http://synrc.com/images/mad.png)
 
 Goals
 -----
