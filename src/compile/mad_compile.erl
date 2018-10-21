@@ -39,11 +39,13 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
 
     SrcDir = filename:join([mad_utils:src(DepPath)]),
     PrivDir = filename:join([mad_utils:priv(DepPath)]),
-    PrivFiles = files(PrivDir,".ctt"),
+    PrivFiles = case application:get_env(mad,cubical,[]) of
+                     [] -> [];
+                     _ -> files(PrivDir,".ctt") end,
     AllFiles = files(SrcDir,".yrl") ++
                files(SrcDir,".xrl") ++
-               files(SrcDir,".erl") ++ % comment this to build with erlc/1
-               files(SrcDir,".app.src"),
+               files(SrcDir,".erl"), % comment this to build with erlc/1
+    AppSrcFiles = files(SrcDir,".app.src"),
     Files = case mad_utils:get_value(erl_first_files, Conf1, []) of
               []         -> AllFiles;
               FirstFiles ->
@@ -67,7 +69,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             code:replace_path(Name,EbinDir),
 
             Opts = mad_utils:get_value(erl_opts, Conf1, []),
-            FilesStatus = compile_files(Files++PrivFiles,IncDir, EbinDir, Opts,Includes),
+            FilesStatus = compile_files(lists:sort(Files++PrivFiles)++AppSrcFiles,IncDir, EbinDir, Opts,Includes),
             DTLStatus = mad_dtl:compile(DepPath,Conf1),
             PortStatus = lists:any(fun(X)->X end,mad_port:compile(DepPath,Conf1)),
             % io:format("Status: ~p~n",[[Name,FilesStatus,DTLStatus,PortStatus,DepsRes]]),
