@@ -1,1 +1,1 @@
--define(VERSION,"04de77").
+-define(VERSION,"6f6474").
