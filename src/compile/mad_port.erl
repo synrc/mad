@@ -54,11 +54,11 @@ compile_port(Dir,Specs0,Config) ->
                              Cmd = expand(System,CmdLD,[{"CXXFLAGS",""},{"LDFLAGS",""},{"CFLAGS",""}]),
                              mad:info("cc ~s~n",[Cmd]),
                              {_,Status,Report} = sh:run("cc",string:tokens(Cmd," "),binary,Dir,Env),
-                             case Status of 
+                             case Status of
                               0 -> false;
                               _ -> mad:info("Port Compilation Error:~n" ++ io_lib:format("~ts",[Report]),[]),
-                                   {error, Report},true
-                             end                      
+                                   true
+                             end
                   end;
             Errors -> mad:info("Port Compilation Error:~p~n",[Errors]),
                       true
@@ -69,7 +69,7 @@ compile_port(Dir,Specs0,Config) ->
 to_obj(F) -> filename:rootname(F) ++ ".o".
 
 %%FIXME
-expand(System, String, []) -> String;
+expand(_System, String, []) -> String;
 expand(System, String, [{K,V}|Env]) ->
   New = re:replace(String, io_lib:format("\\${?(~s)}?",[K]), V, [global, {return, list}]),
   expand(System,New,Env);
@@ -81,7 +81,7 @@ expand(System, String, [{Sys,K,V}|Env]) ->
   end.
 
 extension(F)       -> filename:extension(F).
-is_compiled(O,F)   -> filelib:is_file(O) andalso (mad_utils:last_modified(O) >= mad_utils:last_modified(F)). 
+is_compiled(O,F)   -> filelib:is_file(O) andalso (mad_utils:last_modified(O) >= mad_utils:last_modified(F)).
 join(A,B)          -> filename:join(A,B).
 concat(X)          -> lists:concat(X).
 system(Sys,System) -> Sys == System orelse match(Sys,System).
@@ -91,7 +91,7 @@ erts_dir(include)  -> " -I"++join(erts_dir(), "include").
 ei_dir()           -> case code:lib_dir(erl_interface) of {error,bad_name} -> ""; E -> E end.
 ei_dir(include)    -> case ei_dir() of "" -> ""; E -> " -I"++join(E,"include") end;
 ei_dir(lib)        -> case ei_dir() of "" -> ""; E -> " -L"++join(E,"lib") end.
-link_lang(Files)   -> lists:foldl(fun(F,cxx) -> cxx;
+link_lang(Files)   -> lists:foldl(fun(_,cxx) -> cxx;
                                      (F,cc) -> case compiler(extension(F)) == "$CXX" of 
                                                 true -> cxx;false -> cc end
                                   end,cc,Files).
@@ -120,8 +120,8 @@ tpl_ld(exe,cxx) -> " $PORT_IN_FILES $LDFLAGS $EXE_LDFLAGS -o $PORT_OUT_FILE".
 erl_ldflag() -> concat([ei_dir(include), erts_dir(include), " "]).
 
 default_env() ->
-    Arch = os:getenv("REBAR_TARGET_ARCH"),
-    Vsn = os:getenv("REBAR_TARGET_ARCH_VSN"),
+    _Arch = os:getenv("REBAR_TARGET_ARCH"),
+    _Vsn = os:getenv("REBAR_TARGET_ARCH_VSN"),
     [
      {"darwin", "DRV_LDFLAGS", "-bundle -flat_namespace -undefined suppress " ++ei_dir(lib) ++" -lerl_interface -lei"},
      {"DRV_CFLAGS" , "-g -Wall -fPIC -MMD " ++ erl_ldflag()},

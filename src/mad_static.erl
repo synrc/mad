@@ -3,7 +3,7 @@
 -compile(export_all).
 -define(NODE(Bin), "node_modules/.bin/"++Bin).
 
-main(Config, ["min"]) ->
+main(_Config, ["min"]) ->
     {ok,[SysConfig]} = file:consult("sys.config"),
     N2O     = proplists:get_value(n2o,SysConfig,[]),
     AppName = proplists:get_value(app,N2O,sample),

@@ -2,8 +2,8 @@
 -copyright('Maxim Sokhatsky').
 -compile(export_all).
 
-compile(File,Inc,Bin,Opt,Deps) ->
-    {X,Res,Msg} = sh:run(sh:executable("cubical"), ["-b", File], binary, "."),
+compile(File,_Inc,_Bin,_Opt,_Deps) ->
+    {_,Res,Msg} = sh:run(sh:executable("cubical"), ["-b", File], binary, "."),
     case Res of
          1 -> true;
          0 -> case binary:match(Msg,[<<"File loaded.">>]) of

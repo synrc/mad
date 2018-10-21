@@ -75,7 +75,7 @@ load(X,A,Acc,Config) ->
     try {application,Name,Map} = load_config(A),
         NewEnv = merge(Config,Map,Name),
         acc_start({application,Name,set_value(env,1,Map,{env,NewEnv})},Acc)
-    catch E:R -> io:format("Application Load Error: ~p",[{X,A,Acc}]) end.
+    catch _:_ -> io:format("Application Load Error: ~p",[{X,A,Acc}]) end.
 
 merge(Config,Map,Name) ->
     lists:foldl(fun({Name2,E},Acc2) when Name2 =:= Name ->
@@ -87,7 +87,7 @@ load_apps(["applist"],Config,Acc)    -> load_apps([],Config,Acc);
 load_apps(Params,_,_Acc)             -> [ application:ensure_all_started(list_to_atom(A))||A<-Params].
 
 set_value(Name,Pos,List,New)         -> add_replace(lists:keyfind(Name,Pos,List),Name,Pos,List,New).
-add_replace(false,Name,Pos,List,New) -> [New|List];
+add_replace(false,_N,_P,List,New)    -> [New|List];
 add_replace(_____,Name,Pos,List,New) -> lists:keyreplace(Name,Pos,List,New).
 
 cwd() -> case  file:get_cwd() of {ok, Cwd} -> Cwd; _ -> "." end.

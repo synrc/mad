@@ -3,7 +3,7 @@ defmodule MAD.Mixfile do
 
   def project do
     [app: :mad,
-     version: "2.3.0",
+     version: "2.10.0",
      description: "Small and fast rebar replacement",
      package: package]
   end

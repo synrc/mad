@@ -1,9 +1,4 @@
 language: erlang
 otp_release:
-  - 18.0
-  - R16B02
-  - R16B01
-notifications:
-  email: false
-  irc: "chat.freenode.net#n2o"
-script: "make"
+  - 19.3
+script: "curl -fsSL https://raw.github.com/synrc/mad/master/mad > mad && chmod +x mad && ./mad dep com"
