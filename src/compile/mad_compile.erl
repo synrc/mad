@@ -60,6 +60,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
 
             file:make_dir(EbinDir),
             code:replace_path(Name,EbinDir),
+            code:add_path(EbinDir),
 
             PortStatus  = lists:any(fun(X)->X end,mad_port:compile(DepPath,Conf1)),
             Opts        = mad_utils:get_value(erl_opts, Conf1, []),
