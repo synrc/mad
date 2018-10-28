@@ -3,7 +3,7 @@ MAD: Manage Dependencies
 
 [![Build Status](https://travis-ci.org/synrc/mad.svg?branch=master)](https://travis-ci.org/synrc/mad)
 
-A simple rebar-compatible dependency manager and developer tool with plugins.
+A simple rebar-compatible dependency manager and developer tool with plugins for Windows, Linux and Mac.
 
 ![MAD](http://synrc.com/images/mad.png)
 
