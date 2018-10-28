@@ -6,6 +6,9 @@ disabled() -> [].
 system() -> [compiler,syntax_tools,sasl,tools,mnesia,reltool,xmerl,crypto,kernel,stdlib,ssh,eldap,
              wx,ssl,runtime_tools,public_key,observer,inets,asn1,et,eunit,hipe,os_mon,parsetools,odbc,snmp].
 
+escript_name() ->
+    try escript:script_name() of N -> N catch _:_ -> [] end.
+
 local_app() ->
     case filename:basename(filelib:wildcard("ebin/*.app"),".app") of
          [] -> [];
@@ -98,8 +101,13 @@ sh(Params) ->
               ++ string:join([atom_to_list(X)||X<-mad_repl:system()],",") ++ "}-*/ebin"),
     UserPath   = wildcards(["{apps,deps}/*/ebin","ebin"]),
     code:set_path(SystemPath++UserPath),
-    code:add_path(filename:join([cwd(),filename:basename(escript:script_name())])),
-    load(),
+
+    case escript_name() of
+        [] -> ok; % VSCode
+         N -> code:add_path(filename:join([cwd(),filename:basename(N)])),
+              load()
+    end,
+
     Config = load_sysconfig(),
     application_config(Config),
     Driver = mad_utils:get_value(shell_driver,_Config,user_drv),

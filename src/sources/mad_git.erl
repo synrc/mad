@@ -30,7 +30,7 @@ fetch(Cwd, Config, ConfigFile, [H|T]) ->
          {error,E} -> {error,E};
          {ok,_} -> fetch(Cwd, Config, ConfigFile, T) end.
 
-git_clone(Uri,Fast,TrunkPath,Rev) when Rev == "head" orelse Rev == "HEAD" orelse Rev == "master" ->
+git_clone(Uri,Fast,TrunkPath,Rev) when Rev == "head" orelse Rev == "HEAD" orelse Rev == "master" orelse Rev == [] ->
     {["git clone ",Fast,Uri," ",TrunkPath],Rev};
 git_clone(Uri,_Fast,TrunkPath,Rev) ->
     {["git clone ",Uri," ",TrunkPath," && cd ",TrunkPath," && git checkout \"",Rev,"\"" ],Rev}.
