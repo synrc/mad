@@ -1,6 +1,6 @@
 {application, mad,
- [{description, "MAD Erlang/OTP Containers"},
-  {vsn, "2.3"},
+ [{description, "MAD Manage Dependencies"},
+  {vsn, "4.10"},
   {registered, []},
   {applications, [kernel,stdlib,inets]},
   {env, []}]}.

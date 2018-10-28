@@ -22,7 +22,7 @@ deps(Cwd, Conf, ConfigFile, [H|T]) ->
          true  -> {error,Name};
          false -> deps(Cwd, Conf, ConfigFile, T) end.
 
-bool({ok,_}) -> false;
+bool({ok,_})    -> false;
 bool({error,_}) -> true.
 
 dep(Cwd, _Conf, ConfigFile, Name) ->
@@ -31,57 +31,54 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     DepPath = filename:join([Cwd, DepsDir, Name]),
     mad:info("==> ~p~n",[Name]),
 
-    DepConfigFile = filename:join(DepPath, ConfigFile),
-    Conf = mad_utils:consult(DepConfigFile),
-    Conf1 = mad_script:script(DepConfigFile, Conf, Name),
-    Deps = mad_utils:get_value(deps, Conf1, []),
-    DepsRes = bool(deps(Cwd, Conf, ConfigFile, Deps)),
+    DepConfig = filename:join(DepPath, ConfigFile),
+    Conf      = mad_utils:consult(DepConfig),
+    Conf1     = mad_script:script(DepConfig, Conf, Name),
+    Deps      = mad_utils:get_value(deps, Conf1, []),
+    DepsRes   = bool(deps(Cwd, Conf, ConfigFile, Deps)),
+    SrcDir    = filename:join([mad_utils:src(DepPath)]),
+    PrivDir   = filename:join([mad_utils:priv(DepPath)]),
+    PrivFiles = case application:get_env(mad,cubical,[]) of [] -> []; _ -> files(PrivDir,".ctt") end,
 
-    SrcDir = filename:join([mad_utils:src(DepPath)]),
-    PrivDir = filename:join([mad_utils:priv(DepPath)]),
-    PrivFiles = files(PrivDir,".ctt"),
-    AllFiles = files(SrcDir,".yrl") ++
-               files(SrcDir,".xrl") ++
-               files(SrcDir,".erl") ++ % comment this to build with erlc/1
-               files(SrcDir,".app.src"),
-    Files = case mad_utils:get_value(erl_first_files, Conf1, []) of
-              []         -> AllFiles;
-              FirstFiles ->
-                FirstFiles1 = lists:map(fun (F) -> filename:join(SrcDir, F ++ ".erl") end, FirstFiles),
-                FirstFiles1 ++ lists:filter(fun (F) -> lists:member(F, FirstFiles) == false end, AllFiles)
-            end,
+    AllFiles  = files(SrcDir,".yrl") ++
+                files(SrcDir,".xrl") ++
+                files(SrcDir,".erl"),
+
+    AppSrcFiles = files(SrcDir,".app.src"),
+    FirstFiles = [ filename:join([SrcDir,Y]) || Y <- mad_utils:get_value(erl_first_files, Conf1, []) ],
+    Files = lists:filter(fun (F) -> lists:member(F, FirstFiles) == false end, AllFiles),
 
     case Files of
         [] -> {ok,Name};
         Files ->
-            IncDir = mad_utils:include(DepPath),
-            EbinDir = mad_utils:ebin(DepPath),
-            LibDirs = mad_utils:get_value(lib_dirs, Conf, []),
+            IncDir   = mad_utils:include(DepPath),
+            EbinDir  = mad_utils:ebin(DepPath),
+            LibDirs  = mad_utils:get_value(lib_dirs, Conf, []),
             Includes = lists:flatten([
-                [{i,filename:join([DepPath,L,D,include])} || D<-mad_utils:raw_deps(Deps) ] % for -include
-             ++ [{i,filename:join([DepPath,L])}] || L <- LibDirs ]), % for -include_lib
-            %mad:info("DepPath ~p~n Includes: ~p~nLibDirs: ~p~n",[DepPath,Includes,LibDirs]),
+                       [{i,filename:join([DepPath,L,D,include])} || D <- mad_utils:raw_deps(Deps) ]
+                    ++ [{i,filename:join([DepPath,L])}] || L <- LibDirs ]),
 
-            % create EbinDir and add it to code path
             file:make_dir(EbinDir),
             code:replace_path(Name,EbinDir),
+            code:add_path(EbinDir),
 
-            Opts = mad_utils:get_value(erl_opts, Conf1, []),
-            FilesStatus = compile_files(Files++PrivFiles,IncDir, EbinDir, Opts,Includes),
-            DTLStatus = mad_dtl:compile(DepPath,Conf1),
-            PortStatus = lists:any(fun(X)->X end,mad_port:compile(DepPath,Conf1)),
-            % io:format("Status: ~p~n",[[Name,FilesStatus,DTLStatus,PortStatus,DepsRes]]),
+            PortStatus  = lists:any(fun(X)->X end,mad_port:compile(DepPath,Conf1)),
+            Opts        = mad_utils:get_value(erl_opts, Conf1, []),
+            DTLStatus   = mad_dtl:compile(DepPath,Conf1),
+            FilesStatus = compile_files(FirstFiles++lists:sort(Files++PrivFiles)++AppSrcFiles,
+                                        IncDir, EbinDir, Opts,Includes),
+
             put(Name, compiled),
-            case (DepsRes orelse FilesStatus orelse DTLStatus orelse PortStatus) andalso filelib:is_dir(Name)==false of
-                 true -> {error,Name};
+            case (DepsRes orelse FilesStatus orelse DTLStatus orelse PortStatus) of
+                 true  -> {error,Name};
                  false -> {ok,Name} end end.
 
 compile_files([],_,_,_,_) -> false;
 compile_files([File|Files],Inc,Bin,Opt,Deps) ->
     case (module(filetype(File))):compile(File,Inc,Bin,Opt,Deps) of
-         true -> io:format("Error: ~p~n",[[File,Inc,Bin,Opt,Deps]]), true;
+         true -> io:format("Broken Compilation in ~p~n",[File]), true;
          false -> compile_files(Files,Inc,Bin,Opt,Deps);
-         X -> mad:info("Compilation Error: ~p~n",[{X,File}]), true end.
+         X -> mad:info("Unknown Error: ~p~n",[{X,File}]), true end.
 
 module("erl")      -> mad_erl;
 module("ctt")      -> mad_cubical;

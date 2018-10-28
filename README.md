@@ -1,9 +1,11 @@
 MAD
 ===
 
+[![Build Status](https://travis-ci.org/synrc/mad.svg?branch=master)](https://travis-ci.org/synrc/mad)
+
 A simple rebar-compatible dependency manager and developer tool with plugins.
 
-![MAD](http://synrc.space/images/mad.png)
+![MAD](http://synrc.com/images/mad.png)
 
 Goals
 -----
@@ -148,7 +150,7 @@ Eshell V6.3  (abort with ^G)
  {kernel,"ERTS  CXC 138 10","3.0.3"}]
 ```
 
-See details in [http://maxim.livejournal.com/458016.html](http://maxim.livejournal.com/458016.html) 
+See details in [http://maxim.livejournal.com/458016.html](https://github.com/5HT/maxim.livejournal.com/blob/master/articles/2015/2015-05-05%20LING%20Bootstrap.txt) 
 
 Building OTP Release
 --------------------

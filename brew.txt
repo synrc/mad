@@ -1,0 +1,14 @@
+class Mad < Formula
+  desc "Erlang Containers"
+  homepage "http://synrc.com/apps/mad/"
+  url "https://github.com/synrc/mad/archive/1.9.tar.gz"
+  version "1.9"
+  sha256 "a1a19214497d416fc1c55cb89937cf881ced41e4ed8ca95cd35e6e7018091869"
+  bottle :unneeded
+  def install
+    bin.install "mad"
+  end
+  test do
+    assert_equal 'MAD Container Tool', pipe_output(bin/"mad")
+  end
+end
