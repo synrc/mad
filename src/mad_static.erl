@@ -3,13 +3,13 @@
 -compile(export_all).
 -define(NODE(Bin), "node_modules/.bin/"++Bin).
 
-main(Config, ["min"]) ->
+main(_Config, ["min"]) ->
     {ok,[SysConfig]} = file:consult("sys.config"),
     N2O     = proplists:get_value(n2o,SysConfig,[]),
     AppName = proplists:get_value(app,N2O,sample),
     Minify  = proplists:get_value(minify,N2O,[]),
-    Command = lists:concat(["uglifyjs ",string:join(element(2,Minify)," "),
-                                 " -o ",element(1,Minify),"/",AppName,".min.js -p 5 -c -m"]),
+    Command = lists:concat(["uglify -s ",string:join(element(2,Minify),","),
+                                 " -o ",element(1,Minify),"/",AppName,".min.js"]),
     io:format("Minify: ~p~n",[Command]),
     case sh:run(Command) of
          {_,0,_} -> {ok,static};
@@ -61,9 +61,10 @@ app(Params) ->
     mad_repl:load(),
     Apps = ets:tab2list(filesystem),
     [ case string:str(File,"priv/web") of
-       1 -> Relative = Name ++ string:substr(File, 9),
+       1 -> Relative = unicode:characters_to_list(Name ++ string:replace(string:substr(File, 9), "sample", Name, all), utf8),
             mad:info("Create File: ~p~n",[Relative]),
             filelib:ensure_dir(Relative),
-            file:write_file(Relative,Bin);
+            BinNew = string:replace(Bin, "sample", Name, all),
+            file:write_file(Relative, BinNew);
        _ -> skip
-       end || {File,Bin} <- Apps ], {ok,Name}.
+       end || {File,Bin} <- Apps, is_list(File) ], {ok,Name}.

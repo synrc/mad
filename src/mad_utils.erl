@@ -25,6 +25,7 @@ consult(File) ->
 src(Dir) -> filename:join(Dir, "src").
 include(Dir) -> filename:join(Dir, "include").
 ebin(Dir) -> filename:join(Dir, "ebin").
+priv(Dir) -> filename:join(Dir, "priv").
 deps(File) -> get_value(deps, consult(File), []).
 
 get_value(Key, Opts, undefined) -> get_value(Key, Opts, []);

@@ -7,12 +7,12 @@
 scripts(N) ->
     mad_repl:load(),
     {ok,Bin} = mad_repl:load_file("priv/systools/start"),
-    [{"/bin/start",list_to_binary(re:replace(binary_to_list(Bin),"{release}",N,[global,{return,list}]))},
-     {"/bin/attach",element(2,mad_repl:load_file("priv/systools/attach"))},
-     {"/bin/daemon",element(2,mad_repl:load_file("priv/systools/daemon"))},
-     {"/etc/"++N++".boot",N++".boot"},
-     {"/etc/vm.args","vm.args"},
-     {"/etc/sys.config","sys.config"}].
+    [{"bin/start",list_to_binary(re:replace(binary_to_list(Bin),"{release}",N,[global,{return,list}]))},
+     {"bin/attach",element(2,mad_repl:load_file("priv/systools/attach"))},
+     {"bin/daemon",element(2,mad_repl:load_file("priv/systools/daemon"))},
+     {"etc/"++N++".boot",N++".boot"},
+     {"etc/vm.args","vm.args"},
+     {"etc/sys.config","sys.config"}].
 
 apps(List) ->
     lists:flatten([[[ {filename:join([lib,
@@ -48,7 +48,7 @@ beam_release(N) ->
     Files = [ {"/bin/" ++ filename:basename(F), F}
         || F <- mad_repl:wildcards([code:root_dir() ++
             "/erts-" ++ erlang:system_info(version) ++
-            "/bin/{epmd,erlexec,run_erl,to_erl,escript,beam.smp,erl_child_setup}"]) ] ++
+            "/bin/{epmd,erlexec,run_erl,to_erl,escript,beam.smp,erl_child_setup,inet_gethost}"]) ] ++
         apps(Apps) ++ scripts(N),
     erl_tar:create(N ++ ".tgz",Files,[compressed]),
     mad:info("~s.boot: ~p~n",[N,Res]),

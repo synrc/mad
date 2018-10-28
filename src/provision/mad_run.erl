@@ -16,6 +16,6 @@ attach(_) -> mad:info("to_erl .~n"). % use like $(mad attach)
 
 stop(_) -> {ok,[]}.
 
-clean(_) -> [ file:delete(X) || X <- filelib:wildcard("{apps,deps}/*/ebin/**") ++
-                                     filelib:wildcard("ebin/**")], {ok,[]}.
+clean(_) -> [ file:delete(X) || X <- filelib:wildcard("{apps,deps}/*/ebin/*.beam") ++
+                                     filelib:wildcard("ebin/*.beam")], {ok,[]}.
 

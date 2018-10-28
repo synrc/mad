@@ -19,7 +19,8 @@ fetch(Cwd, Config, ConfigFile, [H|T]) ->
             {Cmd, Uri, Co} = case Repo of
                                  V={_, _, _}          -> V;
                                  {_Cmd, _Url, _Co, _} -> {_Cmd, _Url, _Co};
-                                 {_Cmd, _Url}         -> {_Cmd, _Url, "master"}
+                                 {_Cmd, _Url}         -> {_Cmd, _Url, "master"};
+                                 Url when is_list(Url) -> {git, Url, "master"}
                              end,
             Cmd1 = atom_to_list(Cmd),
             Cache = mad_utils:get_value(cache, Config, deps_fetch),
@@ -29,7 +30,7 @@ fetch(Cwd, Config, ConfigFile, [H|T]) ->
          {error,E} -> {error,E};
          {ok,_} -> fetch(Cwd, Config, ConfigFile, T) end.
 
-git_clone(Uri,Fast,TrunkPath,Rev) when Rev == "head" orelse Rev == "HEAD" orelse Rev == "master" ->
+git_clone(Uri,Fast,TrunkPath,Rev) when Rev == "head" orelse Rev == "HEAD" orelse Rev == "master" orelse Rev == [] ->
     {["git clone ",Fast,Uri," ",TrunkPath],Rev};
 git_clone(Uri,_Fast,TrunkPath,Rev) ->
     {["git clone ",Uri," ",TrunkPath," && cd ",TrunkPath," && git checkout \"",Rev,"\"" ],Rev}.
@@ -90,10 +91,11 @@ pull(_,[])         -> {ok,[]};
 pull(Config,[F|T]) ->
     mad:info("==> up: ~p~n", [F]),
     {_,Status,Message} = sh:run(lists:concat(["cd ",F," && git pull && cd -"])),
+    %io:format("status: ~p~n",[{Status,Message}]),
     case Status of
          0 -> mad_utils:verbose(Config,Message), pull(Config,T);
          _ -> case binary:match(Message,[<<"You are not currently on a branch">>]) of
-                   nomatch -> mad_utils:verbose(Config,Message), true;
+                   nomatch -> mad_utils:verbose(Config,Message), {error,Message};
                    _ -> pull(Config,T) end end.
 
 up(Params) ->

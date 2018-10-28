@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html >
+<head>
+
+  <link rel=stylesheet type="text/css" href="https://synrc.com/synrc.css?v=1">
+  <meta name="Author" content="5HT">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta property="og:image" content="images/s_64.png"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=IE10,chrome=1" />
+  <title>MAD</title>
+</head>
+<body >
+<!--HEVEA command line is: hevea index.tex -o index.htm -->
+<!--CUT STYLE article--><!--HTMLHEAD-->
+
+<div class="nonselectedwrapper white" style="padding: 10px 0px 10px 0px;margin: 0px 0px 10px 0px;">
+    <a href="//synrc.com/">
+    <img style="float:left; margin-left: 55px; margin-top: 5px; margin-bottom:-5px;" src="http://synrc.com/images/synrc.png" border="0"></a>
+
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" style="display:none;margin-top:39px;">
+      <input type="hidden" name="cmd" value="_s-xclick">
+      <input type="hidden" name="hosted_button_id" value="P8WQHAQK5HWWW">
+      <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" style="width:74px;margin-top:0px;">
+     </form>
+
+    <div align=right style="float:right;width:700px;height: auto; margin: 20px 50px 0px 0px;">
+          <script type="text/javascript">
+
+        var args = (window.location).toString().split('/');
+        var page_name = args[args.length-1];
+        var menu = {'https://synrc.com/index.htm':    'Home',
+                    'https://synrc.com/research.htm': 'Showcase',
+                    'https://synrc.com/apps/':   'Apps',
+                    'https://synrc.com/feedback.htm': 'Contacts', };
+
+        Object.keys(menu).forEach(function (key) {
+            if (page_name == key) { document.write('<div class="menu" style="font-weight: bold;">'+menu[key]+'</div>'); }
+            else { document.write('<a class="menu" href="'+key+'">'+menu[key]+'</a>'); }
+        });
+
+        </script>
+    </div>
+</div>
+
+<hr size="1">
+
+<!--ENDHTML-->
+<!--CUT DEF section 1 --><div class="nonselectedwrapper">
+<div class="article">
+<div class="toc">
+<!--TOC section id="sec1" TOC-->
+<h2 id="sec1" class="section">TOC</h2><!--SEC END -->
+<!--TOC paragraph id="sec2" -->
+<!--SEC END --><p>
+<a href="https://synrc.com/apps/mad/doc/web">Overview</a> <br>
+
+<a href="https://synrc.com/apps/mad/doc/web/setup.htm">1. Setup</a> <br>
+
+<a href="https://synrc.com/apps/mad/doc/web/deps.htm">2. Deps</a> <br>
+
+<a href="https://synrc.com/apps/mad/doc/web/config.htm">3. Configuration</a> <br>
+
+<a href="https://synrc.com/apps/mad/doc/web/commands.htm">4. Commands</a> <br>
+
+<a href="https://synrc.com/apps/mad/doc/web/bundles.htm">5. Bundles</a> <br>
+
+<a href="https://synrc.com/apps/mad/doc/book.pdf">Download PDF</a> <br>
+
+</p></div>
+
+<div class="articlecol">
+
+<!--TOC section id="sec3" MAD: Erlang Containers-->
+<h2 id="sec3" class="section">MAD: Erlang Containers</h2><!--SEC END -->
+<!--TOC subsection id="sec4" Purpose-->
+<h3 id="sec4" class="subsection">Purpose</h3><!--SEC END --><p>
+We were trying to make something minimalistic that fits out <a href="https://github.com/synrc">application stack</a>.
+The main idea of mad is to provide clean and simple rebar-like fast dependency manager that
+is able to build several types of packages and provides interface of containered deployments
+to virtualiezed environments.</p>
+<!--TOC subsection id="sec5" Several Types of Packaging-->
+<h3 id="sec5" class="subsection">Several Types of Packaging</h3><!--SEC END --><p>
+The key feature of mad is ability to create single-file bundled web sites.
+This target escript is ready to run on Windows, Linux and Mac.</p>
+<!--TOC subsection id="sec6" Deployment Options-->
+<h3 id="sec6" class="subsection">Deployment Options</h3><!--SEC END --><p>
+As a deploy tool mad is also supposed to launch, start, stop and manage containers, locally or remote.
+You can make containers from different type of packages, like making runc container with beam release.</p>
+<!--TOC subsection id="sec7" OTP Compliant-->
+<h3 id="sec7" class="subsection">OTP Compliant</h3><!--SEC END --><p>
+Mad supports ERTS boot files generation with systools and erlang application format used by OTP.
+This is the main format of application repository. Also boot files are suported on both LING and BEAM.</p>
+<!--TOC subsection id="sec8" Tiny Size-->
+<h3 id="sec8" class="subsection">Tiny Size</h3><!--SEC END --><p>
+And the good part:</p><div class="lstlisting">                      Sources        Binary
+    mad               967 LOC        52 KB
+    rebar             7717 LOC       181 KB</div>
+<!--TOC subsection id="sec9" History-->
+<h3 id="sec9" class="subsection">History</h3><!--SEC END --><p>We came to conclusion that no matter how perfect your libraries are,
+the comfort and ease come mostly from developing tools.
+Everything got started when <a href="https://github.com/proger">Vladimir Kirillov</a> decided to
+replace Rusty’s sync beam reloader. As you know sync uses
+filesystem polling which is neither energy-efficient nor elegant. Also
+sync is only able to recompile separate modules while
+common use-case in N2O is to recompile DTL templates
+and LESS/SCSS stylesheets. That is why we need to recompile
+the whole project. That’s the story how <a href="https://github.com/synrc/active">active</a> emerged.
+Under the hood active is a client subscriber
+of <a href="https://github.com/synrc/fs">fs</a> library, native filesystem listener for Linux, Windows and Mac.</p><p>De-facto standard in Erlang world is rebar.
+We love rebar interface despite its implementation.
+First we plugged rebar into active and then decided to drop its support,
+it was slow, especially in cold recompilation.
+It was designed to be a stand-alone tool, so it has some
+glitches while using as embedded library.
+Later we switched to Makefile-based build tool <a href="https://github.com/synrc/otp.mk">otp.mk</a>.</p><p>The idea to build rebar replacement was up in the air for a long time.
+The best minimal approach was picked up by <a href="https://github.com/s1n4">Sina Samavati</a>,
+who implemented the first prototype called ’mad’. Initially mad
+was able to compile DTL templates, YECC files, escript (like
+bundled in gproc), also it had support for caching with side-effects.
+In a month I forked mad and took over the development under the same name.</p><div class="center">Listing 1: Example of building N2O sample</div><p><br>
+</p><div class="lstlisting">                                   Cold       Hot
+    rebar get-deps compile         53.156s    4.714s
+    mad deps compile               54.097s    0.899s</div><div class="center">Listing 2: Example of building Cowboy</div><p><br>
+</p><div class="lstlisting">                                   Hot
+    make (erlang.mk)               2.588s
+    mad compile                    2.521s</div><p>
+
+<br><br>
+<h2><a name="testimonials"><b>About MAD</b></a></h2><blockquote>At the beginning, Mad was supposed to be only a Rebar-compatible dependency manager, after a while,
+I realized compiling applications as fast as possible with it could be a fascinating work as well.
+<div align=right>Sina Samavati,
+<a href="https://github.com/s1n4">Original MAD Author</a></div></blockquote>
+
+
+
+    <!--div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'synrc'; // required: replace example with your forum shortname
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a-->
+
+
+</p></div>
+</div>
+</div><div class="clear"> </div><!--CUT END -->
+<!--HTMLFOOT-->
+
+<div class="nonselectedwrapper">
+<div class="verywidecol">
+
+    <div style="width:100%;height:300px;float:left;font-size:16pt;" align=center>
+    	<hr size=1>
+    	<br><br><br>
+        <a href="//synrc.com/news/index.htm">Events</a> |
+    	<a href="//synrc.com/privacy.htm">Privacy Policy</a> |
+        <a href="//synrc.com/feedback.htm">Feedback</a> |
+        <a href="//synrc.com/brandbook.htm">Brandbook</a><br>
+    	Copyright &copy; 2005&ndash;2016 <a href="//synrc.com/index.htm"> Synrc Research Center s.r.o.</a>
+    </div>
+
+</div>
+</div>
+
+
+<div class="clear"></div>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-29227518-1']);
+      _gaq.push(['_trackPageview']);
+      
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'https://www') + '.google-analytics.com/ga.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+                      })();
+                      
+                      </script>
+
+<script type="text/javascript" src="https://synrc.com/hi.js"></script>
+<!--ENDHTML-->
+</body>
+</html>
