@@ -1,5 +1,5 @@
-MAD
-===
+MAD: Manage Dependencies
+========================
 
 [![Build Status](https://travis-ci.org/synrc/mad.svg?branch=master)](https://travis-ci.org/synrc/mad)
 
