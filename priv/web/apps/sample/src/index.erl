@@ -1,7 +1,7 @@
 -module(index).
 -compile(export_all).
--include_lib("n2o/include/wf.hrl").
 -include_lib("nitro/include/nitro.hrl").
+-include_lib("n2o/include/wf.hrl").
 
 peer()    -> wf:to_list(wf:peer(?REQ)).
 message() -> wf:js_escape(wf:html_encode(wf:to_list(wf:q(message)))).
