@@ -14,7 +14,7 @@ main(Params)      ->
 
     halt(return(
         lists:any(fun({error,_}) -> true; (_) -> false end,
-        lists:flatten(
+        lists:flatten([
         lists:foldl(
         fun ({Fun,Arg},[]) ->
                 mad_hooks:run_hooks(pre, Fun),
@@ -22,8 +22,8 @@ main(Params)      ->
                 mad_hooks:run_hooks(post, Fun),
                 Errors;
             ({_,_},Err) ->
-                errors(Invalid), {return,Err}
-        end, [], Valid))))).
+                errors(Invalid)
+        end, [], Valid)])))).
 
 atomize("static") -> 'static';
 atomize("deploy") -> 'deploy';
@@ -49,7 +49,7 @@ profile()         -> application:get_env(mad,profile,mad_local).
 
 errors([])            -> [];
 errors(false)         -> [];
-errors(true)          -> {error,unknown};
+errors(true)          -> [{error,unknown}];
 errors({error,Where}) -> info("ERROR~n"), [{error,Where}];
 errors({ok,_})        -> info("OK~n",[]), [].
 
