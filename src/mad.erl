@@ -4,26 +4,27 @@
 -compile(export_all).
 -export([main/1]).
 
-main([])          -> help();
+main([])          -> halt(help());
 main(Params)      ->
 
-    { Invalid, Valid } = lists:foldr(
-                               fun (X,{C,R}) when is_atom(X) -> {[],[{X,C}|R]};
-                                   (X,{C,R}) -> {[X|C],R} end,
-                               {[],[]}, lists:map(fun atomize/1, Params)),
+    % filter valid (atoms) from invalid (unparsed lists) commands
+    { _Invalid, Valid } = lists:foldr(
+        fun (X,{C,R}) when is_atom(X) -> {[],[{X,C}|R]};
+                            (X,{C,R}) -> {[X|C],R} end,
+             {[],[]}, lists:map(fun atomize/1, Params)),
 
+    % return any error if exists on flattened fold of profile runs
+    % of functions (commands) with arguments
     halt(return(
-        lists:any(fun({error,_}) -> true; (_) -> false end,
-        lists:flatten([
-        lists:foldl(
-        fun ({Fun,Arg},[]) ->
-                mad_hooks:run_hooks(pre, Fun),
-                Errors = errors((profile()):Fun(Arg)),
-                mad_hooks:run_hooks(post, Fun),
-                Errors;
-            ({_,_},Err) ->
-                errors(Invalid)
-        end, [], Valid)])))).
+         lists:any(fun({error,_}) -> true; (_) -> false end,
+         lists:flatten([
+         lists:foldl(
+         fun ({Fun,Arg},ErrAcc) ->
+                  mad_hooks:run_hooks(pre, Fun),
+                  Errors = errors((profile()):Fun(Arg)),
+                  mad_hooks:run_hooks(post, Fun),
+                  Errors ++ ErrAcc
+         end, [], Valid)])))).
 
 atomize("static") -> 'static';
 atomize("deploy") -> 'deploy';

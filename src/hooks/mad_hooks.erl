@@ -1,4 +1,5 @@
 -module(mad_hooks).
+-copyright('Pavel Kozlovsky').
 -export([run_hooks/2]).
 
 -spec run_hooks(pre|post, atom()) -> any().
@@ -7,16 +8,13 @@ run_hooks(Type, Command) ->
     Dir = mad_utils:cwd(),
     run_hooks(Dir, Type, Command, Config).
 
-run_hooks(Dir, pre, Command, Config) ->
-    run_hooks(Dir, pre_hooks, Command, Config);
-run_hooks(Dir, post, Command, Config) ->
-    run_hooks(Dir, post_hooks, Command, Config);
+run_hooks(Dir, pre, Command, Config) -> run_hooks(Dir, pre_hooks, Command, Config);
+run_hooks(Dir, post, Command, Config) -> run_hooks(Dir, post_hooks, Command, Config);
 run_hooks(Dir, Type, Command, Config) ->
     MaybeHooks = mad_utils:get_value(Type, Config, []),
     apply_hooks(Dir, Command, Config, MaybeHooks).
 
-apply_hooks(_, _, _, []) ->
-    done;
+apply_hooks(_, _, _, []) -> done;
 apply_hooks(Dir, Command, Config, Hooks) ->
     Env = create_env(Config),
     lists:foreach(fun({_, C, _} = Hook) when C =:= Command ->
@@ -40,8 +38,8 @@ apply_hook(Dir, Env, {Command, Hook}) ->
 %% Can be expanded
 create_env(_Config) -> [].
 
-%% SOURCE: 
-%%  https://github.com/erlang/rebar3/blob/master/src/rebar_utils.erl 
+%% SOURCE:
+%%  https://github.com/erlang/rebar3/blob/master/src/rebar_utils.erl
 is_arch(ArchRegex) ->
     case re:run(get_arch(), ArchRegex, [{capture, none}]) of
         match ->
@@ -117,7 +115,7 @@ sh(Command, Hook, Dir, Env) ->
     ),
     {done, Status, Out} = sh:sh_loop(Port, binary),
     case Status of
-        0 -> 
+        0 ->
             mad:info("~s~n", [Out]);
         _ ->
             mad:info("Failed hook for ~p with ~s~n", [Command, Out]),
