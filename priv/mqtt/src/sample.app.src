@@ -1,0 +1,8 @@
+{application,sample,
+             [{description,"sample IoT Application"},
+              {vsn,"1.10"},
+              {registered,[]},
+              {applications,[kernel,stdlib,kvs,n2o]},
+              {mod,{sample,[]}},
+              {env,[]},
+              {modules,[]}]}.

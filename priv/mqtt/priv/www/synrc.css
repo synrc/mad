@@ -1,0 +1,202 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    color: #737373;
+    background: url('back.jpg') center / cover;
+    margin: 0;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 18px;
+    color: white;
+    background: #4990E2;
+    font-weight: bold;
+    font-family: inherit;
+    line-height: 1;
+    border: none;
+    text-transform: uppercase;
+    border-radius: 4px;
+    box-shadow: 0px 10px 15px -5px rgba(100, 100, 100, .35);
+    margin: 10px;
+}
+
+button:hover {
+    background: #1a84ff;
+}
+
+button:focus {
+    outline: none;
+    background: #1f63b2;
+}
+
+img {
+    width: 140px;
+    margin: auto;
+    padding: 0;
+    display: block;
+}
+
+.login {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    align-items: center;
+}
+
+.login h1 {
+    color: #4990E2;
+    font-size: 34px;
+    margin: 30px 0;
+    text-shadow: 1px 2px 8px rgba(100, 100, 100, .3);
+}
+
+.login img {
+    margin-top: 20px;
+}
+
+.login form {
+    width: 300px;
+    background: white;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    border-radius: 4px;
+    box-shadow: 0px 4px 40px rgba(100, 100, 100, .35);
+}
+
+.login label {
+    width: 100%;
+    display: block;
+    font-size: 18px;
+}
+
+.login input {
+    width: 100%;
+    display: block;
+    border: none;
+    font-family: inherit;
+    color: inherit;
+    font-size: 19px;
+    line-height: 1.4;
+    border-bottom: 1px solid #4990E2;
+    margin-bottom: 20px;
+}
+
+.login input:focus {
+    outline: none;
+}
+
+.login footer {
+    margin-top: auto;
+    margin-bottom: 30px;
+    font-size: 18px;
+    background: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    box-shadow: 0px 4px 40px rgba(100, 100, 100, .35);
+}
+
+.chat {
+    text-align: center;
+}
+
+.chat header {
+    display: inline-block;
+    max-width: 200px;
+    vertical-align: top;
+    margin-right: 50px;
+    margin-top: 20px;
+}
+
+.chat img {
+    margin-bottom: 20px;
+}
+
+.chat h2 {
+    color: #4990E2;
+    font-size: 28px;
+    margin: 10px 0;
+    text-shadow: 1px 2px 8px rgba(100, 100, 100, .3);
+}
+
+.chat main {
+    display: inline-block;
+    vertical-align: top;
+    text-align: left;
+    max-width: 600px;
+    margin: 40px 10px;
+}
+
+.chat form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 0px 0 70px;
+}
+
+.chat textarea:focus {
+    outline: none;
+}
+
+.chat textarea {
+    width: 100% !important;
+    margin-bottom: 20px;
+    border: none;
+    font-family: inherit;
+    color: inherit;
+    font-size: 18px;
+    line-height: 1.2;
+    padding: 8px 16px;
+    border-radius: 4px;
+    box-shadow: 0px 4px 40px rgba(100, 100, 100, .35);
+}
+
+::-webkit-input-placeholder {
+    color: #ccc;
+}
+
+::-moz-placeholder {
+    color: #ccc;
+}
+
+::-ms-input-placeholder {
+    color: #ccc;
+}
+
+.chat span>button {
+    margin-right: 5px;
+}
+
+history {
+    display: block;
+}
+
+message {
+    display: block;
+    font-size: 18px;
+    background: white;
+    padding: 8px 16px;
+    margin: 15px 0;
+    border-radius: 4px;
+    box-shadow: 0px 4px 40px rgba(100, 100, 100, .35);
+}
+
+author {
+    display: inline;
+    font-weight: bold;
+}
+
+author:empty {
+    display: none;
+}
+
+author::after {
+    content: ': ';
+}
