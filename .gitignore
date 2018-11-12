@@ -6,3 +6,6 @@ logs
 deps
 .DS_Store
 .applist
+erlang.log.1
+run_erl.log
+rebar3

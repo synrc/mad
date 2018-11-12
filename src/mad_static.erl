@@ -54,18 +54,24 @@ compile_static(Files) ->
         {_,0,_} -> {ok,static};
         {_,_,_} -> mad:info("error while compiling assets~n"), {error,"Static compile."} end.
 
-app([]) -> app(["sample"]);
-app(Params) ->
-    [Name] = Params,
+app([]) -> app(["web","sample"]);
+app([Name]) -> app(["web",Name]);
+app([Skeleton,Name|_]) ->
+    io:format("Scaffolding ~p Name ~p~n",[Skeleton,Name]),
     mad_repl:load(),
     Apps = ets:tab2list(filesystem),
     try
-    [ case string:str(File,"priv/web") of
-       1 -> Relative = unicode:characters_to_list(Name ++
-                       string:replace(string:substr(File, 9), "sample", Name, all), utf8),
+    [ begin %io:format("File: ~p~n",[{File,Name,string:replace(File, "sample", Name, all)}]),
+       case string:str(File,"priv/"++Skeleton) of
+       1 -> Relative = unicode:characters_to_list(Name++
+                       string:replace(
+                       string:replace(File, "sample", Name, all),
+                                     "priv/"++Skeleton, "", all), utf8),
             mad:info("Created: ~p~n",[Relative]),
             filelib:ensure_dir(Relative),
             BinNew = string:replace(Bin, "sample", Name, all),
             file:write_file(Relative, BinNew);
        _ -> skip
-       end || {File,Bin} <- Apps, is_list(File) ], {ok,Name} catch _:_ -> {error,"Skeleton failed."} end.
+       end end || {File,Bin} <- Apps, is_list(File)],
+       {ok,Name}
+    catch _:_ -> {error,"Skeleton failed."} end.
