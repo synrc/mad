@@ -35,7 +35,7 @@ orderapps() ->
     Apps = triples(),
     case sort(lists:flatten(Apps)) of
          {ok,Sorted} -> {ok,Sorted};
-         Return -> {error,"Cycling apps."} end.
+         _Return -> {error,"Cycling apps."} end.
 
 system_deps(A) ->
     F = code:where_is_file(lists:concat([A,".app"])),
