@@ -26,7 +26,7 @@
     <article>
         <section>
             <h3>SYNOPSIS</h3>
-            <div>MAD is a simple build tool designed for <a href="https://n2o.space">N2O ECO</a>.
+            <div>MAD is the small and fast rebar replacement.
             </div>
         </section>
 
@@ -53,23 +53,161 @@
 
         <a name=mqtt><h3>HELP</h3></a>
         <p> MAD accepts a list of words. This list of words contains special words,
-            delimiters or commands,
-            words between commands are arguments for nearest left command.
+            delimiters or commands.
+            Words between commands are arguments for the nearest command from left.
         </p>
         <figure>
         <code>
+ $ mad
+
  MAD Manage Dependencies ad426a
 
     invoke = mad | mad params
     params = []  | command [options] params
    command = app [sample] | deps | clean | compile | strip
            | bundle [beam|script] | get [repo] | up [name]
-           | start | stop | attach | sh | static [watch|min]
+           | start | stop | attach | repl | static [watch|min]
         </code></figure>
     </section>
-
-
-
+    <section>
+        <a name=docs><h3>APP</h3></a>
+        <p>Create predefined sample applications built in MAD with a given name:</p>
+        <div>
+        <ul>
+            <li><b><a href="man/mad_static.htm">mad_static</a></b> &mdash; MAD Static<div class=desk>: SKELETONS, MINIFIER</div></li>
+        </ul>
+        <figure><code>
+ $ mad app ex && cd ex
+ Created: "ex/sys.config"
+ Created: "ex/apps/ex/priv/static/spa/index.htm"
+ Created: "ex/apps/ex/rebar.config"
+ Created: "ex/apps/ex/priv/templates/index.html"
+ Created: "ex/apps/ex/src/ex.erl"
+ Created: "ex/rebar.config"
+ Created: "ex/apps/ex/src/index.erl"
+ Created: "ex/apps/rebar.config"
+ Created: "ex/vm.args"
+ Created: "ex/apps/ex/src/ex.app.src"
+ Created: "ex/apps/ex/priv/static/synrc.css"
+ Created: "ex/apps/ex/src/routes.erl"
+ OK
+        </code><figure>
+        </div>
+        <a name=docs><h3>STATIC</h3></a>
+    </section>
+    <section>
+        <a name=docs><h3>DEPS</h3></a>
+        <div>
+        <ul>
+            <li><b><a href="man/mad_git.htm">mad_git</a></b> &mdash; MAD Git</div></li>
+        </ul>
+        <figure><code>
+ $ mad deps
+ ==> dependency: "git://github.com/voxoz/erlydtl" tag: []
+ ==> dependency: "git://github.com/voxoz/cowlib" tag: []
+ ==> dependency: "git://github.com/voxoz/ranch" tag: []
+ ==> dependency: "git://github.com/voxoz/gproc" tag: []
+ ==> dependency: "git://github.com/synrc/fs" tag: {tag,"4.10"}
+ ==> dependency: "git://github.com/synrc/sh" tag: {tag,"2.10"}
+ ==> dependency: "git://github.com/synrc/mad" tag: {tag,"4.10"}
+ ==> dependency: "git://github.com/synrc/active" tag: {tag,"4.10"}
+ ==> dependency: "git://github.com/synrc/nitro" tag: {tag,"3.10"}
+ ==> dependency: "git://github.com/synrc/n2o" tag: {tag,"5.10"}
+        </code></figure>
+        </div>
+        <a name=docs><h3>GET</h3></a>
+        <figure><code>
+ $ mad get kvx
+ ==> dependency: "https://github.com/synrc/kvx" tag: []
+ OK
+        </code></figure>
+        <a name=docs><h3>UP</h3></a>
+    </section>
+    <section>
+        <a name=docs><h3>CLEAN</h3></a>
+        <div>
+        <figure><code>
+ $ mad clean
+        </code></figure>
+        </div>
+        <a name=docs><h3>START</h3></a>
+        <figure><code>
+ $ mad start
+        </code></figure>
+        <a name=docs><h3>STOP</h3></a>
+        <div>
+        <ul>
+            <li><b><a href="man/mad_run.htm">mad_run</a></b> &mdash; MAD Runner</div></li>
+        </ul>
+        </div>
+    </section>
+    <section>
+        <a name=docs><h3>COMPILE</h3></a>
+        <div>
+        <ul>
+            <li><b><a href="man/mad_compile.htm">mad_compile</a></b> &mdash; MAD Compiler</li>
+            <li><b><a href="man/mad_app.htm">mad_app</a></b> &mdash; OTP Application files</li>
+            <li><b><a href="man/mad_cubical.htm">mad_cubical</a></b> &mdash; cubicaltt files</li>
+            <li><b><a href="man/mad_dtl.htm">mad_dtl</a></b> &mdash; DTL files</li>
+            <li><b><a href="man/mad_erl.htm">mad_erl</a></b> &mdash; Erlang source files</li>
+            <li><b><a href="man/mad_leex.htm">mad_leex</a></b> &mdash; Erlang leex files</li>
+            <li><b><a href="man/mad_yecc.htm">mad_yecc</a></b> &mdash; Erlang yecc files</li>
+            <li><b><a href="man/mad_port.htm">mad_port</a></b> &mdash; C/C++ files</li>
+            <li><b><a href="man/mad_script.htm">mad_script</a></b> &mdash; .script files</li>
+        </ul>
+        </div>
+        <figure><code>
+ $ mad compile
+        </code>/<figure>
+    </section>
+    <section>
+        <a name=docs><h3>STRIP</h3></a>
+        <div>
+        <ul>
+            <li><b><a href="man/mad_strip.htm">mad_strip</a></b> &mdash; MAD Strip</div></li>
+        </ul>
+        </div>
+        <figure><code>
+ $ mad strip
+        </code>/<figure>
+    </section>
+    <section>
+        <a name=docs><h3>PLAN</h3></a>
+        <div>
+        <ul>
+            <li><b><a href="man/mad_resolve.htm">mad_resolve</a></b> &mdash; MAD Resolver</div></li>
+        </ul>
+        </div>
+        <figure><code>
+ $ mad plan
+        </code>/<figure>
+    </section>
+    <section>
+        <a name=docs><h3>BUNDLE</h3></a>
+        <div>
+        <ul>
+            <li><b><a href="man/mad_release.htm">mad_release</a></b> &mdash; MAD Bundler</li>
+            <li><b><a href="man/mad_escript.htm">mad_escript</a></b> &mdash; MAD ESCRIPT</li>
+            <li><b><a href="man/mad_ling.htm">mad_ling</a></b> &mdash; MAD LING</li>
+            <li><b><a href="man/mad_systools.htm">mad_systools</a></b> &mdash; MAD BEAM</li>
+        </ul>
+        </div>
+        <figure><code>
+ $ mad bun script sample
+        </code>/<figure>
+    </section>
+    <section>
+        <a name=docs><h3>REPL</h3></a>
+        <div>
+        <ul>
+            <li><b><a href="man/mad_repl.htm">mad_repl</a></b> &mdash; MAD REPL</div></li>
+        </ul>
+        </div>
+        <figure><code>
+ $ mad repl
+ $ open http://127.0.0.1:8001
+        </code>/<figure>
+    </section>
     <section>
         <a name=docs><h3>Related Documents</h3></a>
         <div>

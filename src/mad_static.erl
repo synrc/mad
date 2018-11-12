@@ -63,7 +63,7 @@ app(Params) ->
     [ case string:str(File,"priv/web") of
        1 -> Relative = unicode:characters_to_list(Name ++
                        string:replace(string:substr(File, 9), "sample", Name, all), utf8),
-            mad:info("Create File: ~p~n",[Relative]),
+            mad:info("Created: ~p~n",[Relative]),
             filelib:ensure_dir(Relative),
             BinNew = string:replace(Bin, "sample", Name, all),
             file:write_file(Relative, BinNew);
