@@ -3,6 +3,7 @@
 
 compile(Params)   -> mad_compile:compile(Params).
 app(Params)       -> mad_static:app(Params).
+get(Params)       -> mad_git:get_repo(Params).
 release(Params)   -> mad_release:release(Params).
 resolve(Params)   -> mad_resolve:main(Params).
 clean(Params)     -> mad_run:clean(Params).

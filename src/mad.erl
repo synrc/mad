@@ -35,6 +35,7 @@ atomize("cle"++_) -> 'clean';
 atomize("com"++_) -> 'compile';
 atomize("eunit")  -> 'eunit';
 atomize("up")     -> 'up';
+atomize("get")    -> 'get';
 atomize("rel"++_) -> 'release';
 atomize("bun"++_) -> 'release';
 atomize("sta"++_) -> 'start';

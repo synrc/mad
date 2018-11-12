@@ -30,10 +30,26 @@ fetch(Cwd, Config, ConfigFile, [H|T]) ->
          {error,E} -> {error,E};
          {ok,_} -> fetch(Cwd, Config, ConfigFile, T) end.
 
-git_clone(Uri,Fast,TrunkPath,Rev) when Rev == "head" orelse Rev == "HEAD" orelse Rev == "master" orelse Rev == [] ->
+get_repo([Name|_]) ->
+    { Cwd, File, Conf } = mad_utils:configs(),
+    Res = case string:tokens(Name,"/") of
+         [Org, Rep] -> {ok,Rep,lists:concat(["https://github.com/",Org,"/",Rep])};
+         [Rep] -> {ok,Rep,lists:concat(["https://github.com/synrc/",Rep])};
+         [] -> {error,"Repository unspecified."}
+    end,
+    case Res of
+         {error,X} -> {error,X};
+         {ok,N,Uri} -> fetch_dep(Cwd,Conf,File,N,"git",Uri,[],deps_fetch), {ok,N}
+    end.
+
+git_clone(Uri,Fast,TrunkPath,Rev) when Rev == "head"   orelse Rev == "HEAD"
+                                orelse Rev == "master" orelse Rev == [] ->
     {["git clone ",Fast,Uri," ",TrunkPath],Rev};
+
 git_clone(Uri,_Fast,TrunkPath,Rev) ->
-    {["git clone ",Uri," ",TrunkPath," && cd ",TrunkPath," && git checkout \"",Rev,"\"" ],Rev}.
+    {["git clone ",Uri," ",TrunkPath,
+      " && cd ",TrunkPath,
+      " && git checkout \"",Rev,"\"" ],Rev}.
 
 fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
 
@@ -85,13 +101,14 @@ build_dep(Cwd, Conf, _ConfFile, Publisher, Name, _Cmd, _Co, Dir) ->
 
 %% internal
 name_and_repo(X) -> mad_utils:name_and_repo(X).
-get_publisher(Uri) -> case string:tokens(Uri,"@:/") of [_Proto,_Server,Publisher|_RepoPath] -> Publisher; _ -> core end.
+get_publisher(Uri) -> case string:tokens(Uri,"@:/") of
+   [_Proto,_Server,Publisher|_RepoPath] -> Publisher; _ -> core end.
 
 pull(_,[])         -> {ok,[]};
 pull(Config,[F|T]) ->
     mad:info("==> up: ~p~n", [F]),
     {_,Status,Message} = sh:run(lists:concat(["cd ",F," && git pull && cd -"])),
-    %io:format("status: ~p~n",[{Status,Message}]),
+    %mad:info("status: ~p~n",[{Status,Message}]),
     case Status of
          0 -> mad_utils:verbose(Config,Message), pull(Config,T);
          _ -> case binary:match(Message,[<<"You are not currently on a branch">>]) of
