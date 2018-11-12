@@ -62,8 +62,8 @@
 
     invoke = mad | mad params
     params = []  | command [options] params
-   command = app [sample] | deps | clean | compile | strip
-           | bundle [beam|script] | get [repo] | up [name]
+   command = app [web|mqtt] <name> | deps | clean | compile | strip
+           | bundle [beam|script] <name> | get <repo> | up [name]
            | start | stop | attach | repl | static [watch|min]
         </code></figure>
     </section>
