@@ -160,7 +160,13 @@ unfold_zips(Bin) ->
     {ok,Unzip} = zip:unzip(Bin,[memory]),
     [ begin
        try
-        ets:insert(filesystem,{unicode:characters_to_list(base64:decode(list_to_binary(U))),FileBin})
+          Path = binary_to_list(base64:decode(list_to_binary(U))),
+          ets:insert(filesystem,{unicode:characters_to_list(Path),FileBin}),
+        case Path of
+             "priv/"++_ -> filelib:ensure_dir(filename:dirname(Path)),
+                           file:write_file(Path,FileBin);
+             _ -> ok
+         end
        catch _:_ ->
         ets:insert(filesystem,{U,FileBin})
        end,
