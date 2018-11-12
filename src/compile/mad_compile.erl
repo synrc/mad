@@ -8,9 +8,9 @@ compile(Params) ->
          [] -> mad_compile:'compile-deps'(Cwd, ConfigFile, Conf);
          __ -> mad_compile:deps(Cwd, Conf, ConfigFile, [Params])
     end,
-    case bool(Res) of
-         true -> {error,Params};
-         false -> mad_compile:'compile-apps'(Cwd, ConfigFile, Conf) end.
+    case Res of
+         {error,Reason} -> {error,Reason};
+         {ok,_} -> mad_compile:'compile-apps'(Cwd, ConfigFile, Conf) end.
 
 deps(_, _, _, []) -> {ok,deps};
 deps(Cwd, Conf, ConfigFile, [H|T]) ->
@@ -18,9 +18,9 @@ deps(Cwd, Conf, ConfigFile, [H|T]) ->
     Res = case get(Name) == compiled of
           true -> {ok,[]};
           _    -> dep(Cwd, Conf, ConfigFile, Name) end,
-    case bool(Res) of
-         true  -> {error,Name};
-         false -> deps(Cwd, Conf, ConfigFile, T) end.
+    case Res of
+         {error,Reason}  -> {error,Reason};
+         {ok,_} -> deps(Cwd, Conf, ConfigFile, T) end.
 
 bool({ok,_})    -> false;
 bool({error,_}) -> true.

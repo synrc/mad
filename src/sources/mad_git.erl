@@ -30,16 +30,17 @@ fetch(Cwd, Config, ConfigFile, [H|T]) ->
          {error,E} -> {error,E};
          {ok,_} -> fetch(Cwd, Config, ConfigFile, T) end.
 
+get_repo([]) -> {error,"Repository unspecified."};
 get_repo([Name|_]) ->
     { Cwd, File, Conf } = mad_utils:configs(),
     Res = case string:tokens(Name,"/") of
          [Org, Rep] -> {ok,Rep,lists:concat(["https://github.com/",Org,"/",Rep])};
          [Rep] -> {ok,Rep,lists:concat(["https://github.com/synrc/",Rep])};
-         [] -> {error,"Repository unspecified."}
+         [] -> {error,"Repository invalid."}
     end,
     case Res of
          {error,X} -> {error,X};
-         {ok,N,Uri} -> fetch_dep(Cwd,Conf,File,N,"git",Uri,[],deps_fetch), {ok,N}
+         {ok,N,Uri} -> fetch_dep(Cwd,Conf,File,N,"git",Uri,[],deps_fetch)
     end.
 
 git_clone(Uri,Fast,TrunkPath,Rev) when Rev == "head"   orelse Rev == "HEAD"
@@ -87,8 +88,7 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
                          CacheDir -> build_dep(Cwd, Config, ConfigFile,
                                         get_publisher(Uri), Name, Cmd, Co1, CacheDir)
                     end;
-    {_,_,FetchError} -> mad:info("Fetch Error: ~s~n",[binary_to_list(FetchError)]),
-                        {error,binary_to_list(FetchError)} end.
+    {_,_,FetchError} -> {error,FetchError} end.
 
 %% build dependency based on branch/tag/commit
 build_dep(Cwd, Conf, _ConfFile, Publisher, Name, _Cmd, _Co, Dir) ->
@@ -108,7 +108,6 @@ pull(_,[])         -> {ok,[]};
 pull(Config,[F|T]) ->
     mad:info("==> up: ~p~n", [F]),
     {_,Status,Message} = sh:run(lists:concat(["cd ",F," && git pull && cd -"])),
-    %mad:info("status: ~p~n",[{Status,Message}]),
     case Status of
          0 -> mad_utils:verbose(Config,Message), pull(Config,T);
          _ -> case binary:match(Message,[<<"You are not currently on a branch">>]) of

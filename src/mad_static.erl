@@ -4,16 +4,15 @@
 -define(NODE(Bin), "node_modules/.bin/"++Bin).
 
 main(_Config, ["min"]) ->
-    {ok,[SysConfig]} = file:consult("sys.config"),
+    SysConfig = try {ok,[S]} = file:consult("sys.config"), S catch _:_ -> [] end,
     N2O     = proplists:get_value(n2o,SysConfig,[]),
     AppName = proplists:get_value(app,N2O,sample),
-    Minify  = proplists:get_value(minify,N2O,[]),
+    Minify  = proplists:get_value(minify,N2O,{[],[]}),
     Command = lists:concat(["uglify -s ",string:join(element(2,Minify),","),
                                  " -o ",element(1,Minify),"/",AppName,".min.js"]),
-    io:format("Minify: ~p~n",[Command]),
     case sh:run(Command) of
          {_,0,_} -> {ok,static};
-         {_,_,_} -> mad:info("minifyjs not installed. try `npm install -g uglify`~n"), {error,minifier}
+         {_,_,_} -> mad:info("minifyjs not installed. try `npm install -g uglify`~n"), {error,"Minifier."}
     end;
 
 main(Config, ["watch"]) ->
@@ -37,7 +36,7 @@ install_deps() ->
         _ ->
             case sh:oneliner("npm install mincer-erl") of
                 {_,0,_} -> {ok,static};
-                {_,_,_} -> mad:info("error while installing mincer-erl~n"), {error,install}
+                {_,_,_} -> mad:info("error while installing mincer-erl~n"), {error,"Static install."}
             end
     end.
 
@@ -47,24 +46,26 @@ serve_static(Port) ->
     Res = sh:oneliner([?NODE("mincer-erl-serve"), "-p " ++ PortStr]),
     case Res of
         {_,0,_} -> {ok,static};
-        {_,_,_} -> mad:info("error while serving assets~n"), {error,assests} end.
+        {_,_,_} -> mad:info("error while serving assets~n"), {error,"Static assests."} end.
 
 compile_static(Files) ->
     Res = sh:oneliner([?NODE("mincer-erl-compile")] ++ Files),
     case Res of
         {_,0,_} -> {ok,static};
-        {_,_,_} -> mad:info("error while compiling assets~n"), {error,compile} end.
+        {_,_,_} -> mad:info("error while compiling assets~n"), {error,"Static compile."} end.
 
 app([]) -> app(["sample"]);
 app(Params) ->
     [Name] = Params,
     mad_repl:load(),
     Apps = ets:tab2list(filesystem),
+    try
     [ case string:str(File,"priv/web") of
-       1 -> Relative = unicode:characters_to_list(Name ++ string:replace(string:substr(File, 9), "sample", Name, all), utf8),
+       1 -> Relative = unicode:characters_to_list(Name ++
+                       string:replace(string:substr(File, 9), "sample", Name, all), utf8),
             mad:info("Create File: ~p~n",[Relative]),
             filelib:ensure_dir(Relative),
             BinNew = string:replace(Bin, "sample", Name, all),
             file:write_file(Relative, BinNew);
        _ -> skip
-       end || {File,Bin} <- Apps, is_list(File) ], {ok,Name}.
+       end || {File,Bin} <- Apps, is_list(File) ], {ok,Name} catch _:_ -> {error,"Skeleton failed."} end.
