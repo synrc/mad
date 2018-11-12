@@ -26,7 +26,7 @@
     <article>
         <section>
             <h3>SYNOPSIS</h3>
-            <div>MAD is the small and fast rebar replacement.
+            <div>MAD is a small and fast rebar replacement.
             </div>
         </section>
 
@@ -58,7 +58,6 @@
         </p>
         <figure><code>
  $ mad
-
  MAD Manage Dependencies ad426a
 
     invoke = mad | mad params
@@ -70,29 +69,21 @@
     </section>
     <section>
         <a name=docs><h3>APP</h3></a>
-        <p>Create predefined sample applications built in MAD with a given name:</p>
+        <p>Create predefined sample application.
+           MAD has built-in two sample applications: <b>web</b> and <b>mqtt</b>. </p>
+        <figure><code>
+ $ mad app web websocketApp
+ OK
+        </code></figure>
+        <figure><code>
+ $ mad app mqtt iotApp
+ OK
+        </code></figure>
         <div>
         <ul>
             <li><b><a href="man/mad_static.htm">mad_static</a></b> &mdash; MAD Static<div class=desk>: SKELETONS, MINIFIER</div></li>
         </ul>
-        <figure><code>
- $ mad app ex && cd ex
- Created: "ex/sys.config"
- Created: "ex/apps/ex/priv/static/spa/index.htm"
- Created: "ex/apps/ex/rebar.config"
- Created: "ex/apps/ex/priv/templates/index.html"
- Created: "ex/apps/ex/src/ex.erl"
- Created: "ex/rebar.config"
- Created: "ex/apps/ex/src/index.erl"
- Created: "ex/apps/rebar.config"
- Created: "ex/vm.args"
- Created: "ex/apps/ex/src/ex.app.src"
- Created: "ex/apps/ex/priv/static/synrc.css"
- Created: "ex/apps/ex/src/routes.erl"
- OK
-        </code></figure>
         </div>
-        <a name=docs><h3>STATIC</h3></a>
     </section>
     <section>
         <a name=docs><h3>DEPS</h3></a>
@@ -138,6 +129,10 @@
  OK
         </code></figure>
         <a name=docs><h3>UP</h3></a>
+        <figure><code>
+ $ mad up
+ OK
+        </code></figure>
     </section>
     <section>
         <a name=docs><h3>CLEAN</h3></a>
