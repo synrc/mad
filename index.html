@@ -101,6 +101,22 @@
             <li><b><a href="man/mad_git.htm">mad_git</a></b> &mdash; MAD Git</div></li>
         </ul>
         <figure><code>
+ $ cat rebar.config
+ {sub_dirs,["apps"]}.
+ {deps_dir,"deps"}.
+ {deps, [
+    {erlydtl,".*", {git, "git://github.com/voxoz/erlydtl",   []  }},
+    {cowboy, ".*", {git, "git://github.com/voxoz/cowboy",    []  }},
+    {gproc,  ".*", {git, "git://github.com/voxoz/gproc",     []  }},
+    {fs,     ".*", {git, "git://github.com/synrc/fs",        {tag, "4.10"} }},
+    {sh,     ".*", {git, "git://github.com/synrc/sh",        {tag, "2.10"} }},
+    {mad,    ".*", {git, "git://github.com/synrc/mad",       {tag, "4.10"} }},
+    {active, ".*", {git, "git://github.com/synrc/active",    {tag, "4.10"} }},
+    {nitro,  ".*", {git, "git://github.com/synrc/nitro",     {tag, "3.10"} }},
+    {n2o,    ".*", {git, "git://github.com/synrc/n2o",       {tag, "5.10"} }}
+ ]}
+        </code></figure>
+        <figure><code>
  $ mad deps
  ==> dependency: "git://github.com/voxoz/erlydtl" tag: []
  ==> dependency: "git://github.com/voxoz/cowlib" tag: []
@@ -112,6 +128,7 @@
  ==> dependency: "git://github.com/synrc/active" tag: {tag,"4.10"}
  ==> dependency: "git://github.com/synrc/nitro" tag: {tag,"3.10"}
  ==> dependency: "git://github.com/synrc/n2o" tag: {tag,"5.10"}
+ OK
         </code></figure>
         </div>
         <a name=docs><h3>GET</h3></a>
@@ -127,11 +144,20 @@
         <div>
         <figure><code>
  $ mad clean
+ OK
         </code></figure>
         </div>
         <a name=docs><h3>START</h3></a>
         <figure><code>
  $ mad start
+ Scripting: "/Users/maxim/depot/synrc/mad/mad"
+ OK
+        </code></figure>
+        <a name=docs><h3>ATTACH</h3></a>
+        <figure><code>
+ $ mad attach
+ to_erl .
+ OK
         </code></figure>
         <a name=docs><h3>STOP</h3></a>
         <div>
@@ -157,6 +183,8 @@
         </div>
         <figure><code>
  $ mad compile
+ Writing /apps/sample/ebin/sample.app
+ OK
         </code></figure>
     </section>
     <section>
@@ -168,6 +196,7 @@
         </div>
         <figure><code>
  $ mad strip
+ OK
         </code></figure>
     </section>
     <section>
@@ -179,6 +208,9 @@
         </div>
         <figure><code>
  $ mad plan
+ Generated [kernel,stdlib,fs,ranch,crypto,compiler,syntax_tools,inets,cowlib,
+            cowboy,n2o,sample,active,erlydtl,gproc,mad,nitro,sh]
+ OK
         </code></figure>
     </section>
     <section>
@@ -193,6 +225,9 @@
         </div>
         <figure><code>
  $ mad bundle script sample
+ Generated [kernel,stdlib,fs,ranch,crypto,compiler,syntax_tools,inets,cowlib,
+            cowboy,n2o,sample,active,erlydtl,gproc,mad,nitro,sh]
+ OK
         </code></figure>
     </section>
     <section>
