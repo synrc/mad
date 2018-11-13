@@ -50,16 +50,45 @@
               static/1,eunit/1,strip/1]).
     </code></figure>
 
+    <figure><code>
+ -type return() :: [] | {ok,any()} | {error,any()}.
+    </code></figure>
+
+    <p>Each function from exposed API has same signature from list of string
+       to sum of nil and error protocols.</p>
+
+<h4>compile(list(string())) -> return().</h4>
+<h4>app(list(string())) -> return().</h4>
+<h4>get(list(string())) -> return().</h4>
+<h4>release(list(string())) -> return().</h4>
+<h4>clean(list(string())) -> return().</h4>
+<h4>start(list(string())) -> return().</h4>
+<h4>stop(list(string())) -> return().</h4>
+<h4>sh(list(string())) -> return().</h4>
+<h4>deps(list(string())) -> return().</h4>
+<h4>up(list(string())) -> return().</h4>
+<h4>sh(list(string())) -> return().</h4>
+<h4>fetch(list(string())) -> return().</h4>
+<h4>static(list(string())) -> return().</h4>
+<h4>eunit(list(string())) -> return().</h4>
+<h4>strip(list(string())) -> return().</h4>
+
     </section>
     <section>
         <h3>LOOP</h3>
+        <h4>main(list(string())) -> integer().</h4>
+        <p>Simple yet understandable command processing and error loop.
+           Function <b>atomize/1</b> helps to accumulate
+           known agruments as atoms. Function <b>profile/0</b>
+           retrives module with MAD API implementation.
+           <b>main/1</b> function returns error status to OS with halt.</p>
         <figure><code>
  main(Params) ->
 
-   { Invalid, Valid } = lists:foldr(
-        fun (X,{C,R}) when is_atom(X) -> {[],[{X,C}|R]};
-                            (X,{C,R}) -> {[X|C],R} end,
-             {[],[]}, lists:map(fun atomize/1, Params)),
+   { _Invalid, Valid } = lists:foldr(
+     fun (X,{C,R}) when is_atom(X) -> {[],[{X,C}|R]};
+                         (X,{C,R}) -> {[X|C],R}
+     end, {[],[]}, lists:map(fun atomize/1, Params)),
 
    halt(return(
      lists:any(fun({error,X}) -> mad:info("~s~n",[X]), true;
