@@ -1,5 +1,6 @@
 -module(mad_local).
--compile(export_all).
+-include("api.hrl").
+-export(?MAD).
 
 compile(Params)   -> mad_compile:compile(Params).
 app(Params)       -> mad_static:app(Params).

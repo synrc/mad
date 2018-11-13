@@ -1,0 +1,91 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="Maxim Sokhatsky" />
+    <title>MAD</title>
+    <link rel="stylesheet" href="https://synrc.space/synrc.css" />
+</head>
+
+<body>
+
+<nav>
+    <a href='https://synrc.space/'>SYNRC</a>
+    <a href='https://n2o.space'>N2O ECO</a>
+    <a href='https://mad.n2o.space'>MAD</a>
+</nav>
+
+<header>
+    <a href="../index.html"><img src="https://n2o.space/img/Synrc Neo.svg"></a>
+    <h1>MAD</h1>
+</header>
+
+<main>
+    <section>
+
+<h3>INTRO</h3>
+
+   <p>MAD module provides user level interface for console commands.</p>
+
+        <p><blockquote><p><ul>
+            <li><b><a href="#main">main/1</a></b> &mdash; IO parameters.</li>
+            <li><b><a href="#help">help/0</a></b> &mdash; Display help.</li>
+            <li><b><a href="#profile">profile/0</a></b> &mdash; Current MAD profile.</li>
+            <li><b><a href="#atomize">atomize/1</a></b> &mdash; Commands mappings.</li>
+        </ul></p></blockquote></p>
+
+    </section>
+    <section>
+
+<h3>PROFILE</h3>
+
+<p>Each MAD profile must imeplent exposed API:</p>
+
+    <figure><code>
+ -define(MAD,[compile/1,app/1,get/1,release/1,resolve/1,clean/1,
+              start/1,attach/1,stop/1,sh/1,deps/1,up/1,fetch/1,
+              static/1,eunit/1,strip/1]).
+    </code></figure>
+
+    </section>
+    <section>
+        <h3>LOOP</h3>
+        <figure><code>
+ main(Params) ->
+
+   { Invalid, Valid } = lists:foldr(
+        fun (X,{C,R}) when is_atom(X) -> {[],[{X,C}|R]};
+                            (X,{C,R}) -> {[X|C],R} end,
+             {[],[]}, lists:map(fun atomize/1, Params)),
+
+   halt(return(
+     lists:any(fun({error,X}) -> mad:info("~s~n",[X]), true;
+                          (_) -> false end,
+     lists:flatten([
+     lists:foldl(
+     fun ({Fun,Arg},ErrAcc) ->
+         mad_hooks:run_hooks(pre, Fun),
+         Errors = errors((profile()):Fun(Arg)),
+         mad_hooks:run_hooks(post, Fun),
+         Errors ++ ErrAcc
+     end, [], Valid)])))).
+        </code></figure>
+    </section>
+    <section>
+
+<p>This module may refer to:
+<a href="mad_local.htm"><b>mad_local</b></a>.
+</p>
+
+    </section>
+</main>
+
+<footer>
+    2005&mdash;2018 &copy; Synrc Research Center
+</footer>
+
+</body>
+</html>

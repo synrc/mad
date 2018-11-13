@@ -1,0 +1,84 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="Maxim Sokhatsky" />
+    <title>MAD LOCAL</title>
+    <link rel="stylesheet" href="https://synrc.space/synrc.css" />
+</head>
+
+<body>
+
+<nav>
+    <a href='https://synrc.space/'>SYNRC</a>
+    <a href='https://n2o.space'>N2O ECO</a>
+    <a href='https://mad.n2o.space'>MAD</a>
+</nav>
+
+<header>
+    <a href="../index.html"><img src="https://n2o.space/img/Synrc Neo.svg"></a>
+    <h1>LOCAL</h1>
+</header>
+
+<main>
+    <section>
+
+<h3>INTRO</h3>
+
+   <p>MAD LOCAL profile implement MAD profile backend interface
+      for POSIX environment and developer's purposes.</p>
+
+    </section>
+    <section>
+
+<h3>PROFILE</h3>
+
+<p>In sys.config you should specify kvs backend and list of modules
+   containing <b>metainfo/0</b> exported function.</p>
+
+    <figure><code>
+ application:get_env(mad,profile,mad_local).
+    </code></figure>
+
+    <figure><code>
+ -module(mad_local).
+ -include("mad.hrl").
+ -export(?MAD).
+
+ compile(Params)   -> mad_compile:compile(Params).
+ app(Params)       -> mad_static:app(Params).
+ get(Params)       -> mad_git:get_repo(Params).
+ release(Params)   -> mad_release:release(Params).
+ resolve(Params)   -> mad_resolve:main(Params).
+ clean(Params)     -> mad_run:clean(Params).
+ start(Params)     -> mad_run:start(Params).
+ attach(Params)    -> mad_run:attach(Params).
+ stop(Params)      -> mad_run:stop(Params).
+ sh(Params)        -> mad_repl:sh(Params).
+ deps(Params)      -> mad_git:deps(Params).
+ up(Params)        -> mad_git:up(Params).
+ fetch(Params)     -> mad_git:fetch(Params).
+ static(Params)    -> mad_static:main([],Params).
+ eunit(Params)     -> mad_eunit:main_test(Params).
+ strip(Params)     -> mad_strip:main(Params).
+    </code></figure>
+
+    </section>
+    <section>
+
+<p>This module may refer to:
+<a href="mad_git.htm"><b>mad_git</b></a>.
+</p>
+
+    </section>
+</main>
+
+<footer>
+    2005&mdash;2018 &copy; Synrc Research Center
+</footer>
+
+</body>
+</html>
