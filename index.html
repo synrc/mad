@@ -96,9 +96,6 @@
     <section>
         <a name=docs><h3>DEPS</h3></a>
         <div>
-        <ul>
-            <li><b><a href="man/mad_git.htm">mad_git</a></b> &mdash; MAD Git</div></li>
-        </ul>
         <figure><code>
  $ cd sample
  $ cat rebar.config
@@ -142,6 +139,11 @@
  $ mad up
  OK
         </code></figure>
+        <div>
+        <ul>
+            <li><b><a href="man/mad_git.htm">mad_git</a></b> &mdash; MAD Git</div></li>
+        </ul>
+        </div>
     </section>
     <section>
         <a name=docs><h3>CLEAN</h3></a>
@@ -173,6 +175,11 @@
     </section>
     <section>
         <a name=docs><h3>COMPILE</h3></a>
+        <figure><code>
+ $ mad compile
+ Writing /apps/sample/ebin/sample.app
+ OK
+        </code></figure>
         <div>
         <ul>
             <li><b><a href="man/mad_compile.htm">mad_compile</a></b> &mdash; MAD Compiler</li>
@@ -186,40 +193,41 @@
             <li><b><a href="man/mad_script.htm">mad_script</a></b> &mdash; .script files</li>
         </ul>
         </div>
-        <figure><code>
- $ mad compile
- Writing /apps/sample/ebin/sample.app
- OK
-        </code></figure>
     </section>
     <section>
         <a name=docs><h3>STRIP</h3></a>
+        <figure><code>
+ $ mad strip
+ OK
+        </code></figure>
         <div>
         <ul>
             <li><b><a href="man/mad_strip.htm">mad_strip</a></b> &mdash; MAD Strip</div></li>
         </ul>
         </div>
-        <figure><code>
- $ mad strip
- OK
-        </code></figure>
     </section>
     <section>
         <a name=docs><h3>PLAN</h3></a>
-        <div>
-        <ul>
-            <li><b><a href="man/mad_resolve.htm">mad_resolve</a></b> &mdash; MAD Resolver</div></li>
-        </ul>
-        </div>
         <figure><code>
  $ mad plan
  Generated [kernel,stdlib,fs,ranch,crypto,compiler,syntax_tools,inets,cowlib,
             cowboy,n2o,sample,active,erlydtl,gproc,mad,nitro,sh]
  OK
         </code></figure>
+        <div>
+        <ul>
+            <li><b><a href="man/mad_resolve.htm">mad_resolve</a></b> &mdash; MAD Resolver</div></li>
+        </ul>
+        </div>
     </section>
     <section>
         <a name=docs><h3>BUNDLE</h3></a>
+        <figure><code>
+ $ mad bundle script sample
+ Generated [kernel,stdlib,fs,ranch,crypto,compiler,syntax_tools,inets,cowlib,
+            cowboy,n2o,sample,active,erlydtl,gproc,mad,nitro,sh]
+ OK
+        </code></figure>
         <div>
         <ul>
             <li><b><a href="man/mad_release.htm">mad_release</a></b> &mdash; MAD Bundler</li>
@@ -228,24 +236,18 @@
             <li><b><a href="man/mad_systools.htm">mad_systools</a></b> &mdash; MAD BEAM</li>
         </ul>
         </div>
-        <figure><code>
- $ mad bundle script sample
- Generated [kernel,stdlib,fs,ranch,crypto,compiler,syntax_tools,inets,cowlib,
-            cowboy,n2o,sample,active,erlydtl,gproc,mad,nitro,sh]
- OK
-        </code></figure>
     </section>
     <section>
         <a name=docs><h3>REPL</h3></a>
+        <figure><code>
+ $ mad repl
+ $ open http://127.0.0.1:8001
+        </code></figure>
         <div>
         <ul>
             <li><b><a href="man/mad_repl.htm">mad_repl</a></b> &mdash; MAD REPL</div></li>
         </ul>
         </div>
-        <figure><code>
- $ mad repl
- $ open http://127.0.0.1:8001
-        </code></figure>
     </section>
     <section>
         <a name=docs><h3>Related Documents</h3></a>
