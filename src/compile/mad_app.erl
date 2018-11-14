@@ -33,7 +33,7 @@ add_modules_property(Properties) ->
         {modules, _} -> Properties;
         _ -> Properties ++ [{modules, []}] end.
 
-apps(AppName) -> {ok,Apps} = mad_resolve:orderapps(), {applications,Apps -- [AppName]}.
+apps(AppName) -> {ok,Apps} = mad_release:orderapps(), {applications,Apps -- [AppName]}.
 generate_deps(AppName,Properties) ->
     case lists:keyfind(applications, 1, Properties) of
          false -> Properties ++ [apps(AppName)];

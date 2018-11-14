@@ -20,7 +20,7 @@ applist() ->
          {ok,Binary} -> parse_applist(Binary);
          {error,_} ->
            case mad_repl:load_file(Name) of
-              {error,_} -> mad_resolve:main([]);
+              {error,_} -> mad_release:resolve([]);
               {ok,Plan} -> parse_applist(Plan) end end.
 
 wildcards(List) -> lists:concat([filelib:wildcard(X)||X<-List]).

@@ -3,7 +3,8 @@ MAD: Manage Dependencies
 
 [![Build Status](https://travis-ci.org/synrc/mad.svg?branch=master)](https://travis-ci.org/synrc/mad)
 
-A simple rebar-compatible dependency manager and developer tool with plugins for Windows, Linux and Mac.
+A simple rebar-compatible dependency manager and developer
+tool with plugins for Windows, Linux and Mac.
 
 ![MAD](http://synrc.com/images/mad.png)
 
@@ -22,6 +23,7 @@ Features
 * Support OTP releases and directory structure
 * Fast deps resolving and cycles detecting
 * Fast compilation
+* Small codebase: 1K LOC
 * DTL/YECC/LEEX/PORT/SCRIPT/APP/ERL compilation
 * BEAM bundles (single-file escriptized app)
 * BEAM releases (faster and smaller than RELX)

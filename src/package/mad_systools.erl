@@ -21,13 +21,13 @@ apps(List) ->
     || {App,{Version,Dir}} <- List ] || Class <- [ebin,priv] ]).
 
 release(Name) ->
-    Triples = mad_resolve:triples(),
+    Triples = mad_release:triples(),
     Apps = lists:usort(fun({Name1,_},{Name2,_})-> Name1 =< Name2 end,
                 [{A,{B,F}}||{_,A,{B,F}}<-Triples]) ++
       [{kernel,{proplists:get_value(vsn,element(2,
                 application:get_all_key(kernel)),[]),
                 filename:absname(code:lib_dir(kernel))}}],
-    Sorted = [ lists:keyfind(A,1,Apps) || A <- element(2,mad_resolve:orderapps())],
+    Sorted = [ lists:keyfind(A,1,Apps) || A <- element(2,mad_release:orderapps())],
     {L,R}     = lists:unzip(Sorted),
     {Ver,_Dir} = lists:unzip(R),
     NameVer   = [ X || X <- lists:zip(L,Ver), element(1,X) /= active,
@@ -38,7 +38,7 @@ release(Name) ->
     {{release,{Name,Version},{erts,erlang:system_info(version)},NameVer},Sorted}.
 
 beam_release(N) ->
-    mad_resolve:main([]),
+    mad_release:resolve([]),
     Directories = mad_repl:wildcards(["{deps,apps}/*/ebin","ebin"]),
     code:add_paths(Directories),
     {Release,Apps} = release(N),

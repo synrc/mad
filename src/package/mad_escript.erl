@@ -4,7 +4,7 @@
 
 main(N) ->
     App = filename:basename(case N of [] -> mad_utils:cwd(); E -> E end),
-    mad_resolve:main([]),
+    mad_release:resolve([]),
     DefaultEmuArgs = "+pc unicode",
     EmuArgs = case file:consult( "escript.config" ) of
        { ok, Terms } -> proplists:get_value( emu_args, Terms, DefaultEmuArgs );
@@ -38,7 +38,7 @@ privs(Fun,Read) ->
 
 system_files() -> lists:flatten([system_files(A) || A<- mad_repl:applist(), lists:member(A,mad_repl:system()) ]).
 system_files(App) ->
-    [ { F, mad_bundle:read_file(F) } ||
+    [ { F, mad_repl:load_file(F) } ||
         F <- mad_repl:wildcards([lists:concat([code:lib_dir(App),"/ebin/*.{app,beam}"])]) ].
 
 overlay() -> overlay(fun id/1,  fun read_file/1).
