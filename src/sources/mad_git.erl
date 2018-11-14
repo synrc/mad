@@ -40,8 +40,7 @@ get_repo([Name|_]) ->
     end,
     case Res of
          {error,X} -> {error,X};
-         {ok,Name,Uri} -> fetch_dep(Cwd,Conf,File,Name,"git",Uri,[],deps_fetch,[]);
-         {ok,N,Uri} -> io:format("skip: ~p~n",[N]), {ok,skip}
+         {ok,N,Uri} -> fetch_dep(Cwd,Conf,File,N,"git",Uri,[],deps_fetch,[])
     end.
 
 git_clone(Uri,Fast,TrunkPath,Rev) when Rev == "head"   orelse Rev == "HEAD"
