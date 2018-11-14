@@ -40,7 +40,8 @@ get_repo([Name|_]) ->
     end,
     case Res of
          {error,X} -> {error,X};
-         {ok,N,Uri} -> fetch_dep(Cwd,Conf,File,N,"git",Uri,[],deps_fetch)
+         {ok,Name,Uri} -> fetch_dep(Cwd,Conf,File,Name,"git",Uri,[],deps_fetch,[]);
+         {ok,N,Uri} -> io:format("skip: ~p~n",[N]), {ok,skip}
     end.
 
 git_clone(Uri,Fast,TrunkPath,Rev) when Rev == "head"   orelse Rev == "HEAD"
@@ -53,6 +54,8 @@ git_clone(Uri,_Fast,TrunkPath,Rev) ->
       " && git checkout \"",Rev,"\"" ],Rev}.
 
 fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
+    fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache, deep).
+fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache, Deep) ->
 
     TrunkPath = case Cache of
         deps_fetch -> filename:join([mad_utils:get_value(deps_dir,Config,"deps"),Name]);
@@ -82,7 +85,10 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
                     TrunkConfigFile = filename:join(TrunkPath, ConfigFile),
                     Conf = mad_utils:consult(TrunkConfigFile),
                     Conf1 = mad_utils:script(TrunkConfigFile, Conf, Name),
-                    fetch(Cwd, Config, ConfigFile, mad_utils:get_value(deps, Conf1, [])),
+                    case Deep of
+                         deep -> fetch(Cwd, Config, ConfigFile, mad_utils:get_value(deps, Conf1, []));
+                            _ -> skip
+                    end,
                     case Cache of
                          deps_fetch -> {ok,Name};
                          CacheDir -> build_dep(Cwd, Config, ConfigFile,
@@ -94,7 +100,7 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
 build_dep(Cwd, Conf, _ConfFile, Publisher, Name, _Cmd, _Co, Dir) ->
     TrunkPath = filename:join([Dir, Publisher, Name]),
     DepsDir = filename:join([mad_utils:get_value(deps_dir, Conf, ["deps"]),Name]),
-    os:cmd(["cp -r ", TrunkPath, " ", DepsDir]),
+    sh:run(lists:concat(["cp -r ", TrunkPath, " ", DepsDir])),
     ok = file:set_cwd(DepsDir),
     ok = file:set_cwd(Cwd),
     {ok,Name}.
