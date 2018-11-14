@@ -55,4 +55,7 @@ compile_erlydtl_files(Opts) ->
              true -> ok end
     end,
 
-    lists:any(fun({error,_}) -> true; (ok) -> false end,[Compile(F) || F <- Files]).
+    lists:any(fun({error,_}) -> true;
+                 ({ok, _Module}) -> false;
+                 (ok) -> false
+        end, [Compile(F) || F <- Files]).
