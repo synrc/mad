@@ -5,8 +5,8 @@ start(App) ->                            % run_dir > < log_dir
     mad:info("Scripting: ~p~n",[escript:script_name()]),
     {_,Status,X} = sh:run("run_erl",["-daemon",".",".","exec "++escript:script_name()++" sh"],
       binary,".",
-        [{"RUN_ERL_LOG_GENERATIONS","1000"},
-         {"RUN_ERL_LOG_MAXSIZE","20000000"},
+        [{"RUN_ERL_LOG_GENERATIONS",application:get_env(mad,log_gens,"1000")},
+         {"RUN_ERL_LOG_MAXSIZE",application:get_env(mad,log_size,"20000000")},
          {"ERL_LIBS","apps:deps"}]),
     case Status == 0 of
          true -> {ok,App};
