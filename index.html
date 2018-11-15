@@ -60,8 +60,8 @@
  $ mad
  MAD Manage Dependencies ad426a
 
-    invoke = mad | mad params
-    params = []  | command [options] params
+    invoke = mad | mad list
+      list =  [] | command [options] list
    command = app [web|mqtt] &lt;name&gt; | deps | clean | compile | strip
            | bundle [beam|script] &lt;name&gt; | get &lt;repo&gt; | up [name]
            | start | stop | attach | repl | static &lt;min&gt;
