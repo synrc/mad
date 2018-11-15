@@ -12,7 +12,8 @@ main(_Config, ["min"]) ->
          {_,0,_} -> {ok,static};
          {_,_,_} -> mad:info("minifyjs not installed. try `npm install -g uglify`~n"),
                     {error,"Minifier."}
-    end.
+    end;
+main(_, _) -> {error,"Arguments needed."}.
 
 replace(S,A,B) -> re:replace(S,A,B,[global,{return,list}]).
 

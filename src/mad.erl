@@ -71,5 +71,5 @@ help()            -> info("MAD Manage Dependencies ~s~n",[?VERSION]),
                      info("    params = []  | command [options] params ~n"),
                      info("   command = app [web|mqtt] <name> | deps | clean | compile | strip~n"),
                      info("           | bundle [beam|script] <name> | get <repo> | up [name] ~n"),
-                     info("           | start | stop | attach | repl | static [watch|min] ~n"),
+                     info("           | start | stop | attach | repl | static <min> ~n"),
                      return(false).
