@@ -60,6 +60,5 @@ system_deps(A) ->
 resolve(_) ->
     case orderapps() of
          {ok,Ordered}   -> file:write_file(".applist",io_lib:format("~w",[Ordered])),
-                           mad:info("Generated ~p~n",[Ordered]),
                            {ok,Ordered};
          {error,Reason} -> {error,Reason} end.

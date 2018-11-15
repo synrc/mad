@@ -48,12 +48,17 @@ beam_release(N) ->
     {Release,Apps} = release(N),
     file:write_file(N ++ ".rel",io_lib:format("~p.",[Release])),
     Res = systools:make_script(N),
-%    systools:make_tar(N),
     Files = [ {"/bin/" ++ filename:basename(F), F}
         || F <- mad_repl:wildcards([code:root_dir() ++
             "/erts-" ++ erlang:system_info(version) ++
             "/bin/{epmd,erlexec,run_erl,to_erl,escript,beam.smp,erl_child_setup,inet_gethost}"]) ] ++
         apps(Apps) ++ scripts(N),
     erl_tar:create(N ++ ".tgz",Files,[compressed]),
-    mad:info("~s.boot: ~p~n",[N,Res]),
-    {ok,N}.
+    [ file:delete(X) || X <- [N ++ I || I <- [".boot",".rel",".script"]]],
+    case Res of
+         ok -> {ok,N};
+         {ok,_,_} -> {ok,N};
+         error -> {error,"Systools script failed."};
+         {error,Module,_} ->
+             {error,"Systools script failed. Module "++lists:concat([Module])++"."}
+    end.
