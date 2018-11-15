@@ -2,9 +2,10 @@
 -copyright('Sina Samavati').
 -compile(export_all).
 -define(COMPILE_OPTS(Inc, Ebin, Opts, Deps),
-    [return_errors, return_warnings, debug_info, nowarn_export_all,
-    {i, [Inc]}, {outdir, Ebin}] ++ Opts ++ Deps).
+    compile_options() ++ [{i, [Inc]}, {outdir, Ebin}] ++ Opts ++ Deps).
 
+compile_options() -> application:get_env(mad,compile_options,
+    [return_errors, return_warnings, debug_info, nowarn_export_all]).
 erl_to_beam(Bin, F) -> filename:join(Bin, filename:basename(F, ".erl") ++ ".beam").
 
 filter(I) -> [ X || X <- I, X /= warnings_as_errors, X /= warn_export_all, X /=warn_unused_import] .
