@@ -20,6 +20,9 @@ apps(List) ->
     || F <- mad_repl:wildcards([filename:join([Dir,Class,"*"])]) ]
     || {App,{Version,Dir}} <- List ] || Class <- [ebin,priv] ]).
 
+bool(false) -> [];
+bool(X) -> X.
+
 release(Name) ->
     Triples = mad_release:triples(),
     Apps = lists:usort(fun({Name1,_},{Name2,_})-> Name1 =< Name2 end,
@@ -27,7 +30,8 @@ release(Name) ->
       [{kernel,{proplists:get_value(vsn,element(2,
                 application:get_all_key(kernel)),[]),
                 filename:absname(code:lib_dir(kernel))}}],
-    Sorted = [ lists:keyfind(A,1,Apps) || A <- element(2,mad_release:orderapps())],
+    Sorted = lists:flatten([ bool(lists:keyfind(A,1,Apps))
+          || A <- element(2,mad_release:orderapps())]),
     {L,R}     = lists:unzip(Sorted),
     {Ver,_Dir} = lists:unzip(R),
     NameVer   = [ X || X <- lists:zip(L,Ver), element(1,X) /= active,
