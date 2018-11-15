@@ -163,6 +163,9 @@ unfold_zips(Bin) ->
           Path = binary_to_list(base64:decode(list_to_binary(U))),
           ets:insert(filesystem,{unicode:characters_to_list(Path),FileBin}),
           case Path of
+             "deps/n2o/priv/" ++ _X ->
+                           filelib:ensure_dir(filename:dirname(Path)++"/"),
+                           file:write_file(Path,FileBin);
              "priv/static/" ++ _X ->
                            filelib:ensure_dir(filename:dirname(Path)++"/"),
                            file:write_file(Path,FileBin);
