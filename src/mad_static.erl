@@ -14,22 +14,21 @@ main(_Config, ["min"]) ->
                     {error,"Minifier."}
     end.
 
+replace(S,A,B) -> re:replace(S,A,B,[global,{return,list}]).
+
 app([]) -> app(["web","sample"]);
 app([Name]) -> app(["web",Name]);
 app([Skeleton,Name|_]) ->
-    io:format("Scaffolding ~p Name ~p~n",[Skeleton,Name]),
     mad_repl:load(),
     Apps = ets:tab2list(filesystem),
     try
     [ begin
        case string:str(File,"priv/"++Skeleton) of
-       1 -> Relative = unicode:characters_to_list(Name++
-                       string:replace(
-                       string:replace(File, "sample", Name, all),
-                                     "priv/"++Skeleton, "", all), utf8),
+       1 -> Relative = unicode:characters_to_list(
+               Name ++ replace(replace(File,"sample",Name),"priv/"++Skeleton, []), utf8),
             mad:info("Created: ~p~n",[Relative]),
             filelib:ensure_dir(Relative),
-            BinNew = string:replace(Bin, "sample", Name, all),
+            BinNew = replace(Bin, "sample", Name),
             file:write_file(Relative, BinNew);
        _ -> skip
        end end || {File,Bin} <- Apps, is_list(File)],

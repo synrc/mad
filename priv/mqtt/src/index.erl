@@ -15,7 +15,7 @@ event(init) ->
     nitro:update(upload,  #upload { id=upload   }),
     nitro:wire("mqtt.subscribe('room/"++Room++"',subscribeOptions);"),
     Topic = iolist_to_binary(["events/1/",Node,"/index/anon/",Id,"/",Token]),
-    n2o:send_reply(<<>>, 2, Topic, term_to_binary(#client{id=Room,data=list})),
+    n2o:send_reply(<<>>, 2, Topic, term_to_binary(#client{data={Room,list}})),
     io:format("Room: ~p~n",[Room]),
     nitro:wire(#jq{target=message,method=[focus,select]});
 
@@ -33,7 +33,7 @@ event(chat) ->
     io:format("Actions: ~p~n",[Actions]),
     n2o:send_reply(ClientId, 2, iolist_to_binary([<<"room/">>,Room]), M);
 
-event(#client{id=Room,data=list}) ->
+event(#client{data={Room,list}}) ->
     [ nitro:insert_top(history, nitro:jse(message_view(E#entry.from,E#entry.media)))
       || E <- lists:reverse(kvs:entries(kvs:get(feed,{room,Room}),entry,30)) ];
 

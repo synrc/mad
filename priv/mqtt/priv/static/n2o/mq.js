@@ -1,8 +1,8 @@
 var match, pl = /\+/g, search = /([^&=]+)=?([^&]*)/g,
-    decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+    decode_uri = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
     query = window.location.search.substring(1),
     nodes = 4,
-    params = {}; while (match = search.exec(query)) params[decode(match[1])] = decode(match[2]);
+    params = {}; while (match = search.exec(query)) params[decode_uri(match[1])] = decode_uri(match[2]);
 var l = location.pathname,
     x = l.substring(l.lastIndexOf("/") + 1),
     ll = x.lastIndexOf("."),
@@ -16,8 +16,8 @@ var ws = { send: function (payload, qos) {
 var subscribeOptions = {
     qos: 2,  // QoS
     invocationContext: { foo: true },  // Passed to success / failure callback
-    onSuccess: function (x) { console.log("N2O Subscribed"); },
-    onFailure: function (m) { console.log("N2O Subscription failed: " + m.errorMessage); },
+    onSuccess: function (x) { console.log("MQTT Subscribe"); },
+    onFailure: function (m) { console.log("MQTT Subscription failed: " + m.errorMessage); },
     timeout: 2 };
 
 var options = {
@@ -25,8 +25,8 @@ var options = {
     userName: module,
     password: token(),
     cleanSession: false,
-    onFailure: function (m) { console.log("N2O Connection failed: " + m.errorMessage); },
-    onSuccess: function ()  { console.log("N2O Connected ");
+    onFailure: function (m) { console.log("MQTT Connection failed: " + m.errorMessage); },
+    onSuccess: function ()  { console.log("MQTT Connect");
                               ws.send(enc(tuple(atom('init'),bin(token()))));
                             } };
 

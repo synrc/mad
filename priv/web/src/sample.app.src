@@ -1,0 +1,7 @@
+{application, sample,
+    [{description, "REVIEW WS Application"},
+     {vsn, "5.11"},
+     {registered, []},
+     {applications, [public_key, asn1, kernel, stdlib, kvs, cowboy, n2o]},
+     {mod, { sample, []}},
+     {env, []}]}.

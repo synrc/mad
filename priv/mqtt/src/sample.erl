@@ -7,7 +7,7 @@
 main(A)    -> mad:main(A).
 init([])   -> {ok, {{one_for_one, 5, 10}, [spec()]}}.
 start()    -> start(normal,[]).
-start(_,_) -> emqttd_access_control:register_mod(auth, n2o_auth, [[]], 9998),
+start(_,_) -> emqttd_access_control:register_mod(auth, n2o_auth, [[]], 10),
               supervisor:start_link({local,sample},sample,[]).
 stop(_)    -> ok.
 spec()     ->
@@ -22,5 +22,5 @@ spec()     ->
 docroot() ->
     {file, Here} = code:is_loaded(sample),
     Dir = filename:dirname(filename:dirname(Here)),
-    Root = application:get_env(sample, "statics_root", "priv/www"),
+    Root = application:get_env(sample, "statics_root", "priv/static"),
     filename:join([Dir, Root]).
