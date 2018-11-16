@@ -8,6 +8,6 @@
 +A 32
 +K true
 -smp auto
--setcookie sample_dist_cookie
--name sample@127.0.0.1
+-setcookie emq_dist_cookie
+-name mq@127.0.0.1
 +zdbbl 32768

@@ -24,3 +24,8 @@ docroot() ->
     Dir = filename:dirname(filename:dirname(Here)),
     Root = application:get_env(sample, "statics_root", "priv/static"),
     filename:join([Dir, Root]).
+
+rebar3()   -> mad_repl:application_config(mad_repl:load_sysconfig()),
+              {ok,[{_,R,L}]}=file:consult(code:lib_dir(sample)++"/ebin/sample.app"),
+              [ application:ensure_started(X) || X <- proplists:get_value(applications,L,[]) ],
+              application:ensure_started(R).

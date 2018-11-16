@@ -40,7 +40,7 @@ event(#client{data={Room,list}}) ->
 event(#ftp{sid=_Sid,filename=Filename,status={event,stop}}=Data) ->
     io:format("FTP Delivered ~p~n",[Data]),
     Name = hd(lists:reverse(string:tokens(nitro:to_list(Filename),"/"))),
-    IP = application:get_env(review,host,"127.0.0.1"),
+    IP = application:get_env(sample,host,"127.0.0.1"),
     erlang:put(message,
     nitro:render(#link{href=iolist_to_binary(["http://",IP,":8000/ftp/",
                        nitro_conv:url_encode(Name)]),body=Name})),
