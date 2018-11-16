@@ -4,7 +4,7 @@
 
 finish(State, Ctx) -> {ok, State, Ctx}.
 init(State, #cx{req=Req}=Cx) ->
-    Path = case application:get_env(n2o,cowboy_spec,cow1) of
+    Path = case sample:ver() of
                 cow1 -> n2o_cowboy:path(Req); % cowboy 1.0
                 cow2 -> #{path:=P}=Req, P     % cowboy 2.5
            end,

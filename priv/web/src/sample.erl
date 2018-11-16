@@ -16,3 +16,6 @@ cow1()     -> [spec()].
 port()     -> application:get_env(n2o,port,8001).
 env()      -> [ { env, [ { dispatch, n2o_cowboy:points() } ] } ].
 spec()     -> ranch:child_spec(http,100,ranch_tcp,[{port,port()}],cowboy_protocol,env()).
+rebar3()   -> {ok,[{_,R,L}]}=file:consult(code:lib_dir(sample)++"/ebin/sample.app"),
+              [ application:start(X) || X <- proplists:get_value(applications,L,[]) ],
+              application:start(R).
