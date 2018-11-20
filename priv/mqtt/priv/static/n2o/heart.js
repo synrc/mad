@@ -1,9 +1,9 @@
 
 // WebSocket Transport
 
-$ws = { heart: true, interval: 4000,
+$ws = { heart: true, interval: 5000,
         creator: function(url) { return window.WebSocket ? new window.WebSocket(url) : false; },
-        onheartbeat: function() { // this.channel.send('PING'); 
+        onheartbeat: function() { this.channel.send('PING');
                                   } };
 
 // N2O Reliable Connection
