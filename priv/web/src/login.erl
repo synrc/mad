@@ -11,8 +11,8 @@ event(init) ->
       #button{id=loginButton,
               body="Login",postback=login,source=[user,pass]});
 event(login) ->
-    User = nitro:to_list(n2o:q(user)),
-    Room = nitro:to_list(n2o:q(pass)),
+    User = nitro:to_list(nitro:q(user)),
+    Room = nitro:to_list(nitro:q(pass)),
     n2o:user(User),
     n2o:session(room,Room),
     n2o:info(?MODULE,"User: ~p",[User]),
