@@ -1,7 +1,7 @@
 -module(mad_ez).
 -description("EZ bundle").
 -compile(export_all).
-
+%cd path/to/app; mad ez
 main(_) -> 
   mad_resolve:main([]),
   Base = filename:basename(mad_utils:cwd()),
@@ -21,13 +21,14 @@ main(_) ->
   {ok,App}. 
 
 opts() -> [{compress,all},{uncompress,[".beam",".app",".so"]}].
-read(F)-> {ok, Bin} = file:read_file(filename:absname(File)), Bin.
+read(F)-> {ok, B} = file:read_file(filename:absname(F)), B.
 vsn(F) -> case file:consult( F ) of
             { ok, [{application,_,Terms}|_]} -> 
               proplists:get_value(vsn, Terms, []);
             _ -> []
           end.
-          
+id(X) -> X.
+
 static() ->
   Name = "static.gz",
   {ok,{_,Bin}} = zip:create(Name,
