@@ -45,7 +45,6 @@ atomize("sh")     -> 'sh';
 atomize("rep"++_) -> 'sh';
 atomize("pla"++_) -> 'resolve';
 atomize("str"++_) -> 'strip';
-atomize("cre"++_) -> 'tpl';
 atomize("ez")     -> 'ez';
 atomize(Else)     -> Else.
 
