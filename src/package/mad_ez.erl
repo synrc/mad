@@ -3,7 +3,6 @@
 -compile(export_all).
 %cd path/to/app; mad ez
 main(_) -> 
-  mad_resolve:main([]),
   Base = filename:basename(mad_utils:cwd()),
   [AppFile] = mad_repl:wildcards(["ebin/*.app"]),
   Vsn = vsn(AppFile),
