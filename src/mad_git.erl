@@ -109,20 +109,36 @@ name_and_repo(X) -> mad_utils:name_and_repo(X).
 get_publisher(Uri) -> case string:tokens(Uri,"@:/") of
    [_Proto,_Server,Publisher|_RepoPath] -> Publisher; _ -> core end.
 
-pull(_,[])         -> {ok,[]};
-pull(Config,[F|T]) ->
+upd(_,[])         -> {ok,[]};
+upd(Config,[F|T]) ->
     mad:info("==> up: ~p~n", [F]),
-    {_,Status,Message} = sh:run(lists:concat(["cd ",F," && git pull && cd -"])),
+
+    Deps = lists:foldl(fun([App,_,{_,_,{RefHead, RefName}}|_],Acc) ->
+        case binary:match(list_to_binary(F), atom_to_binary(App,utf8)) of 
+            {Pos, Len} when Pos+Len =:= length(F) -> [{RefHead,RefName}|Acc]; _ -> Acc end;
+        (_,Acc) -> Acc end, [], [tuple_to_list(D) || D <- mad_utils:get_value(deps, Config, [])]),
+
+    {_, Status, Message} = case Deps of
+        [{tag,"master"}] ->
+            % many configs marks master as tag even if its incorrect revision to fetch
+            sh:run(lists:concat(["cd ",F," && git pull origin master && git checkout master && cd -"]));
+        [{tag,Tag}] ->
+            sh:run(lists:concat(["cd ",F," && git fetch origin \"+refs/tags/",Tag,":refs/tags/",Tag,"\" && git checkout tags/", Tag," && cd -"]));
+        [{branch, Branch}] ->
+            sh:run(lists:concat(["cd ",F," && git pull origin ",Branch," && git checkout ", Branch, " && cd -"]));
+        _ -> sh:run(lists:concat(["cd ",F," && git pull && cd -"]))
+    end,
+
     case Status of
-         0 -> mad_utils:verbose(Config,Message), pull(Config,T);
+         0 -> mad_utils:verbose(Config,Message), upd(Config,T);
          _ -> case binary:match(Message,[<<"You are not currently on a branch">>]) of
                    nomatch -> mad_utils:verbose(Config,Message), {error,Message};
-                   _ -> pull(Config,T) end end.
+                   _ -> upd(Config,T) end end.
 
 up(Params) ->
   { _Cwd,_ConfigFileName,Config } = mad_utils:configs(),
   List = case Params of
                 [] -> [ F || F <- mad_repl:wildcards(["deps/*"]), filelib:is_dir(F) ];
                 Apps -> [ "deps/" ++ A || A <- Apps ] end ++ ["."],
-    pull(Config,List).
+    upd(Config,List).
 
