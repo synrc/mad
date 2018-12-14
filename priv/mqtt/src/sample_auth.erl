@@ -3,7 +3,7 @@
 -compile(export_all).
 
 info({init, <<>>}, Req, State = #cx{session = Session}) ->
-    {'Token', Token} = n2o_auth:gen_token([], Session),
+    {'Token', Token} = n2o_session:authenticate([], Session),
     #cx{params = _ClientId} = get(context),
     kvs:put({config, Token, State}),
     io:format("Token Saved: ~p~n",[Token]),
