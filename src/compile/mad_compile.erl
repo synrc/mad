@@ -45,7 +45,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
                 files(SrcDir,".erl"),
 
     AppSrcFiles = files(SrcDir,".app.src"),
-    FirstFiles = [ filename:join([SrcDir,Y]) || Y <- mad_utils:get_value(erl_first_files, Conf1, []) ],
+    FirstFiles = [ filename:join([SrcDir,filename:basename(Y)]) || Y <- mad_utils:get_value(erl_first_files, Conf1, []) ],
     Files = lists:filter(fun (F) -> lists:member(F, FirstFiles) == false end, AllFiles),
 
     case Files of
