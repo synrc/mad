@@ -18,3 +18,4 @@ up(Params)        -> mad_git:up(Params).
 fetch(Params)     -> mad_git:fetch(Params).
 eunit(Params)     -> mad_eunit:main_test(Params).
 sh(Params)        -> mad_repl:sh(Params).
+ez(Params)        -> mad_ez:main(Params).
