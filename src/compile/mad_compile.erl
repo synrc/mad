@@ -42,6 +42,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
 
     AllFiles  = files(SrcDir,".yrl") ++
                 files(SrcDir,".xrl") ++
+                files(SrcDir,".peg") ++
                 files(SrcDir,".erl"),
 
     AppSrcFiles = files(SrcDir,".app.src"),
@@ -84,6 +85,7 @@ module("erl")      -> mad_erl;
 module("ctt")      -> mad_cubical;
 module("erl.src")  -> mad_utils;
 module("yrl")      -> mad_yecc;
+module("peg")      -> mad_peg;
 module("xrl")      -> mad_leex;
 module("app.src")  -> mad_app;
 module(_)          -> mad_none.
