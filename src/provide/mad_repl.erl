@@ -78,7 +78,7 @@ load(X,A,Acc,Config) ->
     try {application,Name,Map} = load_config(A),
         NewEnv = merge(Config,Map,Name),
         acc_start({application,Name,set_value(env,1,Map,{env,NewEnv})},Acc)
-    catch _:_ -> io:format("Application Load Error: ~p",[{X,A,Acc}]) end.
+    catch _:_ -> io:format("Application Load Error: ~p~n",[{X,A,Acc}]) end.
 
 merge(Config,Map,Name) ->
     lists:foldl(fun({Name2,E},Acc2) when Name2 =:= Name ->
