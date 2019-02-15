@@ -3,7 +3,7 @@
 
 deps(_Params) ->
     case mad_utils:configs() of
-      {error, _ } -> {error, <<"rebar.config error">>};
+      {error,E} -> {error,E};
       {ok,{ Cwd, ConfigFile, Conf }} ->
     case mad_utils:get_value(deps, Conf, []) of
         [] -> {ok,[]};
@@ -35,7 +35,7 @@ fetch(Cwd, Config, ConfigFile, [H|T]) ->
 get_repo([]) -> {error,"Repository unspecified."};
 get_repo([Name|_]) ->
     case mad_utils:configs() of
-      {error,_} -> {error,<<"rebar.config error while retriving deps">>};
+      {error,E} -> {error,E};
       {ok,{ Cwd, File, Conf }} ->
     Res = case string:tokens(Name,"/") of
          [Org, Rep] -> {ok,Rep,lists:concat(["https://github.com/",Org,"/",Rep])};
@@ -144,7 +144,7 @@ upd(Config,[F|T]) ->
 
 up(Params) ->
   case mad_utils:configs() of
-       {error,_} -> {error,<<"rebar.config error while up.">>};
+       {error,E} -> {error,E};
        { _Cwd,_ConfigFileName,Config } ->
           List = case Params of
                  [] -> [ F || F <- mad_repl:wildcards(["deps/*"]), filelib:is_dir(F) ];

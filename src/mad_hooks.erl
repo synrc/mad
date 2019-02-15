@@ -5,7 +5,7 @@
 -spec run_hooks(pre|post, atom()) -> any().
 run_hooks(Type, Command) ->
     case mad_utils:configs() of
-         {error,_} -> {error, <<"rebar.config error while hooks.">>};
+         {error,E} -> {error,E};
          {ok,{_Cwd, _ConfigFile, Config}} ->
              Dir = mad_utils:cwd(),
              run_hooks(Dir, Type, Command, Config) end.

@@ -97,7 +97,7 @@ cwd() -> case  file:get_cwd() of {ok, Cwd} -> Cwd; _ -> "." end.
 
 sh(Params) ->
     case mad_utils:configs() of
-         {error,_} -> {error,<<"rebar.config error while shell.">>};
+         {error,E} -> {error,E};
     {ok,{ _Cwd,_ConfigFileName,_Config }} ->
     SystemPath = filelib:wildcard(code:root_dir() ++ "/lib/{"
               ++ string:join([atom_to_list(X)||X<-mad_repl:system()],",") ++ "}-*/ebin"),
