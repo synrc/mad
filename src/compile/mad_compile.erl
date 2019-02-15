@@ -3,14 +3,15 @@
 -compile(export_all).
 
 compile(Params) ->
-    { Cwd, ConfigFile, Conf } = mad_utils:configs(),
-    Res = case Params of
-         [] -> mad_compile:'compile-deps'(Cwd, ConfigFile, Conf);
-         __ -> mad_compile:deps(Cwd, Conf, ConfigFile, [Params])
-    end,
-    case Res of
-         {error,Reason} -> {error,Reason};
-         {ok,_} -> mad_compile:'compile-apps'(Cwd, ConfigFile, Conf) end.
+    case mad_utils:configs() of
+         {error,_} -> {error,"rebar.config error on compile."};
+         {ok,{ Cwd, ConfigFile, Conf }} ->
+           Res = case Params of
+                 [] -> mad_compile:'compile-deps'(Cwd, ConfigFile, Conf);
+                 __ -> mad_compile:deps(Cwd, Conf, ConfigFile, [Params]) end,
+           case Res of
+                {error,Reason} -> {error,Reason};
+                {ok,_} -> mad_compile:'compile-apps'(Cwd, ConfigFile, Conf) end end.
 
 deps(_, _, _, []) -> {ok,deps};
 deps(Cwd, Conf, ConfigFile, [H|T]) ->
@@ -32,7 +33,9 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
     mad:info("==> ~p~n",[Name]),
 
     DepConfig = filename:join(DepPath, ConfigFile),
-    Conf      = mad_utils:consult(DepConfig),
+    case mad_utils:consult(DepConfig) of
+         {error,_} -> {error, <<"rebar.config is missing.">>};
+         {ok,Conf} ->
     Conf1     = mad_script:script(DepConfig, Conf, Name),
     Deps      = mad_utils:get_value(deps, Conf1, []),
     DepsRes   = bool(deps(Cwd, Conf, ConfigFile, Deps)),
@@ -72,7 +75,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
             put(Name, compiled),
             case (DepsRes orelse FilesStatus orelse DTLStatus orelse PortStatus) of
                  true  -> {error,Name};
-                 false -> {ok,Name} end end.
+                 false -> {ok,Name} end end end.
 
 compile_files([],_,_,_,_) -> false;
 compile_files([File|Files],Inc,Bin,Opt,Deps) ->

@@ -14,19 +14,21 @@ validate_property(Else, _) -> Else.
 compile(File,_Inc,Bin,_Opt,_Deps) ->
     AppFile = filename:join(Bin, app_src_to_app(File)),
     Compiled = mad_compile:is_compiled(AppFile, File),
-    if  Compiled =:= false ->
-        mad:info("Writing ~s~n", [AppFile -- mad_utils:cwd()]),
-        BeamFiles = filelib:wildcard("*.beam", Bin),
-        Modules = [list_to_atom(filename:basename(X, ".beam")) || X <- BeamFiles],
-        [Struct|_] = mad_utils:consult(File),
-        {application, AppName, Props} = Struct,
-        Props0 = add_modules_property(Props),
-        Props1 = generate_deps(AppName,Props0),
-        Props2 = [validate_property(X, Modules) || X <- Props1],
-        Struct1 = {application, AppName, Props2},
-        file:write_file(AppFile, io_lib:format("~p.~n", [Struct1])),
-        false;
-        true -> false end.
+    case Compiled of
+        false ->
+           mad:info("Writing ~s~n", [AppFile -- mad_utils:cwd()]),
+           BeamFiles = filelib:wildcard("*.beam", Bin),
+           Modules = [list_to_atom(filename:basename(X, ".beam")) || X <- BeamFiles],
+           case mad_utils:consult(File) of
+                {error,_} -> true;
+                {ok,[Struct|_]} -> {application, AppName, Props} = Struct,
+                                   Props0 = add_modules_property(Props),
+                                   Props1 = generate_deps(AppName,Props0),
+                                   Props2 = [validate_property(X, Modules) || X <- Props1],
+                                   Struct1 = {application, AppName, Props2},
+                                   file:write_file(AppFile, io_lib:format("~p.~n", [Struct1])),
+                                   false end;
+         _ -> false end.
 
 add_modules_property(Properties) ->
     case lists:keyfind(modules, 1, Properties) of

@@ -2,11 +2,13 @@
 -compile(export_all).
 
 deps(_Params) ->
-    { Cwd, ConfigFile, Conf } = mad_utils:configs(),
+    case mad_utils:configs() of
+      {error, _ } -> {error, <<"rebar.config error">>};
+      {ok,{ Cwd, ConfigFile, Conf }} ->
     case mad_utils:get_value(deps, Conf, []) of
         [] -> {ok,[]};
         Deps -> file:make_dir(mad_utils:get_value(deps_dir, Conf, ["deps"])),
-                (mad:profile()):fetch([Cwd, Conf, ConfigFile, Deps]) end.
+                (mad:profile()):fetch([Cwd, Conf, ConfigFile, Deps]) end end.
 
 fetch([Cwd, Conf, ConfigFile, Deps]) -> fetch(Cwd, Conf, ConfigFile, Deps).
 fetch(_, _Config, _, []) -> false;
@@ -32,7 +34,9 @@ fetch(Cwd, Config, ConfigFile, [H|T]) ->
 
 get_repo([]) -> {error,"Repository unspecified."};
 get_repo([Name|_]) ->
-    { Cwd, File, Conf } = mad_utils:configs(),
+    case mad_utils:configs() of
+      {error,_} -> {error,<<"rebar.config error while retriving deps">>};
+      {ok,{ Cwd, File, Conf }} ->
     Res = case string:tokens(Name,"/") of
          [Org, Rep] -> {ok,Rep,lists:concat(["https://github.com/",Org,"/",Rep])};
          [Rep] -> {ok,Rep,lists:concat(["https://github.com/synrc/",Rep])};
@@ -41,7 +45,7 @@ get_repo([Name|_]) ->
     case Res of
          {error,X} -> {error,X};
          {ok,N,Uri} -> fetch_dep(Cwd,Conf,File,N,"git",Uri,[],deps_fetch,[])
-    end.
+    end end.
 
 git_clone(Uri,Fast,TrunkPath,Rev) when Rev == "head"   orelse Rev == "HEAD"
                                 orelse Rev == "master" orelse Rev == [] ->
@@ -82,7 +86,10 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache, Deep) ->
 
                     %% check dependencies of the dependency
                     TrunkConfigFile = filename:join(TrunkPath, ConfigFile),
-                    Conf = mad_utils:consult(TrunkConfigFile),
+                    Conf0 = mad_utils:consult(TrunkConfigFile),
+                    case Conf0 of
+                         {error,_} -> {error, <<"rebar.config error">>};
+                         {ok,Conf} ->
                     Conf1 = mad_utils:script(TrunkConfigFile, Conf, Name),
                     case Deep of
                          deep -> fetch(Cwd, Config, ConfigFile, mad_utils:get_value(deps, Conf1, []));
@@ -92,7 +99,7 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache, Deep) ->
                          deps_fetch -> {ok,Name};
                          CacheDir -> build_dep(Cwd, Config, ConfigFile,
                                         get_publisher(Uri), Name, Cmd, Co1, CacheDir)
-                    end;
+                    end end;
     {_,_,FetchError} -> {error,FetchError} end.
 
 %% build dependency based on branch/tag/commit
@@ -136,9 +143,12 @@ upd(Config,[F|T]) ->
                    _ -> upd(Config,T) end end.
 
 up(Params) ->
-  { _Cwd,_ConfigFileName,Config } = mad_utils:configs(),
-  List = case Params of
-                [] -> [ F || F <- mad_repl:wildcards(["deps/*"]), filelib:is_dir(F) ];
-                Apps -> [ "deps/" ++ A || A <- Apps ] end ++ ["."],
-    upd(Config,List).
+  case mad_utils:configs() of
+       {error,_} -> {error,<<"rebar.config error while up.">>};
+       { _Cwd,_ConfigFileName,Config } ->
+          List = case Params of
+                 [] -> [ F || F <- mad_repl:wildcards(["deps/*"]), filelib:is_dir(F) ];
+                 Apps -> [ "deps/" ++ A || A <- Apps ] end ++ ["."],
+          upd(Config,List)
+  end.
 

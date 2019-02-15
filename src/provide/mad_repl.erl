@@ -96,7 +96,9 @@ add_replace(_____,Name,Pos,List,New) -> lists:keyreplace(Name,Pos,List,New).
 cwd() -> case  file:get_cwd() of {ok, Cwd} -> Cwd; _ -> "." end.
 
 sh(Params) ->
-    { _Cwd,_ConfigFileName,_Config } = mad_utils:configs(),
+    case mad_utils:configs() of
+         {error,_} -> {error,<<"rebar.config error while shell.">>};
+    {ok,{ _Cwd,_ConfigFileName,_Config }} ->
     SystemPath = filelib:wildcard(code:root_dir() ++ "/lib/{"
               ++ string:join([atom_to_list(X)||X<-mad_repl:system()],",") ++ "}-*/ebin"),
     UserPath   = wildcards(["{apps,deps}/*/ebin","ebin"]),
@@ -122,7 +124,7 @@ sh(Params) ->
     load_apps(Params,Config,[]),
     case Params of
         ["applist"] -> skip;
-        _ ->  timer:sleep(infinity) end.
+        _ ->  timer:sleep(infinity) end end.
 
 remove(0) -> skip;
 remove(N) -> case gen_event:delete_handler(error_logger, error_logger, []) of

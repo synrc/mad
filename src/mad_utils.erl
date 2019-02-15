@@ -13,14 +13,10 @@ name_and_repo(Name) -> {Name,Name}.
 
 cwd() -> {ok, Cwd} = file:get_cwd(), Cwd.
 home() -> {ok, [[H|_]]} = init:get_argument(home), H.
-consult(File) ->
-    AbsFile = filename:absname(File),
-    case file:consult(AbsFile) of
-        {ok, V} ->
-            V;
-        _ ->
-            []
-    end.
+consult(File) -> case file:consult(filename:absname(File)) of
+                      {error,enoent} -> {ok,[]};
+                      {error,E} -> {error,E};
+                      {ok,V} -> {ok,V} end.
 
 src(Dir) -> filename:join(Dir, "src").
 include(Dir) -> filename:join(Dir, "include").
@@ -91,6 +87,7 @@ configs() ->
     Cwd            = try fs:path() catch _:_ -> cwd() end,
     ConfigFile     = "rebar.config",
     ConfigFileAbs  = filename:join(Cwd, ConfigFile),
-    Conf           = mad_utils:consult(ConfigFileAbs),
-    Conf1          = mad_script:script(ConfigFileAbs, Conf, ""),
-    {Cwd,ConfigFile,Conf1}.
+    case mad_utils:consult(ConfigFileAbs) of
+         {error,E} -> {error,E};
+         {ok,Conf} -> Conf1 = mad_script:script(ConfigFileAbs, Conf, ""),
+                      {ok,{Cwd,ConfigFile,Conf1}} end.
