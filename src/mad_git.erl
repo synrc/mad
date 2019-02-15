@@ -88,7 +88,7 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache, Deep) ->
                     TrunkConfigFile = filename:join(TrunkPath, ConfigFile),
                     Conf0 = mad_utils:consult(TrunkConfigFile),
                     case Conf0 of
-                         {error,_} -> {error, <<"rebar.config error">>};
+                         {error,E} -> {error,E};
                          {ok,Conf} ->
                     Conf1 = mad_utils:script(TrunkConfigFile, Conf, Name),
                     case Deep of

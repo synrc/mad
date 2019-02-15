@@ -4,7 +4,7 @@
 
 compile(Params) ->
     case mad_utils:configs() of
-         {error,_} -> {error,"rebar.config error on compile."};
+         {error,E} -> {error,E};
          {ok,{ Cwd, ConfigFile, Conf }} ->
            Res = case Params of
                  [] -> mad_compile:'compile-deps'(Cwd, ConfigFile, Conf);
@@ -34,7 +34,7 @@ dep(Cwd, _Conf, ConfigFile, Name) ->
 
     DepConfig = filename:join(DepPath, ConfigFile),
     case mad_utils:consult(DepConfig) of
-         {error,_} -> {error, <<"rebar.config is missing.">>};
+         {error,E} -> {error,E};
          {ok,Conf} ->
     Conf1     = mad_script:script(DepConfig, Conf, Name),
     Deps      = mad_utils:get_value(deps, Conf1, []),

@@ -15,7 +15,7 @@ cwd() -> {ok, Cwd} = file:get_cwd(), Cwd.
 home() -> {ok, [[H|_]]} = init:get_argument(home), H.
 consult(File) -> case file:consult(filename:absname(File)) of
                       {error,enoent} -> {ok,[]};
-                      {error,E} -> {error,E};
+                      {error,E} -> {error,"rebar.config error:\n"++io_lib:format("~p\n",[E])};
                       {ok,V} -> {ok,V} end.
 
 src(Dir) -> filename:join(Dir, "src").
