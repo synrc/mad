@@ -145,7 +145,7 @@ upd(Config,[F|T]) ->
 up(Params) ->
   case mad_utils:configs() of
        {error,E} -> {error,E};
-       { _Cwd,_ConfigFileName,Config } ->
+       {ok,{ _Cwd,_ConfigFileName,Config }} ->
           List = case Params of
                  [] -> [ F || F <- mad_repl:wildcards(["deps/*"]), filelib:is_dir(F) ];
                  Apps -> [ "deps/" ++ A || A <- Apps ] end ++ ["."],
