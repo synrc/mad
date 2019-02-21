@@ -25,8 +25,12 @@ applist() ->
 
 wildcards(List) -> lists:concat([filelib:wildcard(X)||X<-List]).
 
+trim(Bin,Match) ->
+    re:replace(Bin, Match, "", [{return, binary}, global]).
+
 parse_applist(AppList) ->
-    Res = string:tokens(string:trim(binary_to_list(AppList),both,"\n []"),","),
+    % 20, Res = string:tokens(string:trim(binary_to_list(AppList),both,"\n []"),","),
+    Res = string:tokens(binary_to_list(trim(AppList,"^\\s+|\\s+|[|]$")),","),
     [ list_to_atom(R) || R <-Res ]  -- disabled().
 
 load_sysconfig() ->
