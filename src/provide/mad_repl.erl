@@ -30,7 +30,7 @@ trim(Bin,Match) ->
 
 parse_applist(AppList) ->
     % 20, Res = string:tokens(string:trim(binary_to_list(AppList),both,"\n []"),","),
-    Res = string:tokens(binary_to_list(trim(AppList,"^\\s+|\\s+|[|]$")),","),
+    Res = string:tokens(binary_to_list(trim(AppList,"^\\s+|\\s+|\\[|\\]|\\[+|\\]+$")),","),
     [ list_to_atom(R) || R <-Res ]  -- disabled().
 
 load_sysconfig() ->
