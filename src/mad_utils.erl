@@ -46,11 +46,13 @@ sub_dirs(_, _, [], Acc) -> Acc;
 sub_dirs(Cwd, ConfigFile, [Dir|T], Acc) ->
     SubDir = filename:join(Cwd, Dir),
     ConfigFile1 = filename:join(SubDir, ConfigFile),
-    Conf = consult(ConfigFile1),
-    Conf1 = mad_script:script(ConfigFile1, Conf, Dir),
-    Acc1 = sub_dirs(SubDir, ConfigFile, get_value(sub_dirs, Conf1, []),
+    case consult(ConfigFile1) of
+         {ok,Conf} ->
+            Conf1 = mad_script:script(ConfigFile1, Conf, Dir),
+             Acc1 = sub_dirs(SubDir, ConfigFile, get_value(sub_dirs, Conf1, []),
                     Acc ++ [SubDir]),
-    sub_dirs(Cwd, ConfigFile, T, Acc1).
+             sub_dirs(Cwd, ConfigFile, T, Acc1);
+         {error,E} -> [] end.
 
 lib_dirs(Cwd, Conf) -> lib_dirs(Cwd, get_value(lib_dirs, Conf, []), []).
 
