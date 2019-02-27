@@ -117,6 +117,7 @@ sh(Params) ->
     Config = load_sysconfig(),
     application_config(Config),
     Driver = mad_utils:get_value(shell_driver,_Config,user_drv),
+    Logger = maybe_remove_logger(),
     repl_intro(Config),
     case os:type() of
          {win32,nt} -> os:cmd("chcp 65001"), shell:start();
@@ -125,10 +126,22 @@ sh(Params) ->
                        Driver:start(),
                        wait(3000),
                        rewrite_leaders(O,whereis(user)) end,
+    maybe_reset_logger(Logger),
     load_apps(Params,Config,[]),
     case Params of
         ["applist"] -> skip;
         _ ->  timer:sleep(infinity) end end.
+
+%% credits: https://github.com/erlang/rebar3/commit/1b6e3ac9c0e3b77215b119427b9a4d530cb08e1d#diff-e76e94656cd6ae25cfb09092fda3091e
+maybe_remove_logger() ->
+    case erlang:function_exported(logger, module_info, 0) of
+         false -> ignore;
+         true  -> {ok, Cfg} = logger:get_handler_config(default),
+                  logger:remove_handler(default),
+                  {restart, Cfg} end.
+
+maybe_reset_logger(ignore) -> ok;
+maybe_reset_logger({restart, #{module := Mod, config := Cfg}}) -> logger:add_handler(default, Mod, Cfg).
 
 remove(0) -> skip;
 remove(N) -> case gen_event:delete_handler(error_logger, error_logger, []) of
