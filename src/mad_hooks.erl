@@ -115,11 +115,11 @@ sh(Command, Hook, Dir, Env) ->
             {env, Env}
         ]
     ),
-    {done, Status, Out} = sh:sh_loop(Port, binary),
+    {done, Status, _} = sh:sh_loop(Port, fun(Chunk, _) -> io:format("~s", [Chunk]), [] end, []),
     case Status of
         0 ->
-            mad:info("~s~n", [Out]);
+            ok;
         _ ->
-            mad:info("Failed hook for ~p with ~s~n", [Command, Out]),
-            exit({error, Out})
+            mad:info("Failed hook for ~p~n", [Command]),
+            exit({error, Status})
     end.
