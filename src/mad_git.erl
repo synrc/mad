@@ -47,14 +47,9 @@ get_repo([Name|_]) ->
          {ok,N,Uri} -> fetch_dep(Cwd,Conf,File,N,"git",Uri,[],deps_fetch,[])
     end end.
 
-git_clone(Uri,Fast,TrunkPath,Rev) when Rev == "head"   orelse Rev == "HEAD"
-                                orelse Rev == "master" orelse Rev == [] ->
-    {["git clone ",Fast,Uri," ",TrunkPath],Rev};
-
-git_clone(Uri,_Fast,TrunkPath,Rev) ->
-    {["git clone ",Uri," ",TrunkPath,
-      " && cd ",TrunkPath,
-      " && git checkout \"",Rev,"\"" ],Rev}.
+git_clone(Uri,Fast,TrunkPath,[]) -> git_clone(Uri,Fast,TrunkPath,"master");
+git_clone(Uri,Fast,TrunkPath,Rev) ->
+    {["git clone --single-branch --branch ",Rev," ",Fast,Uri," ",TrunkPath],Rev}.
 
 fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
     fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache, deep).
@@ -67,7 +62,7 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache, Deep) ->
     mad:info("==> dependency: ~p tag: ~p~n", [Uri,Co]),
 
     Fast = case mad_utils:get_value(fetch_depth,Config,1) of
-                1 -> " --depth=1 ";
+                1 -> " --depth 1 ";
                     _  -> "" end,
 
     {R,Co1} = case Co of
@@ -75,7 +70,7 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache, Deep) ->
         {_,Rev} -> git_clone(Uri,Fast,TrunkPath,Rev);
         Master  -> git_clone(Uri,Fast,TrunkPath,Master) end,
 
-    %mad:info("Fetch: ~s~n",[R]),
+%    mad:info("Fetch: ~s~n",[R]),
 
     FetchStatus = case filelib:is_dir(TrunkPath) of
                        true -> {skip,0,list_to_binary("Directory "++TrunkPath++" exists.")};

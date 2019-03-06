@@ -52,7 +52,7 @@ sub_dirs(Cwd, ConfigFile, [Dir|T], Acc) ->
              Acc1 = sub_dirs(SubDir, ConfigFile, get_value(sub_dirs, Conf1, []),
                     Acc ++ [SubDir]),
              sub_dirs(Cwd, ConfigFile, T, Acc1);
-         {error,E} -> [] end.
+         {error,_E} -> [] end.
 
 lib_dirs(Cwd, Conf) -> lib_dirs(Cwd, get_value(lib_dirs, Conf, []), []).
 
