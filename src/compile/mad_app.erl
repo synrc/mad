@@ -16,7 +16,8 @@ compile(File,_Inc,Bin,_Opt,_Deps) ->
     Compiled = mad_compile:is_compiled(AppFile, File),
     case Compiled of
         false ->
-           mad:info("Writing ~s~n", [AppFile -- mad_utils:cwd()]),
+% VERBOSE
+%          mad:info("Writing ~s~n", [AppFile -- mad_utils:cwd()]),
            BeamFiles = filelib:wildcard("*.beam", Bin),
            Modules = [list_to_atom(filename:basename(X, ".beam")) || X <- BeamFiles],
            case mad_utils:consult(File) of
