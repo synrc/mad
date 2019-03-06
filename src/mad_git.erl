@@ -70,6 +70,7 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache, Deep) ->
         {_,Rev} -> git_clone(Uri,Fast,TrunkPath,Rev);
         Master  -> git_clone(Uri,Fast,TrunkPath,Master) end,
 
+% VERBOSE
 %    mad:info("Fetch: ~s~n",[R]),
 
     FetchStatus = case filelib:is_dir(TrunkPath) of
