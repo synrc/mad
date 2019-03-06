@@ -14,7 +14,7 @@ start(App) ->                            % run_dir > < log_dir
 
 attach(_) -> mad:info("to_erl .~n"), {ok,[]}. % use like $(mad attach)
 
-stop(_) -> {error,"Not Implemented."}.
+stop(_) -> mad:info("echo 'init:stop().' | to_erl .~n"), {ok,[]}. % use like $(mad stop)
 
 clean(_) -> [ file:delete(X) || X <- filelib:wildcard("{apps,deps}/*/ebin/*.beam") ++
                                      filelib:wildcard("ebin/*.beam")], {ok,[]}.
