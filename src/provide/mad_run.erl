@@ -12,7 +12,7 @@ start(App) ->                            % run_dir > < log_dir
          true -> {ok,App};
          false -> mad:info("Shell Error: ~s~n",[binary_to_list(X)]), {error,X} end.
 
-attach(_) -> mad:info("to_erl . # run using $(mad stop)~n"), {ok,[]}.
+attach(_) -> mad:info("to_erl . # run using $(mad attach)~n"), {ok,[]}.
 
 stop(_) -> mad:info("echo 'init:stop().' | to_erl . # run using $(mad stop)~n"), {ok,[]}.
 
