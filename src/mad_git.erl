@@ -66,8 +66,8 @@ fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache, Deep) ->
 
     mad:info("==> dependency: ~p tag: ~p~n", [Uri,Co]),
 
-    Fast = case mad_utils:get_value(fetch_speed,Config,[]) of
-                fast_master -> " --depth=1 ";
+    Fast = case mad_utils:get_value(fetch_depth,Config,1) of
+                1 -> " --depth=1 ";
                     _  -> "" end,
 
     {R,Co1} = case Co of
