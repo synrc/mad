@@ -49,7 +49,7 @@ get_repo([Name|_]) ->
 
 git_clone(Uri,Fast,TrunkPath,[]) -> git_clone(Uri,Fast,TrunkPath,"master");
 git_clone(Uri,Fast,TrunkPath,Rev) ->
-    {["git clone --single-branch --branch ",Rev," ",Fast,Uri," ",TrunkPath],Rev}.
+    {["git clone --single-branch --no-tags --branch ",Rev," ",Fast,Uri," ",TrunkPath],Rev}.
 
 fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
     fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache, deep).
