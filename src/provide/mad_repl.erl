@@ -141,7 +141,10 @@ maybe_remove_logger() ->
                   {restart, Cfg} end.
 
 maybe_reset_logger(ignore) -> ok;
-maybe_reset_logger({restart, #{module := Mod, config := Cfg}}) -> logger:add_handler(default, Mod, Cfg).
+maybe_reset_logger({restart, #{module := Mod, config := Cfg, filters := Flt, formatter := Fmt}}) ->
+    logger:add_handler(default, Mod, Cfg),
+    logger:set_handler_config(default, filters, Flt),
+    logger:set_handler_config(default, formatter, Fmt).
 
 remove(0) -> skip;
 remove(N) -> case gen_event:delete_handler(error_logger, error_logger, []) of
