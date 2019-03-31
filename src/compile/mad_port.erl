@@ -123,7 +123,7 @@ default_env() ->
     _Arch = os:getenv("REBAR_TARGET_ARCH"),
     _Vsn = os:getenv("REBAR_TARGET_ARCH_VSN"),
     [
-     {"darwin", "DRV_LDFLAGS", "-bundle -flat_namespace -undefined suppress " ++ei_dir(lib) ++" -lerl_interface -lei"},
+     {"darwin", "DRV_LDFLAGS", "-flat_namespace -undefined suppress " ++ei_dir(lib) ++" -lerl_interface -lei"},
      {"DRV_CFLAGS" , "-g -Wall -fPIC -MMD " ++ erl_ldflag()},
      {"DRV_LDFLAGS", "-shared " ++ erl_ldflag()},
      {"EXE_CFLAGS" , "-g -Wall -fPIC -MMD " ++ erl_ldflag()},
