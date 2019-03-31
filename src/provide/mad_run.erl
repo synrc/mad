@@ -17,5 +17,7 @@ attach(_) -> mad:info("to_erl . # run using $(mad attach)~n"), {ok,[]}.
 stop(_) -> mad:info("echo 'init:stop().' | to_erl . # run using $(mad stop)~n"), {ok,[]}.
 
 clean(_) -> [ file:delete(X) || X <- filelib:wildcard("{apps,deps}/*/ebin/*.beam") ++
-                                     filelib:wildcard("ebin/*.beam")], {ok,[]}.
+                                     filelib:wildcard("ebin/*.beam")],
+            [ file:delete(X) || X <- filelib:wildcard("c_src/**/*.o") ++
+                                     filelib:wildcard("c_src/**/*.d")],  {ok,[]}.
 
