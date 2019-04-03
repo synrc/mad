@@ -47,9 +47,14 @@ get_repo([Name|_]) ->
          {ok,N,Uri} -> fetch_dep(Cwd,Conf,File,N,"git",Uri,[],deps_fetch,[])
     end end.
 
-git_clone(Uri,Fast,TrunkPath,[]) -> git_clone(Uri,Fast,TrunkPath,"master");
-git_clone(Uri,Fast,TrunkPath,Rev) ->
-    {["git clone --single-branch --no-tags --branch ",Rev," ",Fast,Uri," ",TrunkPath],Rev}.
+git_clone(Uri,Fast,TrunkPath,Rev) when Rev == "head"   orelse Rev == "HEAD"
+                                orelse Rev == "master" orelse Rev == [] ->
+    {["git clone ",Fast,Uri," ",TrunkPath],Rev};
+
+git_clone(Uri,_Fast,TrunkPath,Rev) ->
+    {["git clone ",Uri," ",TrunkPath,
+      " && cd ",TrunkPath,
+      " && git checkout \"",Rev,"\"" ],Rev}.
 
 fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache) ->
     fetch_dep(Cwd, Config, ConfigFile, Name, Cmd, Uri, Co, Cache, deep).
