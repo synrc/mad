@@ -3,6 +3,10 @@
 -compile(export_all).
 
 compile(Params) ->
+    SysConfig = try {ok,[S]} = file:consult("sys.config"), S catch _:_ -> [] end,
+    BERT = proplists:get_value(bert,SysConfig,[]),
+    JS = proplists:get_value(js,BERT,[]),
+    application:set_env(bert,js,JS),
     case mad_utils:configs() of
          {error,E} -> {error,E};
          {ok,{ Cwd, ConfigFile, Conf }} ->
