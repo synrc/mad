@@ -6,7 +6,13 @@ compile(Params) ->
     SysConfig = try {ok,[S]} = file:consult("sys.config"), S catch _:_ -> [] end,
     BERT = proplists:get_value(bert,SysConfig,[]),
     JS = proplists:get_value(js,BERT,[]),
+    ERL = proplists:get_value(erl,BERT,[]),
+    SWIFT = proplists:get_value(swift,BERT,[]),
+    GOOGLE = proplists:get_value(google,BERT,[]),
     application:set_env(bert,js,JS),
+    application:set_env(bert,erl,ERL),
+    application:set_env(bert,swift,SWIFT),
+    application:set_env(bert,google,GOOGLE),
     case mad_utils:configs() of
          {error,E} -> {error,E};
          {ok,{ Cwd, ConfigFile, Conf }} ->
