@@ -9,18 +9,23 @@ man(Params) ->
          ++ filelib:wildcard("src/**/*.erl") ],
    false.
 
+write(Gen,Bin) -> io:format("Generated: ~p~n",[Gen]), file:write_file(Gen,Bin).
 replace(S,A,B) -> re:replace(S,A,B,[global,{return,list}]).
+trim(A) -> re:replace(A, "(^\\s+)|(\\s+$)", "", [global,{return,list}]).
 fix([Prefix]) -> Prefix;
 fix([Prefix,Name|Rest]) -> Name.
 generate(Lower,Temp) ->
     Name = string:to_upper(Lower),
-    Bin = iolist_to_binary(replace(Temp,"MAN_NAME",fix(string:tokens(Name,"_")))),
+    Tem2 = replace(Temp,"MAN_TOOL",hd(string:tokens(Name,"_"))),
+    CNAME = binary_to_list(element(2,file:read_file("CNAME"))),
+    Tem3 = replace(Tem2,"MAN_CNAME",trim(CNAME)),
+    Bin = iolist_to_binary(replace(Tem3,"MAN_NAME",fix(string:tokens(Name,"_")))),
     Gen = lists:concat(["man/",Lower,".htm"]),
     case file:read_file_info(Gen) of
-         {error,_} -> io:format("Generated: ~p~n",[Gen]), file:write_file(Gen, Bin);
+         {error,_} -> write(Gen, Bin);
          {ok,A} -> case element(2,A) > size(Bin) of
                         true -> skip;
-                        false -> warning end end.
+                        false -> write(Gen,Bin) end end.
 
 template() ->
     mad_repl:load(),
