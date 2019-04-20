@@ -32,6 +32,7 @@ atomize("app"++_) -> 'app';
 atomize("dep")    -> 'deps';
 atomize("deps")   -> 'deps';
 atomize("cle"++_) -> 'clean';
+atomize("man")    -> 'man';
 atomize("com"++_) -> 'compile';
 atomize("eunit")  -> 'eunit';
 atomize("up")     -> 'up';
@@ -70,6 +71,6 @@ help()            -> info("MAD Manage Dependencies ~s~n",[?VERSION]),
                      info("    invoke = mad | mad list~n"),
                      info("      list = []  | command [options] list ~n"),
                      info("   command = app [web|mqtt] <name> | deps | clean | compile | strip~n"),
-                     info("           | bundle [beam|script] <name> | get <repo> | up [name] ~n"),
+                     info("           | bundle [beam|script] <name> | man | get <repo> | up [name] ~n"),
                      info("           | start | stop | attach | repl | static <min> ~n"),
                      return(false).

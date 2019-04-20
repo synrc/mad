@@ -3,6 +3,7 @@
 -export(?MAD).
 
 compile(Params)   -> mad_compile:compile(Params).
+man(Params)       -> mad_man:man(Params).
 app(Params)       -> mad_static:app(Params).
 static(Params)    -> mad_static:main([],Params).
 release(Params)   -> mad_release:release(Params).
