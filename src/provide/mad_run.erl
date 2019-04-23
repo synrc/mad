@@ -30,6 +30,6 @@ dia(Params) ->
                    "-Wunderspecs","-Wrace_conditions","-Wno_undefined_callbacks"],binary,".",[{"ERL_LIBS","deps"}]),
     case S1 of
          0 -> case S2 of
-              0 -> {ok,App};
-              _ -> io:format("~s",[X2]), {error,App} end;
+         0 -> {ok,App};
+         _ -> io:format("~s",[X2]), {error,App} end;
          _ -> io:format("~s",[X1]), {error,App} end.
