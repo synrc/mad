@@ -2,7 +2,7 @@
 -doc("Generate n2o.dev man pages.").
 -compile(export_all).
 
-man(Params) ->
+man(_Params) ->
    Temp = template(),
    [ generate(filename:basename(I,".erl"),Temp)
     || I <- filelib:wildcard("*/src/**/*.erl")
@@ -13,7 +13,7 @@ write(Gen,Bin) -> io:format("Generated: ~p~n",[Gen]), file:write_file(Gen,Bin).
 replace(S,A,B) -> re:replace(S,A,B,[global,{return,list}]).
 trim(A) -> re:replace(A, "(^\\s+)|(\\s+$)", "", [global,{return,list}]).
 fix([Prefix]) -> Prefix;
-fix([Prefix,Name|Rest]) -> Name.
+fix([_Prefix,Name|_Rest]) -> Name.
 generate(Lower,Temp) ->
     Name = string:to_upper(Lower),
     Tem2 = replace(Temp,"MAN_TOOL",hd(string:tokens(Name,"_"))),

@@ -43,6 +43,7 @@ atomize("sta"++_) -> 'start';
 atomize("sto"++_) -> 'stop';
 atomize("att"++_) -> 'attach';
 atomize("sh")     -> 'sh';
+atomize("dia"++_) -> 'dia';
 atomize("rep"++_) -> 'sh';
 atomize("pla"++_) -> 'resolve';
 atomize("str"++_) -> 'strip';

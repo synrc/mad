@@ -21,3 +21,15 @@ clean(_) -> [ file:delete(X) || X <- filelib:wildcard("{apps,deps}/*/ebin/*.beam
             [ file:delete(X) || X <- filelib:wildcard("c_src/**/*.o") ++
                                      filelib:wildcard("c_src/**/*.d")],  {ok,[]}.
 
+
+dia(Params) ->
+    App = mad_repl:local_app(),
+    Plt = lists:concat([".",App,".plt"]),
+    {_,S1,X1} = sh:run("dialyzer",["--build_plt","--output_plt",Plt,"--apps","."],binary,".",[{"ERL_LIBS","deps"}]),
+    {_,S2,X2} = sh:run("dialyzer",["-q","ebin","--plt",Plt,"--no_native","-Werror_handling",
+                   "-Wunderspecs","-Wrace_conditions","-Wno_undefined_callbacks"],binary,".",[{"ERL_LIBS","deps"}]),
+    case S1 of
+         0 -> case S2 of
+              0 -> {ok,App};
+              _ -> io:format("~s",[X2]), {error,App} end;
+         _ -> io:format("~s",[X1]), {error,App} end.
