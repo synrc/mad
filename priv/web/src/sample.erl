@@ -5,17 +5,11 @@
 main(A)    -> mad:main(A).
 stop(_)    -> ok.
 start()    -> start(normal,[]).
-start(_,_) -> case ver() of cow1 -> []; _ ->
-                   cowboy:start_clear(http, [{port, port()}],
-                      #{ env => #{dispatch => n2o_cowboy2:points()} })
-              end, supervisor:start_link({local,sample},sample,[]).
-init([])   -> kvs:join(), {ok, {{one_for_one, 5, 10}, ?MODULE:(ver())() }}.
-ver()      -> application:get_env(n2o,cowboy_spec,cow2).
-cow2()     -> [].
-cow1()     -> [spec()].
+start(_,_) -> cowboy:start_tls(http,n2o_cowboy:env(?MODULE),
+                 #{env=>#{dispatch=>n2o_cowboy2:points() }}),
+              supervisor:start_link({local,sample},sample,[]).
+init([])   -> kvs:join(), {ok, {{one_for_one, 5, 10}, [] }}.
 port()     -> application:get_env(n2o,port,8001).
-env()      -> [ { env, [ { dispatch, n2o_cowboy:points() } ] } ].
-spec()     -> ranch:child_spec(http,100,ranch_tcp,[{port,port()}],cowboy_protocol,env()).
 rebar3()   -> {ok,[{_,R,L}]}=file:consult(code:lib_dir(sample)++"/ebin/sample.app"),
-              [ application:ensure_started(X) || X <- proplists:get_value(applications,L,[]) ],
-              application:ensure_started(R).
+              [ application:start(X) || X <- proplists:get_value(applications,L,[]) ],
+              application:start(R).

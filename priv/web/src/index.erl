@@ -3,8 +3,6 @@
 -include_lib("kvs/include/entry.hrl").
 -include_lib("nitro/include/nitro.hrl").
 -include_lib("n2o/include/n2o.hrl").
-body() -> [].
-main() -> [].
 event(init) ->
     Room = n2o:session(room),
     io:format("Room: ~p~n",[Room]),
@@ -25,7 +23,7 @@ event(chat) ->
     User    = n2o:user(),
     Room    = n2o:session(room),
     Message = nitro:q(message),
-    n2o:info(?MODULE,"Chat pressed: ~p~n",[{Room,Message,User}]),
+    ?LOG_INFO("Chat pressed: ~p~n",[{Room,Message,User}]),
     kvs:add(#entry{id=kvs:next_id("entry",1),from=n2o:user(),
                    feed_id={room,Room},media=Message}),
     n2o:send({topic,Room},#client{data={User,Message}});
@@ -36,9 +34,9 @@ event(#client{data={User,Message}}) ->
     nitro:insert_top(history, nitro:jse(nitro:render(DTL)));
 event(#ftp{sid=Sid,filename=Filename,status={event,stop}}=Data) ->
     Name = hd(lists:reverse(string:tokens(nitro:to_list(Filename),"/"))),
-    erlang:put(message,nitro:render(#link{href=iolist_to_binary(["/app/",Sid,"/",nitro_conv:url_encode(Name)]),body=Name})),
-    n2o:info(?MODULE,"FTP Delivered ~p~n",[Data]),
+    erlang:put(message,nitro:render(#link{href=iolist_to_binary(["/app/",Sid,"/",Name]),body=Name})),
+    ?LOG_INFO("FTP Delivered ~p~n",[Data]),
     event(chat);
 event(Event) ->
-    n2o:info(?MODULE,"Event: ~p", [Event]),
+    ?LOG_INFO("Event: ~p", [Event]),
     ok.

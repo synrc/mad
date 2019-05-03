@@ -4,8 +4,6 @@
 -include_lib("nitro/include/nitro.hrl").
 -include_lib("n2o/include/n2o.hrl").
 
-main() -> [].
-body() -> [].
 event(init) ->
     nitro:update(loginButton,
       #button{id=loginButton,
@@ -15,7 +13,7 @@ event(login) ->
     Room = nitro:to_list(nitro:q(pass)),
     n2o:user(User),
     n2o:session(room,Room),
-    n2o:info(?MODULE,"User: ~p",[User]),
+    ?LOG_INFO("User: ~p",[User]),
     nitro:redirect("/app/index.htm?room="++Room),
     ok;
 event(_) -> [].
