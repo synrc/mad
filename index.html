@@ -58,14 +58,13 @@
             Words between commands are arguments for the nearest command from left.
         </p>
         <figure><code>
- $ mad
- MAD Manage Dependencies ad426a
+ MAD Manage Dependencies 5.4-14-g7810b8d
 
     invoke = mad | mad list
-      list =  [] | command [options] list
-   command = app [web|mqtt] &lt;name&gt; | deps | clean | compile | strip
-           | bundle [beam|script] &lt;name&gt; | get &lt;repo&gt; | up [name]
-           | start | stop | attach | repl | static &lt;min&gt;
+      list = []  | command [options] list
+   command = app [web|mqtt] <name> | deps | clean | compile | strip
+           | bundle [beam|script] <name> | man | get <repo> | up [name]
+           | start | stop | attach | repl | static <min>
         </code></figure>
         <div>
         <ul>
