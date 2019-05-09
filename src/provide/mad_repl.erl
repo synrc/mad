@@ -120,7 +120,7 @@ sh(Params) ->
     Logger = maybe_remove_logger(),
     repl_intro(Config),
     case os:type() of
-         {win32,nt} -> os:cmd("chcp 65001"), shell:start();
+         {win32,nt} -> shell:start();
                   _ -> O = whereis(user),
                        supervisor:terminate_child(kernel_sup, user),
                        Driver:start(),
