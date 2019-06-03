@@ -9,10 +9,12 @@ compile(Params) ->
     ERL = proplists:get_value(erl,BERT,[]),
     SWIFT = proplists:get_value(swift,BERT,[]),
     GOOGLE = proplists:get_value(google,BERT,[]),
+    Disallowed = proplists:get_value(disallowed,BERT,[]),
     application:set_env(bert,js,JS),
     application:set_env(bert,erl,ERL),
     application:set_env(bert,swift,SWIFT),
     application:set_env(bert,google,GOOGLE),
+    application:set_env(bert,disallowed,Disallowed),
     case mad_utils:configs() of
          {error,E} -> {error,E};
          {ok,{ Cwd, ConfigFile, Conf }} ->
