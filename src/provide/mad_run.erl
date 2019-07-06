@@ -22,7 +22,7 @@ clean(_) -> [ file:delete(X) || X <- filelib:wildcard("{apps,deps}/*/ebin/*.beam
                                      filelib:wildcard("c_src/**/*.d")],  {ok,[]}.
 
 
-dia(Params) ->
+dia(_Params) ->
     App = mad_repl:local_app(),
     Plt = lists:concat([".",App,".plt"]),
     {_,S1,X1} = sh:run("dialyzer",["--build_plt","--output_plt",Plt,"--apps","."],binary,".",[{"ERL_LIBS","deps"}]),
@@ -30,6 +30,6 @@ dia(Params) ->
                    "-Wunderspecs","-Wrace_conditions","-Wno_undefined_callbacks"],binary,".",[{"ERL_LIBS","deps"}]),
     case S1 of
          0 -> case S2 of
-         0 -> {ok,App};
-         _ -> io:format("~s",[X2]), {error,App} end;
-         _ -> io:format("~s",[X1]), {error,App} end.
+              0 -> {ok,App};
+              _ -> io:format("PLT build failed: ~s~n",[X2]), {error,App} end;
+         _ -> io:format("Typechecking failed: ~s~n.",[X1]), {error,App} end.
