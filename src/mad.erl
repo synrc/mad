@@ -72,6 +72,6 @@ help()            -> info("MAD Manage Dependencies ~s~n",[?VERSION]),
                      info("    invoke = mad | mad list~n"),
                      info("      list = []  | command [options] list ~n"),
                      info("   command = app [web|mqtt] <name> | deps | clean | compile | strip~n"),
-                     info("           | bundle [beam|script] <name> | man | get <repo> | up [name] ~n"),
-                     info("           | start | stop | attach | repl | static <min> ~n"),
+                     info("           | bundle [beam|script] <name> | man <html|check|groff> | repl~n"),
+                     info("           | start | stop | attach | static <min> | get <repo> | up [name] ~n"),
                      return(false).

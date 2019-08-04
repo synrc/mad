@@ -1,28 +1,10 @@
-<html>
-
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="" />
-    <meta name="author" content="Maxim Sokhatsky" />
-    <title>MAD</title>
-    <link rel="stylesheet" href="https://synrc.space/synrc.css" />
-</head>
-
-<body>
-
-<nav>
-    <a href='https://n2o.dev'>DEV</a>
-    <a href='https://mad.n2o.space' style="background:#ededed;">MAD</a>
-</nav>
-
-<header>
-    <a href="https://github.com/synrc/mad"><img src="https://synrc.space/images/Synrc Neo.svg?v=1"></a>
+<html><head><meta charset="utf-8" /><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="" /><meta name="author" content="Maxim Sokhatsky" /><title>MAD</title><link rel="stylesheet" href="https://synrc.space/synrc.css" /></head><body><nav>
+    <a href="https://n2o.dev">DEV</a>
+    <a href="https://mad.n2o.space" style="background:#ededed;">MAD</a>
+</nav><header>
+    <a href="https://github.com/synrc/mad"><img src="https://synrc.space/images/Synrc Neo.svg?v=1" /></a>
     <h1>MAD</h1>
-</header>
-
-<aside>
+</header><aside>
     <article>
         <section>
             <h3>SYNOPSIS</h3>
@@ -31,28 +13,27 @@
         </section>
 
         <section>
-            <a name=install><h3>INSTALL</h3></a>
+            <a name="install"></a><h3>INSTALL</h3>
             <div>Place MAD binary into <b>$PATH</b> or <b>/usr/local/bin</b>. E.g. using curl:
         <figure>
         <code>
  $ curl -fsSL \
    https://git.io/fpYm4 \
-   > mad && chmod +x mad \
-   && sudo cp mad /usr/local/bin
+   > mad &#38;&#38; chmod +x mad \
+   &#38;&#38; sudo cp mad /usr/local/bin
         </code>
         </figure>
             <div>
-                APR 2018 &copy; <a href="https://github.com/5HT">Namdak Tonpa</a> ISC<br>
+                APR 2018 © <a href="https://github.com/5HT">Namdak Tonpa</a> ISC<br />
                 VER 5.4 4.11 4.10
             </div>
 
-        </section>
+        </div></section>
     </article>
-</aside>
-<main>
+</aside><main>
     <section>
 
-        <a name=docs><h3>HELP</h3></a>
+        <a name="docs"></a><h3>HELP</h3>
         <p> MAD accepts a list of words. This list of words contains special words,
             delimiters or commands.
             Words between commands are arguments for the nearest command from left.
@@ -65,16 +46,13 @@
    command = app [web|mqtt] <name> | deps | clean | compile | strip
            | bundle [beam|script] <name> | man | get <repo> | up [name]
            | start | stop | attach | repl | static <min>
-        </code></figure>
+        </min></repo></name></name></code></figure>
         <div>
-        <ul>
-            <li><b><a href="man/mad.htm">mad</a></b> &mdash; MAD Main Module</li>
-            <li><b><a href="man/mad_local.htm">mad_local</a></b> &mdash; MAD POSIX Profile</li>
-        </ul>
+        <ul><li><b><a href="man/mad.htm">mad</a></b> — MAD Main Module</li><li><b><a href="man/mad_local.htm">mad_local</a></b> — MAD POSIX Profile</li></ul>
         </div>
     </section>
     <section>
-        <a name=app><h3>APP</h3></a>
+        <a name="app"></a><h3>APP</h3>
         <p>Create predefined sample application.
            MAD has built-in two sample applications: <b>web</b> and <b>mqtt</b>. </p>
         <figure><code>
@@ -94,13 +72,11 @@
  OK
         </code></figure>
         <div>
-        <ul>
-            <li><b><a href="man/mad_static.htm">mad_static</a></b> &mdash; MAD Static<div class=desk>: SKELETONS, MINIFIER</div></li>
-        </ul>
+        <ul><li><b><a href="man/mad_static.htm">mad_static</a></b> — MAD Static<div class="desk">: SKELETONS, MINIFIER</div></li></ul>
         </div>
     </section>
     <section>
-        <a name=deps><h3>DEPS</h3></a>
+        <a name="deps"></a><h3>DEPS</h3>
         <div>
         <figure><code>
  $ cd sample
@@ -134,45 +110,44 @@
  OK
         </code></figure>
         </div>
-        <a name=get><h3>GET</h3></a>
+        <a name="get"></a><h3>GET</h3>
         <figure><code>
  $ mad get kvx
  ==> dependency: "https://github.com/synrc/kvx" tag: []
  OK
         </code></figure>
-        <a name=up><h3>UP</h3></a>
+        <a name="up"></a><h3>UP</h3>
         <figure><code>
  $ mad up
  OK
         </code></figure>
         <div>
-        <ul>
-            <li><b><a href="man/mad_git.htm">mad_git</a></b> &mdash; MAD Git</div></li>
-        </ul>
-        </div>
+        <ul><li><b><a href="man/mad_git.htm">mad_git</a></b> — MAD Git</li></ul></div>
+        
+        
     </section>
     <section>
-        <a name=clean><h3>CLEAN</h3></a>
+        <a name="clean"></a><h3>CLEAN</h3>
         <div>
         <figure><code>
  $ mad clean
  OK
         </code></figure>
         </div>
-        <a name=start><h3>START</h3></a>
+        <a name="start"></a><h3>START</h3>
         <figure><code>
  $ mad start
  Scripting: "/Users/maxim/depot/synrc/mad/mad"
  OK
         </code></figure>
-        <a name=attach><h3>ATTACH</h3></a>
+        <a name="attach"></a><h3>ATTACH</h3>
         <figure><code>
  $ $(mad attach)
  Attaching to . (^D to exit)
 
  1>
         </code></figure>
-        <a name=stop><h3>STOP</h3></a>
+        <a name="stop"></a><h3>STOP</h3>
         <figure><code>
  $ eval $(mad stop)
  Attaching to . (^D to exit)
@@ -180,44 +155,33 @@
  [EOF]
         </code></figure>
         <div>
-        <ul>
-            <li><b><a href="man/mad_run.htm">mad_run</a></b> &mdash; MAD Runner</div></li>
-        </ul>
-        </div>
+        <ul><li><b><a href="man/mad_run.htm">mad_run</a></b> — MAD Runner</li></ul></div>
+        
+        
     </section>
     <section>
-        <a name=compile><h3>COMPILE</h3></a>
+        <a name="compile"></a><h3>COMPILE</h3>
         <figure><code>
  $ mad compile
  Writing /apps/sample/ebin/sample.app
  OK
         </code></figure>
         <div>
-        <ul>
-            <li><b><a href="man/mad_compile.htm">mad_compile</a></b> &mdash; MAD Compiler</li>
-            <li><b><a href="man/mad_app.htm">mad_app</a></b> &mdash; OTP Application files</li>
-            <li><b><a href="man/mad_cubical.htm">mad_cubical</a></b> &mdash; cubicaltt files</li>
-            <li><b><a href="man/mad_dtl.htm">mad_dtl</a></b> &mdash; DTL files</li>
-            <li><b><a href="man/mad_erl.htm">mad_erl</a></b> &mdash; Erlang source files</li>
-            <li><b><a href="man/mad_leex.htm">mad_leex</a></b> &mdash; Erlang leex files</li>
-            <li><b><a href="man/mad_yecc.htm">mad_yecc</a></b> &mdash; Erlang yecc files</li>
-            <li><b><a href="man/mad_port.htm">mad_port</a></b> &mdash; C/C++ files</li>
-            <li><b><a href="man/mad_script.htm">mad_script</a></b> &mdash; .script files</li>
-        </ul>
+        <ul><li><b><a href="man/mad_compile.htm">mad_compile</a></b> — MAD Compiler</li><li><b><a href="man/mad_app.htm">mad_app</a></b> — OTP Application files</li><li><b><a href="man/mad_cubical.htm">mad_cubical</a></b> — cubicaltt files</li><li><b><a href="man/mad_dtl.htm">mad_dtl</a></b> — DTL files</li><li><b><a href="man/mad_erl.htm">mad_erl</a></b> — Erlang source files</li><li><b><a href="man/mad_leex.htm">mad_leex</a></b> — Erlang leex files</li><li><b><a href="man/mad_yecc.htm">mad_yecc</a></b> — Erlang yecc files</li><li><b><a href="man/mad_port.htm">mad_port</a></b> — C/C++ files</li><li><b><a href="man/mad_script.htm">mad_script</a></b> — .script files</li></ul>
         </div>
     </section>
     <section>
-        <a name=plan><h3>PLAN</h3></a>
+        <a name="plan"></a><h3>PLAN</h3>
         <figure><code>
  $ mad plan
  OK
         </code></figure>
-        <a name=strip><h3>STRIP</h3></a>
+        <a name="strip"></a><h3>STRIP</h3>
         <figure><code>
  $ mad strip
  OK
         </code></figure>
-        <a name=bundle><h3>BUNDLE</h3></a>
+        <a name="bundle"></a><h3>BUNDLE</h3>
         <figure><code>
  $ mad bundle script sample
  OK
@@ -227,41 +191,25 @@
  OK
         </code></figure>
         <div>
-        <ul>
-            <li><b><a href="man/mad_release.htm">mad_release</a></b> &mdash; MAD Bundler</li>
-            <li><b><a href="man/mad_escript.htm">mad_escript</a></b> &mdash; MAD escript bundler</li>
-            <li><b><a href="man/mad_systools.htm">mad_systools</a></b> &mdash; MAD BEAM release bundler</li>
-        </ul>
+        <ul><li><b><a href="man/mad_release.htm">mad_release</a></b> — MAD Bundler</li><li><b><a href="man/mad_escript.htm">mad_escript</a></b> — MAD escript bundler</li><li><b><a href="man/mad_systools.htm">mad_systools</a></b> — MAD BEAM release bundler</li></ul>
         </div>
     </section>
     <section>
-        <a name=repl><h3>REPL</h3></a>
+        <a name="repl"></a><h3>REPL</h3>
         <figure><code>
  $ mad repl
  $ open http://127.0.0.1:8001/app/index.htm
         </code></figure>
         <div>
-        <ul>
-            <li><b><a href="man/mad_repl.htm">mad_repl</a></b> &mdash; MAD REPL</div></li>
-        </ul>
-        </div>
+        <ul><li><b><a href="man/mad_repl.htm">mad_repl</a></b> — MAD REPL</li></ul></div>
+        
+        
     </section>
     <section>
-        <a name=articles><h3>ARTICLES</h3></a>
+        <a name="articles"></a><h3>ARTICLES</h3>
         <div>
-        <ul>
-           <li><a href="https://n2o.space/articles/n2o.htm">N2O: PROTOCOL</a></li>
-           <li><a href="https://n2o.space/articles/web.htm">N2O: SERVER</a></li>
-           <li><a href="https://n2o.space/articles/history.htm">N2O: HISTORY</a></li>
-        </ul></div>
+        <ul><li><a href="https://n2o.space/articles/n2o.htm">N2O: PROTOCOL</a></li><li><a href="https://n2o.space/articles/web.htm">N2O: SERVER</a></li><li><a href="https://n2o.space/articles/history.htm">N2O: HISTORY</a></li></ul></div>
     </section>
-</main>
-
-<footer>
+</main><footer>
     Made with <span class="heart">❤</span> to N2O
-</footer>
-
-</body>
-</html>
-
-
+</footer></body></html>

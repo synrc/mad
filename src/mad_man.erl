@@ -2,18 +2,29 @@
 -doc("Generate n2o.dev man pages.").
 -compile(export_all).
 
-man(_Params) ->
+man(["html"]) ->
    Temp = template(),
    [ generate(filename:basename(I,".erl"),Temp)
     || I <- filelib:wildcard("*/src/**/*.erl")
          ++ filelib:wildcard("src/**/*.erl") ],
-   false.
+   {ok,man};
+
+man(["check"]) ->
+   case lists:all(fun(X) -> element(1,X) == ok end, [ check(I)
+    || I <- filelib:wildcard("man/**/*.htm")
+         ++ filelib:wildcard("*.html") ]) of
+        true -> {ok,check};
+        false -> {error,check} end.
 
 write(Gen,Bin) -> io:format("Generated: ~p~n",[Gen]), file:write_file(Gen,Bin).
 replace(S,A,B) -> re:replace(S,A,B,[global,{return,list}]).
 trim(A) -> re:replace(A, "(^\\s+)|(\\s+$)", "", [global,{return,list}]).
 fix([Prefix]) -> Prefix;
 fix([_Prefix,Name|_Rest]) -> Name.
+check(Filename) ->
+   try _ = xmerl_scan:file(Filename), {ok,Filename} catch E:R ->
+   io:format("man: ~p error: ~p~n",[Filename,{E,R}]), {error,Filename} end.
+
 generate(Lower,Temp) ->
     Name = string:to_upper(Lower),
     Tem2 = replace(Temp,"MAN_TOOL",hd(string:tokens(Name,"_"))),
@@ -23,9 +34,11 @@ generate(Lower,Temp) ->
     Gen = lists:concat(["man/",Lower,".htm"]),
     case file:read_file_info(Gen) of
          {error,_} -> write(Gen, Bin);
-         {ok,A} -> case element(2,A) > size(Bin) of
-                        true -> skip;
-                        false -> write(Gen,Bin) end end.
+         {ok,A} -> io:format("man: file ~p already exists.~n",[Gen])
+                  % case element(2,A) > size(Bin) of
+                  %      true -> skip;
+                  %      false -> write(Gen,Bin) end
+                  end.
 
 template() ->
     mad_repl:load(),
