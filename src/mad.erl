@@ -71,7 +71,7 @@ help()            -> info("MAD Manage Dependencies ~s~n",[?VERSION]),
                      info("~n"),
                      info("    invoke = mad | mad list~n"),
                      info("      list = []  | command [options] list ~n"),
-                     info("   command = app [web|mqtt] <name> | deps | clean | compile | strip~n"),
+                     info("   command = app [nitro|zero] <name> | deps | clean | compile | strip~n"),
                      info("           | bundle [beam|script] <name> | man <html|check|groff> | repl~n"),
                      info("           | start | stop | attach | static <min> | get <repo> | up [name] ~n"),
                      return(false).

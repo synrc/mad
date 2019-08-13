@@ -9,5 +9,5 @@
 +K true
 -smp auto
 -setcookie emq_dist_cookie
--name mq@127.0.0.1
+-name sample-1@127.0.0.1
 +zdbbl 32768

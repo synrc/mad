@@ -5,13 +5,13 @@
 finish(State, Ctx) -> {ok, State, Ctx}.
 init(State, #cx{req=Req}=Cx) ->
     #{path:=Path}=Req,
-    Fix  = route_prefix(Path),
-    ?LOG_INFO("Route: ~p~n",[{Fix,Path}]),
-    {ok, State, Cx#cx{path=Path,module=Fix}}.
+    {ok, State, Cx#cx{path=Path,module=route_prefix(Path)}}.
 
 route_prefix(<<"/ws/",P/binary>>) -> route(P);
 route_prefix(<<"/",P/binary>>) -> route(P);
 route_prefix(P) -> route(P).
+
+% Don't use fancy routers, be like poor man's pattern mach.
 
 route(<<>>)              -> login;
 route(<<"index",_/binary>>) -> index;   % github static

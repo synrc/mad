@@ -12,7 +12,9 @@ man(["html"]) ->
 man(["check"]) ->
    case lists:all(fun(X) -> element(1,X) == ok end, [ check(I)
     || I <- filelib:wildcard("man/**/*.htm")
-         ++ filelib:wildcard("*.html") ]) of
+         ++ filelib:wildcard("articles/**/*.htm")
+         ++ filelib:wildcard("*.html")
+         ++ filelib:wildcard("*.htm") ]) of
         true -> {ok,check};
         false -> {error,check} end.
 
@@ -34,7 +36,7 @@ generate(Lower,Temp) ->
     Gen = lists:concat(["man/",Lower,".htm"]),
     case file:read_file_info(Gen) of
          {error,_} -> write(Gen, Bin);
-         {ok,A} -> io:format("man: file ~p already exists.~n",[Gen])
+         {ok,_} -> io:format("man: file ~p already exists.~n",[Gen])
                   % case element(2,A) > size(Bin) of
                   %      true -> skip;
                   %      false -> write(Gen,Bin) end

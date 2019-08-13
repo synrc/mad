@@ -1,8 +1,0 @@
-{application, sample,
-    [{description, "sample WebSocket application"},
-     {vsn, "5.11"},
-     {registered, []},
-     {applications, [public_key,asn1,kernel,stdlib,mnesia,
-                     kvs,cowlib,ranch,cowboy,gproc,n2o]},
-     {mod, { sample, []}},
-     {env, []}]}.

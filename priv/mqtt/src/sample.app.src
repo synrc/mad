@@ -1,9 +1,0 @@
-{application,sample,
-             [{description,"REVIEW TT Application"},
-              {vsn,"1.10"},
-              {registered,[]},
-              {applications, [public_key,asn1,kernel,stdlib,mnesia,syntax_tools,compiler,xmerl,
-                 kvs,goldrush,gen_logger,lager,gproc,esockd,mochiweb,emqttd,n2o]},
-              {mod,{sample,[]}},
-              {env,[]},
-              {modules,[]}]}.
