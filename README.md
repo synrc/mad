@@ -67,4 +67,4 @@ Credits
 * Maxim Sokhatsky
 * Sina Samavati
 * Vladimir Kirillov
-
+* Taras Taraskin

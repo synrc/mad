@@ -1,4 +1,5 @@
 -module(mad_groff).
+-copyright('Taras Taraskin').
 -include_lib("xmerl/include/xmerl.hrl").
 -compile([export_all, nowarn_export_all]).
 
