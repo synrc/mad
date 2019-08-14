@@ -6,11 +6,12 @@
 do(FileName) ->
   {#xmlElement{content=[#xmlElement{content=Head}, BodyTree | _]}, _} = xmerl_scan:file(FileName),
   FN = string:join(lists:reverse(tl(lists:reverse(string:tokens(FileName,".")))),"."),
+  Title = filename:basename(FN),
   Groff = "groff/"++FN,
   filelib:ensure_dir(filename:dirname(Groff)++"/"),
   write2new(Groff, lists:reverse( show(BodyTree, false, false,
-    [ [".TH ", FN, " 1 \"",FN,"\" \"Synrc Research Center\" \"", head(Head, ""), "\"", "\n",
-       ".SH NAME", "\n", FN, "\n"] ]))), ok.
+    [ [".TH ", Title, " 1 \"",Title,"\" \"Synrc Research Center\" \"", head(Head, ""), "\"", "\n",
+       ".SH NAME", "\n", Title, "\n"] ]))), ok.
 
 show(#xmlElement{name=section,content=C},false,_,RA) -> S = check(C, false), child(C,S,[also(S)|RA]);
 show(#xmlElement{content=C},false,_,RA) -> child(C,false,RA);
