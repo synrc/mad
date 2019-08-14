@@ -9,18 +9,28 @@ man(["html"]) ->
          ++ filelib:wildcard("src/**/*.erl") ],
    {ok,man};
 
+man(["groff"]) ->
+   case lists:all(fun(X) -> mad_groff:do(X) == ok end,
+        filelib:wildcard("man/**/*.htm")
+     ++ filelib:wildcard("articles/**/*.htm")
+     ++ filelib:wildcard("*.html")
+     ++ filelib:wildcard("*.htm")) of
+        true -> {ok,check};
+        false -> {error,check} end;
+
 man(["check"]) ->
    case lists:all(fun(X) -> element(1,X) == ok end, [ check(I)
-    || I <- filelib:wildcard("man/**/*.htm")
-         ++ filelib:wildcard("articles/**/*.htm")
+    || I <- filelib:wildcard("*.htm")
          ++ filelib:wildcard("*.html")
-         ++ filelib:wildcard("*.htm") ]) of
+         ++ filelib:wildcard("man/**/*.htm")
+         ++ filelib:wildcard("articles/**/*.htm") ]) of
         true -> {ok,check};
         false -> {error,check} end.
 
 write(Gen,Bin) -> io:format("Generated: ~p~n",[Gen]), file:write_file(Gen,Bin).
 replace(S,A,B) -> re:replace(S,A,B,[global,{return,list}]).
-trim(A) -> re:replace(A, "(^\\s+)|(\\s+$)", "", [global,{return,list}]).
+trim(A) when is_list(A) -> trim(unicode:characters_to_binary(A));
+trim(A) when is_binary(A) -> re:replace(A, "(^\\s+)|(\\s+$)", "", [global,{return,list}]).
 fix([Prefix]) -> Prefix;
 fix([_Prefix,Name|_Rest]) -> Name.
 check(Filename) ->
