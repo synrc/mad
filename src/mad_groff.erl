@@ -74,7 +74,7 @@ head([#xmlElement{name=title, content=[#xmlText{value=V} | _]} | _], _) -> V;
 head([_|T], A) -> head(T, A).
 
 write2new(F, S) ->
-  file:write_file(F ++ ".1",
-  io_lib:fwrite("~s", [
-  mad_man:trim(
-  unicode:characters_to_binary(S,utf8))]), [append]).
+  S2 = unicode:characters_to_binary(S,utf8),
+  file:write_file(F ++ ".1", io_lib:fwrite("~ts", [ binary:part(S2, 0, size(S2) - 2) ]), [append]).
+
+

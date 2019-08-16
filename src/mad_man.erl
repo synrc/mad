@@ -29,7 +29,7 @@ man(["check"]) ->
 
 write(Gen,Bin) -> io:format("Generated: ~p~n",[Gen]), file:write_file(Gen,Bin).
 replace(S,A,B) -> re:replace(S,A,B,[global,{return,list}]).
-trim(A) when is_list(A) -> trim(unicode:characters_to_binary(A));
+trim(A) when is_list(A) -> trim(unicode:characters_to_binary(A,utf8));
 trim(A) when is_binary(A) -> re:replace(A, "(^\\s+)|(\\s+$)", "", [global,{return,list}]).
 fix([Prefix]) -> Prefix;
 fix([_Prefix,Name|_Rest]) -> Name.
