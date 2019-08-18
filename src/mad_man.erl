@@ -13,6 +13,8 @@ man(["groff"]) ->
    case lists:all(fun(X) -> mad_groff:do(X) == ok end,
         filelib:wildcard("man/**/*.htm")
      ++ filelib:wildcard("articles/**/*.htm")
+     ++ filelib:wildcard("**/*.html")
+     ++ filelib:wildcard("**/*.htm")
      ++ filelib:wildcard("*.html")
      ++ filelib:wildcard("*.htm")) of
         true -> {ok,check};
@@ -21,6 +23,8 @@ man(["groff"]) ->
 man(["check"]) ->
    case lists:all(fun(X) -> element(1,X) == ok end, [ check(I)
     || I <- filelib:wildcard("*.htm")
+         ++ filelib:wildcard("**/*.html")
+         ++ filelib:wildcard("**/*.htm")
          ++ filelib:wildcard("*.html")
          ++ filelib:wildcard("man/**/*.htm")
          ++ filelib:wildcard("articles/**/*.htm") ]) of
