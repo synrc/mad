@@ -47,8 +47,11 @@ man(["check"]) ->
 
 write(Gen,Bin) -> io:format("Generated: ~p~n",[Gen]), file:write_file(Gen,Bin).
 replace(S,A,B) -> re:replace(S,A,B,[global,{return,list}]).
-trim(A) when is_list(A) -> trim(unicode:characters_to_binary(A,utf8));
-trim(A) when is_binary(A) -> re:replace(A, "(^\\s+)|(\\s+$)", "", [global,{return,list}]).
+%trim(A) when is_list(A) -> trim(unicode:characters_to_binary(A,utf8));
+%trim(A) when is_binary(A) -> re:replace(A, "(^\\s+)|(\\s+$)", "", [global,{return,list}]).
+sp(V) when [hd(V)] =:= "."; [hd(V)] =:= "," -> V; sp(V) -> [" ", V].
+trim(V) -> V1 = trim2(V), V2 = trim2(lists:reverse(V1)), lists:reverse(V2).
+trim2(V) when [hd(V)] =:= "\n"; [hd(V)] =:= " " -> trim2( tl(V)); trim2(V) -> V.
 fix([Prefix]) -> Prefix;
 fix([_Prefix,Name|_Rest]) -> Name.
 check(Filename) ->
