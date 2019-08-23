@@ -9,6 +9,20 @@ man(["html"]) ->
          ++ filelib:wildcard("src/**/*.erl") ],
    {ok,man};
 
+man(["new",Lower]) ->
+   Temp = template(),
+   Name = string:to_upper(Lower),
+   Tem2 = replace(Temp,"MAN_TOOL",hd(string:tokens(Name,"_"))),
+   CNAME = binary_to_list(element(2,file:read_file("CNAME"))),
+   Tem3 = replace(Tem2,"MAN_CNAME",trim(CNAME)),
+   Bin = iolist_to_binary(replace(Tem3,"MAN_NAME",fix(string:tokens(Name,"_")))),
+   filelib:ensure_dir("man/"),
+   Gen = lists:concat(["man/",Lower,".htm"]),
+   case file:read_file_info(Gen) of
+         {error,_} -> write(Gen, Bin);
+         {ok,_} -> io:format("man: file ~p already exists.~n",[Gen]) end,
+   {ok,man};
+
 man(["groff"]) ->
    case lists:all(fun(X) -> mad_groff:do(X) == ok end,
         filelib:wildcard("man/**/*.htm")
