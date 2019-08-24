@@ -4,13 +4,13 @@
 -compile([export_all, nowarn_export_all]).
 
 do(FileName) ->
-  {#xmlElement{content=[_, #xmlElement{content=Head}, _, BodyTree | _]}, _} = xmerl_scan:file(FileName),
+  [HTitle, BodyTree | _] = gtb( xmerl_scan:file(FileName) ),
   FN = string:join(lists:reverse(tl(lists:reverse(string:tokens(FileName,".")))),"."),
   Title = filename:basename(FN),
   Groff = "groff/"++FN,
   filelib:ensure_dir(filename:dirname(Groff)++"/"),
   write2new(Groff, lists:reverse( show(BodyTree, false,
-    [ [".TH ", Title, " 1 \"",Title,"\" \"Synrc Research Center\" \"", head(Head, ""), "\"", "\n",
+    [ [".TH ", Title, " 1 \"",Title,"\" \"Synrc Research Center\" \"", HTitle, "\"", "\n",
        ".SH NAME", "\n", Title] ]))), ok.
 
 show(#xmlElement{name=section,content=C},false,RA) -> S = check(C, false), child(C,S,[also(S)|RA]);
@@ -64,6 +64,13 @@ ltrim(V) ->
 head([], A) -> A;
 head([#xmlElement{name=title, content=[#xmlText{value=V} | _]} | _], _) -> V;
 head([_|T], A) -> head(T, A).
+
+gtb({#xmlElement{content=[_, #xmlElement{content=Head}, _, BodyTree | _]}, _}) ->
+  [ head(Head, ""), BodyTree ];
+gtb({#xmlElement{content=[_, #xmlElement{content=Head}, BodyTree]}, _}) ->
+  [ head(Head, ""), BodyTree ];
+gtb({#xmlElement{content=[#xmlElement{content=Head}, BodyTree]}, _}) ->
+  [ head(Head, ""), BodyTree ].
 
 write2new(F, S) ->
   S2 = unicode:characters_to_binary(S,utf8),
