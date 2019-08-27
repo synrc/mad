@@ -35,7 +35,7 @@ rsa(["client"|Name]) ->
                          " -subj \"/C=UA/ST=Kyiv/O=SYNRC/CN="++ X ++ "\""),
   {ok, F} = file:read_file("cert/rsa/"++Y++".csr"),
   {ok,{{"HTTP/1.1",200,"OK"},_,Cert}}
-    = httpc:request(post,{"http://ca.n2o.dev:8046",[],"multipart/form-data",F},[],[]),
+    = httpc:request(post,{"http://ca.n2o.dev:8046/rsa/client",[],"multipart/form-data",F},[],[]),
   file:write_file("cert/rsa/"++Y++".pem",list_to_binary(Cert)),
   {ok,rsa};
 
