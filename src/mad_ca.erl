@@ -1,4 +1,5 @@
 -module(mad_ca).
+-include_lib("public_key/include/public_key.hrl").
 -copyright("SYNRC Certificate Authority").
 -compile(export_all).
 
@@ -25,33 +26,22 @@ boot(Crypto) ->
 
 subj() -> io:format("Subject not specified.").
 
-rsa(["client"|Name]) ->
-  application:start(inets),
-  X = string:join(Name,"\\ "),
-  Y = string:join(Name," "),
-  {done,0,Bin}  = sh:run("openssl genrsa -out cert/rsa/"++ X ++ ".key 2048"),
-  {done,0,Bin2} = sh:run("openssl req -new -days 365 -key cert/rsa/"++ X ++".key"
-                         " -out cert/rsa/"++ X ++".csr"
-                         " -subj \"/C=UA/ST=Kyiv/O=SYNRC/CN="++ X ++ "\""),
-  {ok, F} = file:read_file("cert/rsa/"++Y++".csr"),
-  {ok,{{"HTTP/1.1",200,"OK"},_,Cert}}
-    = httpc:request(post,{"http://ca.n2o.dev:8046/rsa/client",[],"multipart/form-data",F},[],[]),
-  file:write_file("cert/rsa/"++Y++".pem",list_to_binary(Cert)),
-  {ok,rsa};
+rsa(["ca"]) -> boot("rsa"), ca("rsa",[]), {ok,rsa};
+rsa([Type|Name]) -> enroll("rsa",Type,Name,"pass:0");
+rsa(_) -> boot("rsa").
 
-rsa(["ca"]) ->
-  boot("rsa"),
+ecc(["ca"|Pass]) -> boot("ecc"), ca("ecc",Pass), {ok,ecc};
+ecc([Type,Pass|Name]) -> enroll("ecc",Type,Name,Pass);
+ecc(_) -> boot("ecc").
+
+
+ca("rsa", []) ->
   {done,0,Bin}  = sh:run("openssl genrsa -out cert/rsa/caroot.key 2048"),
   {done,0,Bin2} = sh:run("openssl req -new -x509 -days 3650 -config cert/rsa/synrc.cnf"
                          " -key cert/rsa/caroot.key -out cert/rsa/caroot.pem"
-                         " -subj \"/C=UA/ST=Kyiv/O=SYNRC/CN=CA\""),
-  {ok,rsa};
+                         " -subj \"/C=UA/ST=Kyiv/O=SYNRC/CN=CA\""), ok;
 
-rsa(["new"]) -> boot("rsa");
-rsa(_) -> boot("rsa").
-
-ecc(["ca"|Pass]) ->
-  boot("ecc"),
+ca("ecc", Pass) ->
   {done,0,Bin} = sh:run("openssl ecparam -genkey -name secp384r1"),
   file:write_file("cert/ecc/ca.key",Bin),
   {done,0,Bin2} = sh:run("openssl ec -aes256 -in cert/ecc/ca.key"
@@ -59,8 +49,44 @@ ecc(["ca"|Pass]) ->
   {done,0,Bin3} = sh:run("openssl req -config cert/ecc/synrc.cnf -days 3650 -new -x509"
                          " -key cert/ecc/caroot.key -out cert/ecc/caroot.pem -passin " ++ Pass ++
                          " -subj \"/C=UA/ST=Kyiv/O=SYNRC/CN=CA\""),
-  {ok,ecc};
-ecc(_) -> boot("ecc").
+  ok.
+
+enroll(Crypto,Type,Name,Pass) when (Type == "server" orelse Type == "client")
+                      andalso (Crypto == "rsa" orelse Crypto == "ecc") ->
+  application:start(inets),
+  X = string:join(Name,"\\ "),
+  Y = string:join(Name," "),
+  key(Crypto,Pass,X),
+  {ok, F} = file:read_file("cert/"++Crypto++"/"++Y++".csr"),
+  {ok,{{"HTTP/1.1",200,"OK"},_,Cert}}
+    = httpc:request(post,{"http://ca.n2o.dev:8046/"++Crypto++"/"++Type,
+                       [],"multipart/form-data",F},[],[]),
+  DER = list_to_binary(Cert),
+  file:write_file("cert/"++Crypto++"/"++Y++".pem",DER),
+  Entries = public_key:pem_decode(DER),
+  {value, CertEntry} = lists:keysearch('Certificate', 1, Entries),
+  {_, DerCert, _} = CertEntry,
+  Decoded = public_key:pkix_decode_cert(DerCert, otp),
+  PK = Decoded#'OTPCertificate'.tbsCertificate#'OTPTBSCertificate'.subjectPublicKeyInfo,
+  io:format("CERT: ~s ~s '~s'~nKEY: ~p~n",[Crypto,Type,X,PK]),
+  {ok,rsa}.
+
+u(X) -> string:to_upper(X).
+
+key("rsa",_,X) ->
+  {done,0,Bin}  = sh:run("openssl genrsa -out cert/rsa/"++ X ++ ".key 2048"),
+  {done,0,Bin2} = sh:run("openssl req -new -days 365 -key cert/rsa/"++ X ++".key"
+                         " -out cert/rsa/"++ X ++".csr "
+                         " -subj \"/C=UA/ST=Kyiv/O=SYNRC/CN="++ X ++ "\""), ok;
+key("ecc",Pass,X) ->
+  {done,0,_}   = sh:run("openssl ecparam -name secp384r1 > cert/ecc/"++X++".ecp"),
+  {done,0,_}   = sh:run("cp cert/ecc/"++X++".ecp key"),
+  {done,0,Bin} = sh:run("openssl req -config cert/ecc/synrc.cnf -passout " ++ Pass ++
+                        " -new -newkey ec:key"
+                        " -keyout cert/ecc/"++X++".key.enc -out cert/ecc/"++X++".csr"
+                        " -subj \"/C=UA/ST=Kyiv/O=SYNRC/CN="++X++"\""),
+  {done,0,Bin2} = sh:run("openssl ec -in cert/ecc/"++X++".key.enc -out cert/ecc/server.key -passin "++Pass),
+  ok.
 
 template() ->
     mad_repl:load(),
