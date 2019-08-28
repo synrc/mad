@@ -76,5 +76,5 @@ help()            -> info("MAD Manage Dependencies ~s~n",[?VERSION]),
                      info("   cmd = app [nitro|zero] <name> | deps | clean | compile | strip~n"),
                      info("       | bundle [beam|script] <name> | man <html|check|groff> | repl~n"),
                      info("       | start | stop | attach | static <min> | get <repo> | up [name]~n"),
-                     info("       | <rsa|ecc> [ new | ca | client <name> | server <name> ]~n"),
+                     info("       | <rsa|ecc> [ ca | client <name> | server <name> ]~n"),
                      return(false).
