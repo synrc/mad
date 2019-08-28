@@ -1,1 +1,1 @@
--define(VERSION,"6.8.0-5-g3fb65a0").
+-define(VERSION,"6.8.0-6-g76fe77d").
