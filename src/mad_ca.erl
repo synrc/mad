@@ -15,7 +15,7 @@ cmd(C,["ca"])  -> boot(C), up(C), {ok,C};
 cmd(C,[T|N])   -> boot(C), enroll(C,T,N), {ok,C};
 cmd(C,_)       -> boot(C), {ok,C}.
 
-host()         -> "ca.n2o.space:8046".
+host()         -> "ca.n2o.dev:8046".
 
 boot(Crypto) ->
     {Dir,CNF} = root(Crypto),
