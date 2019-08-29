@@ -24,10 +24,9 @@ boot(Crypto) ->
         {ok,_} -> skip end, {ok,Crypto}.
 
 do_boot(Crypto) ->
-    {Num,Bin} = {<<"1000">>,replace(replace(cnf(),"PATH",mad_utils:cwd()),"CRYPTO",Crypto)},
     {Dir,CNF} = root(Crypto), filelib:ensure_dir(Dir),
-    Files     = [{"index.txt",<<>>},{"crlnumber",Num},{"serial",Num},{CNF,Bin}],
-    lists:map(fun({A,B}) -> file:write_file(Dir++A,B) end, Files).
+    file:write_file(Dir++CNF,replace(replace(cnf(),"PATH",mad_utils:cwd()),"CRYPTO",Crypto)),
+    up(Crypto).
 
 up(Crypto) ->
     application:start(inets),
