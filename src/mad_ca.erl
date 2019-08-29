@@ -15,6 +15,8 @@ cmd(C,["ca"])  -> boot(C), up(C), {ok,C};
 cmd(C,[T|N])   -> boot(C), enroll(C,T,N), {ok,C};
 cmd(C,_)       -> boot(C), {ok,C}.
 
+host()         -> "ca.n2o.space:8046".
+
 boot(Crypto) ->
     {Dir,CNF} = root(Crypto),
     case file:read_file_info(Dir++CNF) of
@@ -29,7 +31,7 @@ do_boot(Crypto) ->
 
 up(Crypto) ->
     application:start(inets),
-    URI = cat(["http://localhost:8046/up/",Crypto]),
+    URI = cat(["http://",host(),"/up/",Crypto]),
     {ok,{{"HTTP/1.1",200,"OK"},_,Cert}} = httpc:request(post,{URI,[],[],<<"">>},[],[]),
     PEM = list_to_binary(Cert),
     ok  = file:write_file(cat(["cert/",Crypto,"/caroot.pem"]),PEM),
@@ -43,7 +45,7 @@ enroll(Crypto,Type,Name) when (Type == "server" orelse Type == "client")
     Y   = string:join(Name," "),
     ok  = key(Crypto,Pass,Y),
     {ok, F} = file:read_file(cat(["cert/",Crypto,"/",Y,".csr"])),
-    URI = cat(["http://localhost:8046/enroll/",Crypto,"/",Type]),
+    URI = cat(["http://",host(),"/enroll/",Crypto,"/",Type]),
     {ok,{{"HTTP/1.1",200,"OK"},_,Cert}} = httpc:request(post,{URI,[],"multipart/form-data",F},[],[]),
     PEM = list_to_binary(Cert),
     ok  = file:write_file(cat(["cert/",Crypto,"/",Y,".pem"]),PEM),
