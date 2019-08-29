@@ -2,6 +2,7 @@
 -include_lib("public_key/include/public_key.hrl").
 -compile(export_all).
 
+host()         -> "ca.n2o.dev:8046".
 cat(X)         -> lists:concat(X).
 replace(S,A,B) -> re:replace(S,A,B,[global,{return,binary}]).
 u(X)           -> string:to_upper(X).
@@ -15,18 +16,13 @@ cmd(C,["ca"])  -> boot(C), up(C), {ok,C};
 cmd(C,[T|N])   -> boot(C), enroll(C,T,N), {ok,C};
 cmd(C,_)       -> boot(C), {ok,C}.
 
-host()         -> "ca.n2o.dev:8046".
-
 boot(Crypto) ->
     {Dir,CNF} = root(Crypto),
     case file:read_file_info(Dir++CNF) of
-        {error,_} -> do_boot(Crypto);
-        {ok,_} -> skip end, {ok,Crypto}.
-
-do_boot(Crypto) ->
-    {Dir,CNF} = root(Crypto), filelib:ensure_dir(Dir),
-    file:write_file(Dir++CNF,replace(replace(cnf(),"PATH",mad_utils:cwd()),"CRYPTO",Crypto)),
-    up(Crypto).
+         {ok,_} -> skip;
+         {error,_} -> {Dir,CNF} = root(Crypto), filelib:ensure_dir(Dir),
+                      file:write_file(Dir++CNF,replace(replace(cnf(),"PATH",mad_utils:cwd()),"CRYPTO",Crypto)),
+                      up(Crypto) end, {ok,Crypto}.
 
 up(Crypto) ->
     application:start(inets),
