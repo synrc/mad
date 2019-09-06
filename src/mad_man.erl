@@ -53,7 +53,7 @@ fix([Prefix]) -> Prefix;
 fix([_Prefix,Name|_Rest]) -> Name.
 check(Filename) ->
    try _ = xmerl_scan:file(Filename), {ok,Filename} catch E:R ->
-   io:format("man: ~p error: ~p~n",[Filename,{E,R}]), {error,Filename} end.
+   io:format("man: ~p error: ~p~n",[Filename, case R of function_clause -> erlang:get_stacktrace(); _ -> R end]), {error,Filename} end.
 
 generate(Lower,Temp) ->
     Name = string:to_upper(Lower),
