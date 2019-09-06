@@ -32,7 +32,7 @@ up(Crypto) ->
     ok  = file:write_file(cat(["cert/",Crypto,"/caroot.pem"]),PEM),
     dump(PEM,"CA").
 
-enroll(Crypto,Type,Name) when (Type == "server" orelse Type == "client")
+enroll(Crypto,Type,Name) when (Type == "server" orelse Type == "client" orelse Type == "ocsp")
                       andalso (Crypto == "rsa" orelse Crypto == "ecc") ->
     Pass = application:get_env(ca,passin,"pass:0"),
     application:start(inets),
