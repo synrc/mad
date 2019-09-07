@@ -1,25 +1,44 @@
-<html><head><meta charset="utf-8" /><meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="" />
-<meta name="author" content="Maxim Sokhatsky" /><title>MAD</title>
-<link rel="stylesheet" href="https://n2o.dev/blank.css" />
-<link rel="stylesheet" href="https://n2o.dev/zima.css" />
-</head><body><nav>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content=""/>
+    <meta name="author" content="Maxim Sokhatsky"/>
+    <title>MAD</title>
+    <link rel="stylesheet" href="https://n2o.dev/blank.css"/>
+    <link rel="stylesheet" href="https://n2o.dev/zima.css"/>
+</head>
+<body>
+<nav>
     <a href="https://n2o.dev">DEV</a>
     <a href="https://mad.n2o.space" style="background:#ededed;">MAD</a>
-</nav><header>
-    <a href="https://github.com/synrc/mad"><img src="https://synrc.space/images/Synrc Neo.svg?v=1" /></a>
+</nav>
+<header>
+    <a href="https://github.com/synrc/mad">
+    <img src="https://synrc.space/images/Synrc Neo.svg?v=1"/></a>
     <h1>MAD</h1>
-</header><aside>
+</header>
+<aside>
     <article>
         <section>
             <h3>SYNOPSIS</h3>
-            <div>MAD is a small and fast rebar replacement.
-            </div>
+            <div>MAD is a small and fast build tool for Erlang.
+                 Here is example of config file of MAD itself:</div><br/>
+            <figure>
+            <code>
+ {deps_dir,"deps"}.
+ {erl_opts,[nowarn_export_all]}.
+ {deps,[{sh,".*",{git,
+    "git://github.com/synrc/sh",
+         {branch, "master"}}}]}.
+            </code>
+        </figure><br/>
         </section>
-
         <section>
             <a name="install"></a><h3>INSTALL</h3>
-            <div>Place MAD binary into <b>$PATH</b> or <b>/usr/local/bin</b>. E.g. using curl:</div><br/>
+            <div>Place MAD binary into <b>$PATH</b> or
+                 <b>/usr/local/bin</b>. E.g. using curl:</div><br/>
         <figure>
         <code> $ curl -fsSL \
    https://git.io/fpYm4 \
@@ -27,18 +46,16 @@
    &#38;&#38; sudo cp mad /usr/local/bin</code>
         </figure><br/>
             <div>
-                APR 2018 © <a href="https://github.com/5HT">Namdak Tonpa</a> ISC<br />
-                VER 5.4 4.11 4.10
+                APR 2018 © <a href="https://github.com/5HT">Namdak Tonpa</a> ISC<br/>
+                VER 6.9 6.8 6.7
             </div>
-
         </section>
     </article>
 </aside><main>
     <section>
-
-        <a name="docs"></a><h3>HELP</h3>
-        <p> MAD accepts a list of words. This list of words contains special words,
-            delimiters or commands.
+        <h3>HELP</h3>
+        <p> MAD accepts a list of words.
+            This list of words contains special words aka delimiters or commands.
             Words between commands are arguments for the nearest command from left.
         </p>
         <figure><code>
@@ -57,13 +74,36 @@
     <section>
         <a name="app"></a><h3>APP</h3>
         <p>Create predefined sample application.
-           MAD has built-in two sample applications: <b>zero</b> and <b>nitro</b>. </p>
+           MAD has built-in two sample applications: <b>zero</b> and <b>nitro</b>.
+           Here is bluepring of <b>zero</b> application:</p>
         <figure><code>
- $ mad app nitro sample
+ $ mad app zero sample
  OK
         </code></figure>
+        <p>sample.app.src</p>
+        <figure><code>
+ {application, sample,
+  [{description, "sample application"},
+   {vsn, "0.8.0"},
+   {registered, []},
+   {applications, [kernel,stdlib]},
+   {mod, { sample, []}},
+   {env, []}]}.
+        </code></figure>
+        <p>sample.erl</p>
+        <figure><code>
+ -module(sample).
+ -compile(export_all).
+ -behaviour(application).
+ -behaviour(supervisor).
+ -export([start/2, stop/1, init/1]).
+
+ start(_, _) -> supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+ stop(_) -> ok.
+ init([]) -> {ok, { {one_for_one, 5, 10}, []} }.
+        </code></figure>
         <div>
-        <ul><li><b><a href="man/mad_static.htm">mad_static</a></b> — MAD Static<div class="desk">: SKELETONS, MINIFIER</div></li></ul>
+         <ul><li><b><a href="man/mad_static.htm">mad_static</a></b> — MAD Static</li></ul>
         </div>
     </section>
     <section>
@@ -114,8 +154,6 @@
         </code></figure>
         <div>
         <ul><li><b><a href="man/mad_git.htm">mad_git</a></b> — MAD Git</li></ul></div>
-        
-        
     </section>
     <section>
         <a name="clean"></a><h3>CLEAN</h3>
@@ -193,13 +231,13 @@
         </code></figure>
         <div>
         <ul><li><b><a href="man/mad_repl.htm">mad_repl</a></b> — MAD REPL</li></ul></div>
-        
-        
     </section>
     <section>
         <a name="articles"></a><h3>ARTICLES</h3>
         <div>
-        <ul><li><a href="https://n2o.space/articles/n2o.htm">N2O: PROTOCOL</a></li><li><a href="https://n2o.space/articles/web.htm">N2O: SERVER</a></li><li><a href="https://n2o.space/articles/history.htm">N2O: HISTORY</a></li></ul></div>
+        <ul><li><a href="https://n2o.dev/articles/n2o.htm">N2O: PROTOCOL</a></li>
+            <li><a href="https://n2o.dev/articles/web.htm">N2O: SERVER</a></li>
+            <li><a href="https://n2o.dev/articles/history.htm">N2O: HISTORY</a></li></ul></div>
     </section>
 </main><footer>
     Made with <span class="heart">❤</span> to N2O
