@@ -2,6 +2,7 @@ MAD: Manage Dependencies
 ========================
 
 [![Build Status](https://travis-ci.org/synrc/mad.svg?branch=master)](https://travis-ci.org/synrc/mad)
+[![Hex pm](http://img.shields.io/hexpm/v/mad.svg?style=flat)](https://hex.pm/packages/mad)
 
 A simple rebar-compatible dependency manager and developer
 tool with plugins for Windows, Linux and Mac.
