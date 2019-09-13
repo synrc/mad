@@ -5,4 +5,4 @@ FOR /F "delims==" %%I IN ('git rev-parse HEAD ^| head -c 6') DO (
 )
 @echo on
 escript.exe mad cle dep com bun mad
-pause
+

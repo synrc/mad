@@ -1,0 +1,107 @@
+[ ca ]
+default_ca = CA_default
+
+[ CA_default ]
+dir               = PATH/cert/CRYPTO
+certs             = $dir
+crl_dir           = $dir
+new_certs_dir     = $dir
+database          = $dir/index.txt
+serial            = $dir/serial
+RANDFILE          = $dir/.rand
+private_key       = $dir/caroot.key
+certificate       = $dir/caroot.pem
+crlnumber         = $dir/crlnumber
+crl               = $dir/CRYPTOroot.crl
+crl_extensions    = crl_ext
+default_crl_days  = 3650
+default_md        = sha384
+name_opt          = ca_default
+cert_opt          = ca_default
+default_days      = 3650
+preserve          = no
+policy            = policy_strict
+
+[ policy_strict ]
+countryName             = match
+stateOrProvinceName     = match
+organizationName        = match
+organizationalUnitName  = optional
+commonName              = supplied
+
+[ req ]
+default_bits        = 2048
+distinguished_name  = req_distinguished_name
+string_mask         = utf8only
+default_md          = sha384
+x509_extensions     = v3_ca
+
+[ req_distinguished_name ]
+countryName                     = Country Name (2 letter code)
+stateOrProvinceName             = State or Province Name
+localityName                    = Locality Name
+0.organizationName              = Organization Name
+organizationalUnitName          = Organizational Unit Name
+commonName                      = Common Name
+commonName_default              = CA
+countryName_default             = UA
+stateOrProvinceName_default     = Kyiv
+localityName_default            = Kyiv
+0.organizationName_default      = SYNRC
+organizationalUnitName_default  = HQ
+
+[ v3_ca ]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+
+[ v3_intermediate_ca ]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true, pathlen:0
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+crlDistributionPoints = @crl_info
+authorityInfoAccess = @ocsp_info
+
+[ usr_cert ]
+basicConstraints = CA:FALSE
+nsCertType = client, email
+nsComment = "Synrc Client Certificate"
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage = critical, nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = clientAuth, emailProtection
+subjectAltName = @alt_names
+
+[ server_cert ]
+basicConstraints = CA:FALSE
+nsCertType = server
+nsComment = "Synrc Server Certificate"
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer:always
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+crlDistributionPoints = @crl_info
+authorityInfoAccess = @ocsp_info
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.0 = localhost
+
+[ crl_ext ]
+authorityKeyIdentifier=keyid:always
+
+[ ocsp ]
+basicConstraints = CA:FALSE
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage = critical, digitalSignature
+extendedKeyUsage = critical, OCSPSigning
+
+[crl_info]
+URI.0 = http://crl.n2o.dev:8081/CRYPTOroot.crl
+
+[ocsp_info]
+caIssuers;URI.0 = http://crl.n2o.dev:8081/CRYPTOroot.crt
+OCSP;URI.0 = http://ocsp.n2o.dev:8081/

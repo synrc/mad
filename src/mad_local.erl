@@ -14,6 +14,8 @@ clean(Params)     -> mad_run:clean(Params).
 start(Params)     -> mad_run:start(Params).
 attach(Params)    -> mad_run:attach(Params).
 stop(Params)      -> mad_run:stop(Params).
+rsa(Params)       -> mad_ca:rsa(Params).
+ecc(Params)       -> mad_ca:ecc(Params).
 get(Params)       -> mad_git:get_repo(Params).
 deps(Params)      -> mad_git:deps(Params).
 up(Params)        -> mad_git:up(Params).

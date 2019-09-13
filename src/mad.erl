@@ -37,6 +37,8 @@ atomize("com"++_) -> 'compile';
 atomize("eunit")  -> 'eunit';
 atomize("up")     -> 'up';
 atomize("get")    -> 'get';
+atomize("rsa")    -> 'rsa';
+atomize("ecc")    -> 'ecc';
 atomize("rel"++_) -> 'release';
 atomize("bun"++_) -> 'release';
 atomize("sta"++_) -> 'start';
@@ -69,9 +71,10 @@ help(Reason,D)    -> help(io_lib:format("~s ~p", [Reason, D])).
 help(_Msg)        -> help().
 help()            -> info("MAD Manage Dependencies ~s~n",[?VERSION]),
                      info("~n"),
-                     info("    invoke = mad | mad list~n"),
-                     info("      list = []  | command [options] list ~n"),
-                     info("   command = app [nitro|zero] <name> | deps | clean | compile | strip~n"),
-                     info("           | bundle [beam|script] <name> | man <html|check|groff> | repl~n"),
-                     info("           | start | stop | attach | static <min> | get <repo> | up [name] ~n"),
+                     info("  spec = mad | mad list~n"),
+                     info("  list =  [] | cmd [opt] list ~n"),
+                     info("   cmd = app [nitro|zero] <name> | deps | clean | compile | strip~n"),
+                     info("       | bundle [beam|script] <name> | man <html|check|groff> | repl~n"),
+                     info("       | start | stop | attach | static <min> | get <repo> | up [name]~n"),
+                     info("       | <rsa|ecc> [ ca | client <name> | server <name> ]~n"),
                      return(false).
