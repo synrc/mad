@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8"/>
@@ -13,6 +14,13 @@
 <nav>
     <a href="https://n2o.dev">DEV</a>
     <a href="https://mad.n2o.space" style="background:#ededed;">MAD</a>
+  <div class="dropdown">
+    <a onclick="drop()" class="dropbtn">EN</a>
+    <div id="dropdown" class="dropdown-content">
+      <a href="https://n2o.dev/deps/mad/man/ua/index.html">UA</a>
+      <a href="https://mad.n2o.space/">EN</a>
+    </div>
+  </div>
 </nav>
 <header>
     <a href="https://github.com/synrc/mad">
@@ -241,4 +249,6 @@
     </section>
 </main><footer>
     Made with <span class="heart">❤</span> to N2O
-</footer></body></html>
+</footer>
+<script>function drop(){document.getElementById("dropdown").classList.toggle("show");}</script>
+</body></html>
