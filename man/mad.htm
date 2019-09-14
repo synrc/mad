@@ -32,7 +32,7 @@
 
 <h3>PROFILE</h3>
 
-<p>Each MAD profile must imeplent exposed API:</p>
+<p>Each MAD profile must implement exposed API:</p>
 
     <figure><code>
  -define(MAD,[compile/1,app/1,get/1,release/1,resolve/1,clean/1,
@@ -70,7 +70,7 @@
         <p>Simple yet understandable command processing and error loop.
            Function <b>atomize/1</b> helps to accumulate
            known agruments as atoms. Function <b>profile/0</b>
-           retrives module with MAD API implementation.
+           retrieves module with MAD API implementation.
            <b>main/1</b> function returns error status to OS with halt.</p>
         <figure><code>
  main(Params) ->
