@@ -15,6 +15,7 @@ do(FileName) ->
 
 show(#xmlElement{name=section,content=C},false,RA) -> S = check(C, false), child(C,S,[also(S)|RA]);
 show(#xmlElement{content=C},false,RA) -> child(C,false,RA);
+show(#xmlElement{name=h3,content=""},{true,_S2},RA) -> ["\n\n"|RA];
 show(#xmlElement{name=h3,content=C},{true,S2},RA) -> child(C,{true,S2},[["\n",".SH "]|RA]);
 show(#xmlElement{name=a,content=[#xmlText{value=V}|_]},{true, last},RA) ->
   [["\\fB\\fI",V,"(1)","\\fR\\&\\fR\\&",", "]|RA];
@@ -23,6 +24,8 @@ show(#xmlElement{name=a,content=[#xmlText{value=V}|CM]},S,RA) ->
 show(#xmlElement{name=b,content=[#xmlText{value=V}|CM]},S,RA) when S =/= {true, last} ->
   child(CM, S, [["\\fB",V,"\\fR\\&"]|RA]);
 show(#xmlElement{name=code,content=[#xmlText{value=V} | CM]},{true,S2},RA) ->
+  child(CM, {true, S2}, [["\n",".nf","\n",V, "\n",".fi","\n"]|RA]);
+show(#xmlElement{name=h4,content=[#xmlText{value=V} | CM]},{true,S2},RA) ->
   child(CM, {true, S2}, [["\n",".nf","\n",V, "\n",".fi","\n"]|RA]);
 show(#xmlElement{name=p,content=C}, {true, S2}, RA) -> child(C,{true,S2}, [["\n",".LP","\n"]|RA]);
 show(#xmlElement{name=li,content=C}, {true, S2}, RA) -> child(C,{true,S2}, ["\n\n"|RA]);
