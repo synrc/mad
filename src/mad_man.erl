@@ -28,7 +28,8 @@ man(["groff"]) ->
         filelib:wildcard("man/**/*.htm")
      ++ filelib:wildcard("articles/**/*.htm")
      ++ filelib:wildcard("**/*.html")
-     ++ filelib:wildcard("**/*.htm")
+    % ++ filelib:wildcard("**/*.htm") % here works twice in n2o.dev repo
+      ++ filelib:wildcard("deps/**/*.htm")
      ++ filelib:wildcard("*.html")
      ++ filelib:wildcard("*.htm")) of
         true -> {ok,check};
