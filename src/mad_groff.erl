@@ -32,7 +32,7 @@ show(#xmlElement{name=li,content=C}, {true, S2}, RA) -> child(C,{true,S2}, ["\n\
 show(#xmlElement{name=span,attributes=[#xmlAttribute{name=class, value="desk"}|_],content=C}, {true, S2}, RA) -> child(C,{true,S2}, RA);
 show(#xmlElement{name='div',attributes=[#xmlAttribute{name=class, value="desk"}|_],content=C}, {true, S2}, RA) -> child(C,{true,S2}, RA);
 show(#xmlElement{name='div',content=C}, {true, S2}, RA) -> child(C,{true,S2}, [["\n",".LP","\n"]|RA]);
-show(#xmlElement{name=br}, {true, _S2}, RA) -> ["\n"|RA];
+show(#xmlElement{name=br}, {true, _S2}, RA) -> ["\n\n"|RA];
 show(#xmlElement{name=sub,content=C}, {true, S2}, RA) -> [ ["@sub", child(C,{true,S2},[]), "#"] |RA];
 show(#xmlElement{name=sup,content=C}, {true, S2}, RA) -> [ ["@sup", child(C,{true,S2},[]), "#"] |RA];
 show(#xmlElement{name=figcaption,  content=_C}, _S, RA) -> RA;
