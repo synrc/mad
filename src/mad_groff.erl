@@ -25,6 +25,13 @@ show(#xmlElement{name=b,content=[#xmlText{value=V}|CM]},S,RA) when S =/= {true, 
 show(#xmlElement{name=code,content=[#xmlText{value=V} | CM]},{true,S2},RA) ->
   child(CM, {true, S2}, [["\n",".nf","\n",V, "\n",".fi","\n"]|RA]);
 show(#xmlElement{name=p,content=C}, {true, S2}, RA) -> child(C,{true,S2}, [["\n",".LP","\n"]|RA]);
+show(#xmlElement{name=li,content=C}, {true, S2}, RA) -> child(C,{true,S2}, ["\n\n"|RA]);
+show(#xmlElement{name=span,attributes=[#xmlAttribute{name=class, value="desk"}|_],content=C}, {true, S2}, RA) -> child(C,{true,S2}, RA);
+show(#xmlElement{name='div',attributes=[#xmlAttribute{name=class, value="desk"}|_],content=C}, {true, S2}, RA) -> child(C,{true,S2}, RA);
+show(#xmlElement{name='div',content=C}, {true, S2}, RA) -> child(C,{true,S2}, [["\n",".LP","\n"]|RA]);
+show(#xmlElement{name=br}, {true, _S2}, RA) -> ["\n"|RA];
+show(#xmlElement{name=sub,content=C}, {true, S2}, RA) -> [ ["@sub", child(C,{true,S2},[]), "#"] |RA];
+show(#xmlElement{name=sup,content=C}, {true, S2}, RA) -> [ ["@sup", child(C,{true,S2},[]), "#"] |RA];
 show(#xmlElement{name=figcaption,  content=_C}, _S, RA) -> RA;
 show(#xmlElement{name=_, content=C}, S, RA) -> child(C,S,RA);
 show(_,false,RA) -> RA;
@@ -65,11 +72,11 @@ head([], A) -> A;
 head([#xmlElement{name=title, content=[#xmlText{value=V} | _]} | _], _) -> V;
 head([_|T], A) -> head(T, A).
 
-gtb({#xmlElement{content=[_, #xmlElement{content=Head}, _, BodyTree | _]}, _}) ->
+gtb({#xmlElement{content=[_, #xmlElement{name=head,content=Head}, _, #xmlElement{name=body}=BodyTree |_]}, _}) ->
   [ head(Head, ""), BodyTree ];
-gtb({#xmlElement{content=[_, #xmlElement{content=Head}, BodyTree]}, _}) ->
+gtb({#xmlElement{content=[_, #xmlElement{name=head,content=Head}, #xmlElement{name=body}=BodyTree |_]}, _}) ->
   [ head(Head, ""), BodyTree ];
-gtb({#xmlElement{content=[#xmlElement{content=Head}, BodyTree]}, _}) ->
+gtb({#xmlElement{content=[#xmlElement{name=head,content=Head}, #xmlElement{name=body}=BodyTree |_]}, _}) ->
   [ head(Head, ""), BodyTree ].
 
 write2new(F, S) ->
