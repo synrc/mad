@@ -1,6 +1,7 @@
 MAD: Manage Dependencies
 ========================
 
+[![Actions Status](https://github.com/synrc/mad/workflows/mix/badge.svg)](https://github.com/synrc/mad/actions)
 [![Build Status](https://travis-ci.org/synrc/mad.svg?branch=master)](https://travis-ci.org/synrc/mad)
 [![Hex pm](http://img.shields.io/hexpm/v/mad.svg?style=flat)](https://hex.pm/packages/mad)
 
