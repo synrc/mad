@@ -1,0 +1,68 @@
+\section{Setup}
+
+\subsection{Installing Binary}
+
+Fresh version of mad included as a binary in its primary github repository:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    # curl -fsSL https://raw.github.com/synrc/mad/master/mad > mad \
+              && chmod +x mad \
+              && sudo cp /usr/local/bin
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+Or you may want to add mad to your PATH.
+
+\subsection{Compiling Sources}
+
+If you want you can compile mad by yourself:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    # git clone http://github.com/synrc/mad \
+             && cd mad \
+             && make
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+Note that mad uses mad to build mad. It's mad.
+
+\subsection{Creating a sample N2O project}
+
+mad also comes with N2O templates. So you can bootstrap a N2O-based site
+just having a single copy of mad binary.
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    # mad app sample
+    # cd sample
+    # mad deps compile release sample
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+After that you can just run escript web\_app under Windows, Linux and
+Mac and open \footahref{http://localhost:8000}{http://localhost:8000}.
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    C:\> escript sample
+    Applications: [kernel,stdlib,crypto,cowlib,ranch,
+                   cowboy,compiler,syntax_tools,
+                   erlydtl,gproc,xmerl,n2o,sample,
+                   fs,active,mad,sh]
+    Configuration: [{n2o,[{port,8000},
+                          {route,routes}]},
+                    {kvs,[{dba,store_mnesia},
+                          {schema,[kvs_user,
+                                   kvs_acl,
+                                   kvs_feed,
+                                   kvs_subscription]}]}]
+    Erlang/OTP 17 [erts-6.0] [64-bit] [smp:4:4]
+                  [async-threads:10] [kernel-poll:false]
+
+    Eshell V6.0  (abort with ^G)
+    1>
+\end{lstlisting}
+\vspace{1\baselineskip}
+

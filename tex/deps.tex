@@ -1,0 +1,65 @@
+\section{Dependencies}
+
+\subsection{OTP Compliant}
+
+mad supports app files inside ebin, priv static folder and c_src ports directories points.
+Specifically two kinds of directory layouts:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}[caption=Solution]
+    +-- apps
+    +-- deps
+    +-- rebar.config
+    +-- sys.config
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+\vspace{1\baselineskip}
+\begin{lstlisting}[caption=OTP Application]
+    +-- deps
+    +-- ebin
+    +-- include
+    +-- priv
+    +-- src
+    +-- rebar.config
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+\subsection{Application Depot}
+
+As you may know you can create OTP releases systools from sasl application.
+mad currently creates releases with systools, but manually manages binary access:
+from local erlang or public applcation depot.
+
+To bundle binary BEAM or LING along with synrc spplications MAD can use
+global repository statically avaliable at Github Pages:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+
+  $ curl -X GET http://synrc.com/apps/index.txt
+  [ {bin,[beam],     ["7.0.3"]},
+    {lib,[active],   ["0.9"]},
+    {lib,[compiler], ["6.0"]},
+    {lib,[cowboy],   ["1.0.1"]},
+    {lib,[cowlib],   ["1.0.0"]},
+    {lib,[crypto],   ["3.6"]},
+    {lib,[erlydtl],  ["0.8.0"]},
+    {lib,[fs],       ["1.9"]},
+    {lib,[gproc],    ["0.3"]},
+    {lib,[jsone],    ["v0.3.3"]},
+    {lib,[kernel],   ["4.0"]},
+    {lib,[stdlib],   ["2.5"]},
+    {lib,[kvs],      ["2.9"]},
+    {lib,[mad],      ["2.9"]},
+    {lib,[mnesia],   ["4.13"]},
+    {lib,[n2o],      ["2.10"]},
+    {lib,[nitro],    ["0.9"]},
+    {lib,[ranch],    ["1.0.0"]},
+    {lib,[rest],     ["2.9"]},
+    {lib,[review],   ["2.9"]},
+    {lib,[sh],       ["1.9"]},
+    {lib,[syntax_tools], ["1.7"]} ].
+
+\end{lstlisting}
+\vspace{1\baselineskip}

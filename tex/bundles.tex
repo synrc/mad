@@ -1,0 +1,155 @@
+\section{Container Bundles}
+
+\subsection{ESCRIPT Bundles}
+
+The key feature of mad is ability to create single-file bundled web sites.
+Thus making dream to boot simpler than node.js come true.
+This bundle target is ready to run on Windows, Linux and Mac.
+
+To make this possible we implemented a zip filesytem inside escript.
+mad packages priv directories along with ebin and configs.
+You can redefine each file in zip fs inside target
+escript by creation the copy with same path locally near escript.
+After launch all files are copied to ETS.
+N2O also comes with custom cowboy static handler that is able to
+read static files from this cached ETS filesystem.
+Also bundle are compatible with active online realoading and recompilation.
+
+E.g. you main create a single file site with:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    # mad bundle app_name
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+app\_name shoul be the same as a valid Erlang module, with app\_module:main/1
+function defined, which will boot up the bundle. This function could be like that:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+     -module(app_name).
+     main(Params) -> mad_repl:sh(Params).
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+\subsection{BEAM ERTS Releases}
+
+As you may know you can create OTP releases with
+reltool (rebar generate) or systools (relx). mad creates releases boot
+script with systools and pack tra by itself.
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    # mad release beam sample
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+\subsection{LING Unikernels}
+
+Sample rebar.config for your application you want to go unikernel:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    {deps_dir,"deps"}.
+    {deps, [{ling,"master"},{sh,"1.9"}]}.
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+Now you should build LING/posix:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    $ mad dep
+    $ cd deps/ling
+    $ ARCH=posix make
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+Now pack vmling.o, your OTP apps and rest static to single-file LING bundle with VM inside.
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    $ mad release ling mad
+    Ling Params: []
+    ARCH: posix_x86
+    Bundle Name: mad
+    System: [compiler,syntax_tools,sasl,tools,mnesia,reltool,xmerl,crypto,kernel,
+             stdlib,wx,webtool,ssl,runtime_tools,public_key,observer,inets,asn1,
+             et,eunit,hipe,os_mon]
+    Apps: [kernel,stdlib,sh,mad]
+    Overlay: ["crypto.beam","9p.beam","9p_auth.beam","9p_info.beam",
+              "9p_mounter.beam","9p_server.beam","9p_tcp.beam","9p_zero.beam",
+              "disk.beam","disk_server.beam","embedded_export.beam",
+              "goo_export.beam","goofs.beam","hipe_unified_loader.beam",
+              "inet_config.beam","kernel.beam","ling_bifs.beam","ling_code.beam",
+              "ling_disasm.beam","ling_iops.beam","ling_iopvars.beam",
+              "ling_lib.beam","net_vif.beam","os.beam","prim_file.beam",
+              "user_drv.beam","os_mon.beam","dets.beam","filename.beam",
+              "maps.beam","unicode.beam","zlib.beam"]
+    Bucks: [{boot,"/boot",2},
+            {os_mon,"/erlang/lib/os_mon/ebin",1},
+            {crypto,"/erlang/lib/crypto/ebin",1},
+            {kernel,"/erlang/lib/kernel/ebin",90},
+            {stdlib,"/erlang/lib/stdlib/ebin",85},
+            {sh,"/erlang/lib/sh/ebin",6},
+            {mad,"/erlang/lib/mad/ebin",43}]
+    Initializing EMBED.FS:
+    Mount View:
+     /boot /boot
+    /erlang/lib/os_mon/ebin /os_mon
+    /erlang/lib/crypto/ebin /crypto
+    /erlang/lib/kernel/ebin /kernel
+    /erlang/lib/stdlib/ebin /stdlib
+    /erlang/lib/sh/ebin /sh
+    /erlang/lib/mad/ebin /mad
+    Creating EMBED.FS C file: ...ok
+    Compilation of Filesystem object: ...ok
+    Linking Image: ok
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+Run it:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    $ rlwrap ./image.img
+    Erlang [ling-0.5]
+
+    Eshell V6.3  (abort with ^G)
+    1> application:which_applications().
+    [{mad,"MAD VXZ Build Tool","2.2"},
+     {sh,"VXZ SH Executor","0.9"},
+     {stdlib,"ERTS  CXC 138 10","2.2"},
+     {kernel,"ERTS  CXC 138 10","3.0.3"}]
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+\subsection{Docker-compatible RUNC Containers}
+
+Creating runc-complatible container is simple:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    # mad release runc sample
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+\subsection{Makefiles with OTP.MK}
+
+OTP.MK is a tiny 50 lines Makefile that allows to start your set
+of application using run\_erl and to\_erl tools from OTP distribution.
+We use that way in poduction. This is the best option also in
+development mode because all directory structure is open and mutable,
+so you can reload modified files and perform recompilation on the fly.
+
+It uses the original code to fast resolve dependencies into the right
+boot sequence to start. If you want more powerful Makefile-based erlang
+package management you may take a look onto ERLANG.MK by Nine Nines.
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    # make console
+\end{lstlisting}
+\vspace{1\baselineskip}
+

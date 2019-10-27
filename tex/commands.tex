@@ -1,0 +1,111 @@
+\section{Commands}
+
+Synrc mad has a simple interface as follows:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+  MAD Container Tool version b547fa
+
+      invoke = mad params
+      params = [] | command [ options  ] params
+     command = app     | deps  | clean | compile | up
+             | release [ beam  | ling  | script  | runc ]
+             | deploy  | start | stop  | attach  | sh
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+It seems to us more natural, you can specify random
+commands set with different specifiers (options).
+
+\subsection{deps, dep}
+
+In rebar-like managers we are selecting deps from rebar.config:
+\vspace{1\baselineskip}
+\begin{lstlisting}
+  {sub_dirs,["apps"]}.
+  {deps_dir,"deps"}.
+  {deps, [active,{nitro,"2.9"},{n2o,"2.9"}]}.
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+The search sequence for dependecies is follows. First mad will try to
+reach global package repository at \footahref{http://synrc.com/apps/index.txt}{http://synrc.com/apps/index.txt},
+this address is configurable. No application server is required for mad
+package management, only static files with OTP application format.
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+  {application,bpe,
+      [{description,"BPE SRC Business Process Engine"},
+       {vsn,"1.9"},
+       {registered,[]},
+       {applications,[kernel,stdlib,kvs,n2o]},
+       {dependencies,[kernel,stdlib,fs,ranch,crypto,mnesia,
+                      gproc,cowlib,kvs,cowboy,n2o,active,
+                      jsone,mad,nitro,sh,bpe]},
+       {mod,{bpe_app,[]}},
+       {env,[]},
+       {modules,[bpe,bpe_app,bpe_date,bpe_event,bpe_metainfo,bpe_proc,
+                 bpe_sup,bpe_task,default_railing,log_allow,routes,
+                 sampleproc,sampleproc_process]}]}.
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+If no file is found or server is unavailable then application registry will
+be taken from mad built-in index.txt. If no luck then the name of application,
+e.g. "spawnproc/rete" will be interpreted as github repository address.
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+   $ mad dep active n2o kvs ling "spawnproc/rete"
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+\subsection{compile, com}
+Performs compilation of all known compilations backends in complilation profile of mad:
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    app — app.src erlang templating
+    dtl — DTL compiler
+    erl — BEAM compiler
+    c/c++ — for gcc cland and other native compilation
+    script — .script file used in projects like gproc
+    yrl/xrl — DSL language parser compilers
+    upl — UPL compiler
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+\subsection{release, rel, bundle, bun}
+Taking all dependecies and resolve boot sequence according to dependecy order.
+Storing this value in .applist. If release type is not defined ({\bf beam} in following example),
+then {\bf script} release will be taken as a default.
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    $ mad release beam sample
+    Ordered: [kernel,stdlib,fs,ranch,crypto,compiler,syntax_tools,
+              gproc,cowlib,cowboy,n2o,sample,active,erlydtl,jsone,
+              mad,nitro,sh]
+    *WARNING* : Missing application sasl. Can not upgrade with this release
+    sample.boot: ok
+    OK:  "sample"
+
+    $ mad rel mad
+    Ordered: [kernel,stdlib,inets,sh,mad]
+    OK:  "mad"
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+MAD supports several releasing backends:
+
+\vspace{1\baselineskip}
+\begin{lstlisting}
+    script — script bundles, like mad itself
+    beam — ERTS releases with systools
+    ling — LING portable unikernels
+    runc — Docker-compatible containers
+\end{lstlisting}
+\vspace{1\baselineskip}
+
+\subsection{sh, repl, rep}
+
+Start REPL shell session.
