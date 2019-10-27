@@ -2,6 +2,8 @@
 -copyright('Sina Samavati').
 -compile(export_all).
 
+compile(App,_Path) -> compile(App).
+
 compile(Params) ->
     SysConfig = try {ok,[S]} = file:consult("sys.config"), S catch _:_ -> [] end,
     BERT = proplists:get_value(bert,SysConfig,[]),
