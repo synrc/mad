@@ -36,7 +36,6 @@ enroll(Crypto,Type,Name) when (Type == "server" orelse Type == "client" orelse T
                       andalso (Crypto == "rsa" orelse Crypto == "ecc") ->
     Pass = application:get_env(ca,passin,"pass:0"),
     application:start(inets),
-    X   = string:join(Name,"\\ "),
     Y   = string:join(Name," "),
     ok  = key(Crypto,Pass,Y),
     {ok, F} = file:read_file(cat(["cert/",Crypto,"/",Y,".csr"])),
@@ -53,19 +52,19 @@ dump(PEM,Y) ->
     io:format("CERT: ~s KEY: ~p~n",[Y,PKIInfo]).
 
 key("rsa",_,X) ->
-    {done,0,Bin}  = sh:run("openssl genrsa -out \"cert/rsa/"++ X ++ ".key\" 2048"),
-    {done,0,Bin2} = sh:run("openssl req -new -days 365 -key \"cert/rsa/"++ X ++".key\" -out \"cert/rsa/"++ X ++".csr\" "
+    {done,0,_}  = sh:run("openssl genrsa -out \"cert/rsa/"++ X ++ ".key\" 2048"),
+    {done,0,_} = sh:run("openssl req -new -days 365 -key \"cert/rsa/"++ X ++".key\" -out \"cert/rsa/"++ X ++".csr\" "
         " -subj \"/C=UA/ST=Kyiv/O=SYNRC/CN="++ X ++ "\""), ok;
 
 key("ecc",Pass,X) ->
     Pass = application:get_env(ca,passin,"pass:0"),
     {done,0,_}   = sh:run("openssl ecparam -name secp384r1 -out \"cert/ecc/"++X++".ecp\""),
     {done,0,_}   = sh:run("cp \"cert/ecc/"++X++".ecp\" key"),
-    {done,0,Bin} = sh:run("openssl req -config cert/ecc/synrc.cnf -passout " ++ Pass ++
+    {done,0,_} = sh:run("openssl req -config cert/ecc/synrc.cnf -passout " ++ Pass ++
         " -new -newkey ec:key -keyout \"cert/ecc/"++X++".key.enc\" -out \"cert/ecc/"++X++".csr\""
         " -subj \"/C=UA/ST=Kyiv/O=SYNRC/CN="++X++"\""),
     {done,0,_}    = sh:run("rm key"),
-    {done,0,Bin2} = sh:run("openssl ec -in \"cert/ecc/"++X++".key.enc\" -out \"cert/ecc/"++X++".key\" -passin "++Pass),
+    {done,0,_} = sh:run("openssl ec -in \"cert/ecc/"++X++".key.enc\" -out \"cert/ecc/"++X++".key\" -passin "++Pass),
     ok.
 
 cnf() ->
