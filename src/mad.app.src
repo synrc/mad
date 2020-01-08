@@ -1,6 +1,6 @@
 {application, mad,
  [{description, "MAD Manage Dependencies"},
-  {vsn, "5.10.0"},
+  {vsn, "7.1.1"},
   {registered, []},
   {applications, [kernel,stdlib,inets]},
   {env, []}]}.
