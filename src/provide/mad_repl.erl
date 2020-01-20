@@ -99,6 +99,13 @@ add_replace(_____,Name,Pos,List,New) -> lists:keyreplace(Name,Pos,List,New).
 
 cwd() -> case  file:get_cwd() of {ok, Cwd} -> Cwd; _ -> "." end.
 
+epmd({error,{{shutdown, {_,net_kernel,{'EXIT',nodistribution}}},_}}) ->
+ mad:info("Erlang Distribution failed, falling back to nonode@nohost. Verify that epmd is running and try again.",[]);
+epmd(_) -> ok.
+
+sh(["-sname", Name| Rest]) -> epmd(net_kernel:start([list_to_atom(Name), shortnames])),sh(Rest);
+sh(["-name" , Name| Rest]) -> epmd(net_kernel:start([list_to_atom(Name), longnames ])),sh(Rest);
+
 sh(Params) ->
     case mad_utils:configs() of
          {error,E} -> {error,E};
