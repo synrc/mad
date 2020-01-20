@@ -5,6 +5,7 @@
 -export([main/1]).
 
 main([])          -> halt(help());
+main(["sca"++_|P])-> mad_scafolding:tpl(P);
 main(Params)      ->
 
     % filter valid (atoms) from invalid (unparsed lists) commands
@@ -76,5 +77,6 @@ help()            -> info("MAD Manage Dependencies ~s~n",[?VERSION]),
                      info("   cmd = app [nitro|zero] <name> | deps | clean | compile | strip~n"),
                      info("       | bundle [beam|script] <name> | man <html|check|groff> | repl~n"),
                      info("       | start | stop | attach | static <min> | get <repo> | up [name]~n"),
-                     info("       | <rsa|ecc> [ ca | client <name> | server <name> ]~n"),
+                     info("       | scafolding tpl=<TplName> appid=<AppId> [VARS...]~n"),
+                     info("       | <rsa|ecc> [ ca | client <name> | server <name> ]~n"),                     
                      return(false).
