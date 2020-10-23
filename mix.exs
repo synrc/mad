@@ -28,7 +28,7 @@ defmodule MAD.Mixfile do
   def deps do
     [
       {:ex_doc, "~> 0.11", only: :dev},
-      {:exe, "~> 3.9.0"}
+      {:exe, "~> 4.1.1"}
     ]
   end
 end
