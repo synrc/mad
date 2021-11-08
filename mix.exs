@@ -4,7 +4,7 @@ defmodule MAD.Mixfile do
   def project do
     [
       app: :mad,
-      version: "7.1.1",
+      version: "7.11.0",
       description: "MAD Manage Dependencies",
       package: package(),
       deps: deps()
