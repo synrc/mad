@@ -1,6 +1,7 @@
 -module(mad_port).
 -copyright('Maxim Sokhatsky').
 -compile(export_all).
+-export([compile/2]).
 
 compile(Dir,Config) ->
   case mad_utils:get_value(port_specs, Config, []) of
